@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drivers Day 360 - Control Tower</title>
+   
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+   
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --spx-orange: #ee4d2d; --bg-dark: #0b0f19; --bg-panel: #151a23;
+            --border-dark: #2a313e; --text-main: #e2e8f0; --text-muted: #8b949e;
+            --veic-moto: #0ea5e9; --veic-passeio: #f59e0b; --veic-fiorino: #10b981;
+            --whatsapp: #25D366; --ocorrencia: #ef4444; --sucesso: #10b981;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: #333d4d; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--spx-orange); }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; }
+        .data-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: -0.5px; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        /* TELA DE LOGIN */
+        #login-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at center, #151a23 0%, #0b0f19 100%); display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease; }
+        .login-card { background: var(--bg-dark); border: 1px solid var(--border-dark); border-radius: 8px; width: 400px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center; }
+        .login-logo { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 5px; letter-spacing: -0.5px; }
+        .login-logo span { color: var(--spx-orange); }
+        .btn-google { background: #fff; color: #333; font-weight: 600; width: 100%; padding: 12px; border-radius: 4px; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; margin-top: 20px; }
+        .btn-google:hover { background: #f1f1f1; }
+        .btn-action { background: var(--spx-orange); color: white; font-weight: 600; padding: 10px; width: 100%; border-radius: 4px; border: none; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; }
+        .btn-action:hover { background: #d74226; }
+        .login-error { background: rgba(220, 53, 69, 0.1); border: 1px solid #dc3545; color: #dc3545; padding: 10px; border-radius: 4px; font-size: 0.8rem; margin-top: 15px; display: none; text-align: left; }
+
+        /* TOPBAR E MENUS */
+        #app-screen { display: none; height: 100vh; flex-direction: column; }
+        .topbar { background: #06080d; border-bottom: 1px solid var(--border-dark); height: 45px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .logo-sys { font-weight: 700; color: var(--text-main); font-size: 0.85rem; letter-spacing: 1px; }
+        .logo-sys span { color: var(--spx-orange); font-size: 0.75rem; }
+        .header-controls { display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+        .lbl-base-logada { background: rgba(255,255,255,0.05); border: 1px solid var(--border-dark); padding: 4px 12px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; color: var(--spx-orange); display: none; }
+        .base-selector-top { background: transparent; border: 1px solid var(--border-dark); color: var(--text-main); font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; outline: none; cursor: pointer; display: none; }
+        .base-selector-top option { background-color: var(--bg-panel); color: #fff; }
+        .base-selector-top:focus { border-color: var(--spx-orange); }
+        .role-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
+        .role-admin { background: rgba(238, 77, 45, 0.2); color: var(--spx-orange); border: 1px solid rgba(238, 77, 45, 0.3); }
+        .role-analista { background: rgba(14, 165, 233, 0.2); color: var(--veic-moto); border: 1px solid rgba(14, 165, 233, 0.3); }
+
+        .workspace { display: flex; height: calc(100vh - 45px); width: 100vw; }
+        .sidebar-slim { width: 60px; background: #06080d; border-right: 1px solid var(--border-dark); display: flex; flex-direction: column; align-items: center; padding-top: 15px; z-index: 10; }
+        .nav-icon { width: 40px; height: 40px; border-radius: 6px; display: flex; justify-content: center; align-items: center; color: var(--text-muted); text-decoration: none; margin-bottom: 10px; transition: 0.2s; font-size: 1rem; cursor: pointer; }
+        .nav-icon:hover, .nav-icon.active { background: var(--border-dark); color: var(--spx-orange); }
+        .app-view { display: none; flex-grow: 1; flex-direction: column; background: var(--bg-dark); overflow: hidden; width: 100%; }
+        .app-view.active { display: flex; }
+        .view-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+
+        /* DASHBOARD MULTI-BASES */
+        .dashboard-container { padding: 20px; overflow-y: auto; flex-grow: 1; }
+        .base-dash-card { background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 8px; padding: 15px; height: 100%; display: flex; flex-direction: column; }
+        .base-dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 10px; margin-bottom: 15px; font-weight: 700; color: #fff; font-size: 0.85rem; text-transform: uppercase; }
+        .metric-box { text-align: center; background: rgba(255,255,255,0.02); border-radius: 6px; padding: 10px; flex: 1; border: 1px solid var(--border-dark); }
+        .metric-label { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; }
+        .metric-val { font-size: 1.5rem; font-weight: 700; color: #fff; line-height: 1.2; }
+        .reincidente-box { background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 6px; padding: 8px; margin-top: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .reincidente-name { font-size: 0.7rem; color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+        .reincidente-badge { font-size: 0.6rem; font-weight: 700; color: var(--ocorrencia); background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius: 4px; }
+
+        /* RELATÓRIO GERAL (GRID DE LINHAS) */
+        .filter-bar { display: flex; gap: 15px; padding: 15px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border-dark); align-items: center; flex-wrap: wrap; }
+        .filter-group { display: flex; align-items: center; gap: 8px; }
+        .filter-group label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin: 0; }
+        .filter-select { background: #0b0f19; border: 1px solid var(--border-dark); color: #fff; font-size: 0.8rem; border-radius: 4px; padding: 6px 12px; outline: none; }
+        .filter-select:focus { border-color: var(--spx-orange); }
+       
+        .report-list-container { padding: 20px; overflow-y: auto; flex-grow: 1; }
+        .report-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg-panel); border: 1px solid var(--border-dark); padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; transition: 0.2s; }
+        .report-row:hover { border-color: #475569; background: #1a2233; }
+       
+        .row-col-perfil { display: flex; align-items: center; gap: 15px; width: 250px; }
+        .row-avatar { width: 35px; height: 35px; background: var(--bg-dark); border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 1rem; color: #fff; border: 1px solid var(--border-dark); }
+        .row-nome { font-size: 0.85rem; font-weight: 600; color: #fff; margin-bottom: 2px; }
+        .row-id { font-size: 0.7rem; color: var(--text-muted); }
+       
+        .row-col-base { width: 200px; display: flex; flex-direction: column; }
+        .row-col-data { width: 120px; display: flex; flex-direction: column; }
+        .row-col-status { width: 150px; display: flex; align-items: center; justify-content: flex-end; }
+        .row-col-actions { width: 50px; display: flex; justify-content: flex-end; }
+
+        .row-label { font-size: 0.6rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 2px; }
+        .row-value { font-size: 0.8rem; font-weight: 500; color: #cbd5e1; }
+       
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
+        .status-agendado { background: rgba(245, 158, 11, 0.1); color: var(--veic-passeio); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-rota { background: rgba(16, 185, 129, 0.1); color: var(--sucesso); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-ocorrencia { background: rgba(239, 68, 68, 0.1); color: var(--ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        /* CALENDÁRIO */
+        .calendar-wrapper { display: flex; flex-grow: 1; overflow: hidden; width: 100%; }
+        .calendar-container { flex-grow: 1; padding: 15px; overflow-y: auto; }
+        #calendar { min-height: 650px; }
+        .fc-theme-standard td, .fc-theme-standard th, .fc-theme-standard .fc-scrollgrid { border-color: var(--border-dark) !important; }
+        .fc .fc-toolbar-title { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
+        .fc .fc-button-primary { background: var(--bg-panel); border-color: var(--border-dark); color: var(--text-main); font-size: 0.75rem; padding: 4px 8px; }
+        .fc .fc-button-primary:hover { background: var(--border-dark); color: white; border-color: var(--border-dark); }
+        .fc-day-today { background-color: rgba(238, 77, 45, 0.05) !important; }
+        .fc-daygrid-day-number { color: var(--text-muted); font-size: 0.75rem; padding: 4px; }
+        .fc-daygrid-day:hover { background-color: #121721; cursor: pointer; }
+        .fc-day-active { background-color: rgba(255,255,255,0.03) !important; box-shadow: inset 0 0 0 1px var(--spx-orange); }
+
+        .fc-event { border: none !important; background: transparent !important; margin: 2px !important; }
+        .card-start { padding: 4px 6px; border-radius: 4px; background: #1a2233; border-left: 3px solid; margin-bottom: 2px; }
+        .card-start.veic-moto { border-color: var(--veic-moto); }
+        .card-start.veic-passeio { border-color: var(--veic-passeio); }
+        .card-start.veic-fiorino { border-color: var(--veic-fiorino); }
+        .c-nome { font-size: 0.6rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60px; }
+        .c-cluster { font-size: 0.5rem; color: #000; background: #94a3b8; padding: 0 4px; border-radius: 2px; font-weight: 700; }
+       
+        .card-start.ocorrencia { background: rgba(239, 68, 68, 0.15); border-left: 3px solid var(--ocorrencia); border-right: 1px solid var(--ocorrencia); border-top: 1px solid var(--ocorrencia); border-bottom: 1px solid var(--ocorrencia); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+        .card-start.ocorrencia .c-nome { color: var(--ocorrencia); font-weight: 700; }
+        .card-start.ocorrencia .c-cluster { background: var(--ocorrencia); color: #fff; }
+        .card-start.em-rota { background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--sucesso); }
+        .card-start.em-rota .c-nome { color: var(--sucesso); font-weight: 700; }
+
+        /* INSPETOR */
+        .day-inspector { width: 350px; background: var(--bg-panel); border-left: 1px solid var(--border-dark); display: flex; flex-direction: column; transition: 0.3s; flex-shrink: 0; }
+        .inspector-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); flex-shrink: 0; }
+        .inspector-body { flex-grow: 1; padding: 15px 20px; overflow-y: auto; }
+       
+        .driver-item { background: #0b0f19; border: 1px solid var(--border-dark); border-radius: 6px; padding: 8px; margin-bottom: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+        .driver-item.has-ocorrencia { border-color: var(--ocorrencia); background: rgba(239, 68, 68, 0.05); }
+        .driver-item.has-sucesso { border-color: rgba(16, 185, 129, 0.4); border-left: 3px solid var(--sucesso); }
+        .icon-veiculo { width: 28px; height: 28px; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; color: #fff; flex-shrink: 0; }
+        .bg-moto { background: rgba(14, 165, 233, 0.2); color: var(--veic-moto); border: 1px solid rgba(14, 165, 233, 0.3); }
+        .bg-passeio { background: rgba(245, 158, 11, 0.2); color: var(--veic-passeio); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .bg-fiorino { background: rgba(16, 185, 129, 0.2); color: var(--veic-fiorino); border: 1px solid rgba(16, 185, 129, 0.3); }
+       
+        .d-info { flex-grow: 1; overflow: hidden; }
+        .d-nome { font-size: 0.75rem; font-weight: 600; color: #fff; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .btn-acao-lista { width: 26px; height: 26px; border-radius: 4px; border: 1px solid transparent; display: flex; justify-content: center; align-items: center; font-size: 0.75rem; cursor: pointer; text-decoration: none; }
+       
+        .btn-wpp { background: rgba(37, 211, 102, 0.1); color: var(--whatsapp); border-color: rgba(37, 211, 102, 0.2); }
+        .btn-wpp:hover { background: var(--whatsapp); color: #fff; }
+        .btn-ocorrencia { background: transparent; color: var(--text-muted); }
+        .btn-ocorrencia:hover { background: rgba(239, 68, 68, 0.1); color: var(--ocorrencia); }
+        .btn-reagendar { background: rgba(245, 158, 11, 0.1); color: var(--veic-passeio); border-color: rgba(245, 158, 11, 0.3); width: auto; padding: 0 10px; font-weight: 600; }
+        .btn-reagendar:hover { background: var(--veic-passeio); color: #fff; }
+        .badge-em-rota { background: rgba(16, 185, 129, 0.1); color: var(--sucesso); border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; display: inline-block; }
+
+        .painel-ocorrencia { width: 100%; margin-top: 5px; padding: 8px; background: rgba(239, 68, 68, 0.1); border: 1px dashed rgba(239, 68, 68, 0.3); border-radius: 4px; font-size: 0.65rem; color: #fca5a5; }
+
+        /* MODAIS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 10000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-box { background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 12px; width: 450px; padding: 25px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: translateY(-20px); transition: 0.3s ease; }
+        .modal-overlay.active .modal-box { transform: translateY(0); }
+        .modal-box-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 15px; margin-bottom: 15px; }
+        .modal-title { font-size: 0.9rem; font-weight: 700; color: #fff; text-transform: uppercase; }
+        .btn-close-modal { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        .btn-close-modal:hover { color: var(--spx-orange); }
+
+        .form-dark .form-label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
+        .form-dark .form-control, .form-dark .form-select { background: #0b0f19; border: 1px solid var(--border-dark); color: #fff; font-size: 0.85rem; border-radius: 6px; padding: 8px 12px; }
+        .form-dark .form-select option { background: var(--bg-panel); color: #fff; }
+        .form-dark .form-control:focus, .form-dark .form-select:focus { border-color: var(--spx-orange); box-shadow: none; outline: none; }
+        .modal-footer-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-cancel { background: transparent; color: var(--text-muted); border: 1px solid var(--border-dark); font-weight: 600; padding: 10px; border-radius: 4px; flex: 1; transition: 0.2s; font-size: 0.8rem; text-transform: uppercase; }
+        .btn-cancel:hover { background: var(--bg-dark); color: #fff; }
+        .btn-danger-action { background: var(--ocorrencia); color: white; font-weight: 600; padding: 10px; width: 100%; border-radius: 4px; border: none; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; flex: 2;}
+        .btn-danger-action:hover { background: #b91c1c; }
+    </style>
+</head>
+<body>
+
+    <!-- GATEKEEPER -->
+    <div id="login-screen">
+        <div class="login-card">
+            <div class="login-logo">DRIVERS DAY 360</div>
+            <div class="text-muted small mb-4 data-mono">Autenticação Corporativa (SSO)</div>
+           
+            <div id="step-auth">
+                <p class="text-muted" style="font-size: 0.85rem;">Insira admin@shopee.com para testar visão total, ou joao@shopee.com para visão de Analista.</p>
+                <button class="btn-google shadow-sm" onclick="simularGoogleLogin()">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="18" alt="Google">
+                    Entrar com Workspace
+                </button>
+                <div id="ui-error" class="login-error"></div>
+            </div>
+
+            <div id="step-base" style="display: none; text-align: left;" class="form-dark">
+                <div class="alert alert-success p-2 small text-center" style="background: rgba(16, 185, 129, 0.1); color: var(--veic-fiorino); border: 1px solid var(--veic-fiorino);">
+                    <i class="fa-solid fa-check-circle me-1"></i> Analista Autenticado.
+                </div>
+                <label class="form-label mt-3">SELECIONE SUA BASE OPERACIONAL</label>
+                <select class="form-select mb-4" id="loginBaseSelector">
+                    <option value="LMG-48 Uberaba">LMG-48 - Uberaba</option>
+                    <option value="UDI Uberlândia">UDI - Uberlândia</option>
+                    <option value="LMG-39 Patos de Minas">LMG-39 - Patos de Minas</option>
+                    <option value="LMG-36 Divinópolis">LMG-36 - Divinópolis</option>
+                    <option value="LMG-27 Lagoa da Prata">LMG-27 - Lagoa da Prata</option>
+                    <option value="LMG-44 Varginha">LMG-44 - Varginha</option>
+                    <option value="LMG-19 Extrema">LMG-19 - Extrema</option>
+                </select>
+                <button class="btn-action" onclick="iniciarSessaoAnalista()"><i class="fa-solid fa-satellite-dish me-2"></i> Iniciar Operação</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APLICAÇÃO PRINCIPAL -->
+    <div id="app-screen">
+        <header class="topbar">
+            <div class="logo-sys">DRIVERS DAY 360 <span>// AGENDAS</span></div>
+            <div class="header-controls">
+                <select class="base-selector-top" id="adminBaseSelector" onchange="trocarBaseAtiva(this.value)">
+                    <option value="LMG-48 Uberaba">📍 LMG-48 - Uberaba</option>
+                    <option value="UDI Uberlândia">📍 UDI - Uberlândia</option>
+                    <option value="LMG-39 Patos de Minas">📍 LMG-39 - Patos de Minas</option>
+                    <option value="LMG-36 Divinópolis">📍 LMG-36 - Divinópolis</option>
+                    <option value="LMG-27 Lagoa da Prata">📍 LMG-27 - Lagoa da Prata</option>
+                    <option value="LMG-44 Varginha">📍 LMG-44 - Varginha</option>
+                    <option value="LMG-19 Extrema">📍 LMG-19 - Extrema</option>
+                </select>
+                <div class="lbl-base-logada" id="visorBaseLogada">MG04 - Base</div>
+                <div id="badgeRole" class="role-badge"></div>
+                <button class="btn btn-sm btn-outline-success border-0 py-0 ms-2" title="Sincronizar Cloud Functions" onclick="simularCloudFunctionIntegracao()" id="btnSync">
+                    <i class="fa-solid fa-rotate"></i> Sync
+                </button>
+            </div>
+            <div class="data-mono text-muted d-flex align-items-center">
+                <span id="visorEmailLogado">usuario@shopee.com</span>
+                <i class="fa-solid fa-power-off ms-3 text-danger fs-6" style="cursor:pointer;" onclick="location.reload()" title="Desconectar"></i>
+            </div>
+        </header>
+
+        <div class="workspace">
+            <nav class="sidebar-slim">
+                <a class="nav-icon active" id="nav-calendar" title="Agenda Tática (Starts)" onclick="switchView('calendar', this)"><i class="fa-solid fa-calendar-days"></i></a>
+                <a class="nav-icon" id="nav-dashboard" title="Controle de Bases (Cards)" onclick="switchView('dashboard', this)"><i class="fa-solid fa-layer-group"></i></a>
+                <a class="nav-icon" id="nav-report" title="Relatório Global (Em Linhas)" onclick="switchView('report', this)"><i class="fa-solid fa-list-check"></i></a>
+            </nav>
+
+            <!-- VIEW 1: CALENDÁRIO -->
+            <main class="app-view active" id="view-calendar">
+                <div class="view-header">
+                    <div style="font-size: 0.75rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-calendar-week text-muted me-2"></i> GRADE DE STARTS (SINERGIA DE UTILITÁRIOS)</div>
+                    <div class="d-flex gap-3" style="font-size: 0.65rem; font-weight: 600; text-transform: uppercase;">
+                        <span style="color: var(--veic-moto);"><i class="fa-solid fa-motorcycle"></i> Moto</span>
+                        <span style="color: var(--veic-passeio);"><i class="fa-solid fa-car"></i> Passeio</span>
+                        <span style="color: var(--veic-fiorino);"><i class="fa-solid fa-van-shuttle"></i> Fiorino</span>
+                        <span style="color: var(--ocorrencia); border-left: 1px solid var(--border-dark); padding-left: 10px;"><i class="fa-solid fa-triangle-exclamation"></i> Ocorrência</span>
+                        <span style="color: var(--sucesso); border-left: 1px solid var(--border-dark); padding-left: 10px;"><i class="fa-solid fa-circle-check"></i> Em Rota</span>
+                    </div>
+                </div>
+               
+                <div class="calendar-wrapper">
+                    <div class="calendar-container">
+                        <div id="calendar"></div>
+                    </div>
+                    <aside class="day-inspector" id="dayInspector">
+                        <div class="inspector-header">
+                            <div class="text-muted" style="font-size: 0.6rem; font-weight: 700; text-transform: uppercase;">Dia Selecionado</div>
+                            <div id="lblDiaSelecionado" style="font-size: 1rem; font-weight: 700; color: #fff;">Nenhum dia selecionado</div>
+                            <div class="data-mono mt-1 text-muted" id="lblCountStarts">Selecione uma data na grade.</div>
+                        </div>
+                        <div class="inspector-body" id="listaDrivers">
+                            <div class="text-center text-muted mt-5 pt-4" style="font-size: 0.75rem;"><i class="fa-solid fa-hand-pointer fs-4 mb-2"></i><br>Clique em um dia no calendário.</div>
+                        </div>
+                    </aside>
+                </div>
+            </main>
+
+            <!-- VIEW 2: DASHBOARD MULTI-BASES -->
+            <main class="app-view" id="view-dashboard">
+                <div class="view-header">
+                    <div style="font-size: 0.8rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-layer-group text-muted me-2"></i> PAINEL DE CONTROLE DAS BASES (MG04)</div>
+                </div>
+                <div class="dashboard-container" id="dashboard-cards-container">
+                    <!-- Gerado pelo JS -->
+                </div>
+            </main>
+
+            <!-- VIEW 3: RELATÓRIO GERAL (GRID DE LINHAS) -->
+            <main class="app-view" id="view-report">
+                <div class="view-header">
+                    <div style="font-size: 0.8rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-list-check text-muted me-2"></i> RELATÓRIO GLOBAL DE DRIVERS</div>
+                    <span class="badge bg-primary" id="lblTotalReport">0 Registros</span>
+                </div>
+               
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Base Operacional:</label>
+                        <select class="filter-select" id="filtroBase" onchange="renderizarRelatorioEmLinhas()">
+                            <option value="all">Todas as Bases</option>
+                            <option value="LMG-48 Uberaba">LMG-48 Uberaba</option>
+                            <option value="UDI Uberlândia">UDI Uberlândia</option>
+                            <option value="LMG-39 Patos de Minas">LMG-39 Patos</option>
+                            <option value="LMG-36 Divinópolis">LMG-36 Divinópolis</option>
+                            <option value="LMG-27 Lagoa da Prata">LMG-27 Lagoa da Prata</option>
+                            <option value="LMG-44 Varginha">LMG-44 Varginha</option>
+                            <option value="LMG-19 Extrema">LMG-19 Extrema</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Status:</label>
+                        <select class="filter-select" id="filtroStatus" onchange="renderizarRelatorioEmLinhas()">
+                            <option value="all">Todos</option>
+                            <option value="em_rota">Em Rota (Confirmados)</option>
+                            <option value="agendado">Aguardando Start</option>
+                            <option value="ocorrencia">Com Ocorrência</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Ordenação:</label>
+                        <select class="filter-select" id="filtroOrdem" onchange="renderizarRelatorioEmLinhas()">
+                            <option value="date_desc">Data (Mais recentes)</option>
+                            <option value="date_asc">Data (Mais antigos)</option>
+                            <option value="az">Ordem Alfabética (A-Z)</option>
+                            <option value="za">Ordem Alfabética (Z-A)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="report-list-container" id="reportRowsContainer">
+                    <!-- Linhas injetadas pelo JS -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL DE AGENDAMENTO / REAGENDAMENTO -->
+    <div id="modalCadastro" class="modal-overlay">
+        <div class="modal-box form-dark">
+            <div class="modal-box-header">
+                <div class="modal-title" id="tituloModalCadastro"><i class="fa-solid fa-user-plus me-2 text-primary"></i> Agendar Driver <span class="text-muted text-lowercase" style="font-size:0.6rem;" id="lblModalBase"></span></div>
+                <button class="btn-close-modal" onclick="fecharModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="formStart">
+                <input type="hidden" id="inputModoEdicao" value="">
+               
+                <div class="mb-3" id="boxNovaData" style="display: none;">
+                    <label class="form-label text-warning"><i class="fa-regular fa-calendar me-1"></i> NOVA DATA DO START</label>
+                    <input type="date" class="form-control" id="inputNovaData">
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-5"><label class="form-label">ID DRIVER</label><input type="number" class="form-control data-mono" id="inputId" required></div>
+                    <div class="col-7"><label class="form-label">CLUSTER ALVO</label><input type="text" class="form-control text-uppercase" id="inputCluster" required></div>
+                </div>
+                <div class="mb-3"><label class="form-label">NOME COMPLETO</label><input type="text" class="form-control" id="inputNome" required></div>
+                <div class="row g-3 mb-2">
+                    <div class="col-7"><label class="form-label">WHATSAPP (DDD+Nº)</label><input type="text" class="form-control data-mono" id="inputTelefone" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required></div>
+                    <div class="col-5"><label class="form-label">VEÍCULO</label><select class="form-select" id="inputVeiculo" required><option value="moto">Moto</option><option value="passeio">Passeio</option><option value="fiorino">Fiorino</option></select></div>
+                </div>
+                <div class="modal-footer-actions">
+                    <button type="button" class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+                    <button type="submit" class="btn-action" style="flex: 2;"><i class="fa-solid fa-check me-2"></i> Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE OCORRÊNCIA -->
+    <div id="modalOcorrencia" class="modal-overlay">
+        <div class="modal-box form-dark" style="width: 400px; border-color: var(--ocorrencia);">
+            <div class="modal-box-header" style="border-bottom-color: rgba(239, 68, 68, 0.2);">
+                <div class="modal-title" style="color: var(--ocorrencia);"><i class="fa-solid fa-triangle-exclamation me-2"></i> Registrar Ocorrência</div>
+                <button class="btn-close-modal" onclick="fecharModalOcorrencia()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="formOcorrencia">
+                <input type="hidden" id="inputIdOcorrencia">
+                <p class="text-muted" style="font-size: 0.8rem;">Justifique o motivo pelo qual o motorista não conseguirá realizar o start operacional nesta data.</p>
+                <div class="mb-3">
+                    <label class="form-label">JUSTIFICATIVA / DETALHES</label>
+                    <textarea class="form-control" id="inputJustificativa" rows="3" required placeholder="Ex: Problema mecânico no veículo..."></textarea>
+                </div>
+                <div class="modal-footer-actions">
+                    <button type="button" class="btn-cancel" onclick="fecharModalOcorrencia()">Cancelar</button>
+                    <button type="submit" class="btn-danger-action"><i class="fa-solid fa-flag me-2"></i> Confirmar Ocorrência</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================================== -->
+    <!-- MOTOR DE BACK-END: FIREBASE REALTIME DATABASE (SDK Modular v10.14.0)           -->
+    <!-- ============================================================================== -->
+    <script type="module">
+        // Importa os métodos oficiais do Firebase Modular
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+        import { getDatabase, ref, onValue, push, set, update } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+
+        // Configuração Oficial da sua base de dados
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWoaxC02mZNqeFgDQZBVRxAavVReDJ74M",
+            authDomain: "driverday27-edd8c.firebaseapp.com",
+            databaseURL: "https://driverday27-edd8c-default-rtdb.firebaseio.com",
+            projectId: "driverday27-edd8c",
+            storageBucket: "driverday27-edd8c.firebasestorage.app",
+            messagingSenderId: "534903138386",
+            appId: "1:534903138386:web:13932c768a9bd4bc1f178b"
+        };
+
+        // Inicializa o Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const agendamentosRef = ref(db, 'agendamentos');
+
+        // Estado Global da Aplicação
+        window.sessaoAtual = { email: '', role: '', baseAtiva: 'LMG-48 Uberaba' };
+        window.dataVisualizadaNoInspetor = '';
+        window.baseAgendamentos = [];
+
+        // ========================================================
+        // ESCUTA REATIVA DO FIREBASE (ONVALUE)
+        // Substitui o LocalStorage. Quando os dados mudam no Firebase, a tela atualiza na hora.
+        // ========================================================
+        onValue(agendamentosRef, (snapshot) => {
+            window.baseAgendamentos = [];
+            snapshot.forEach((childSnapshot) => {
+                const ag = childSnapshot.val();
+                ag.id = childSnapshot.key; // Salva o ID real do Firebase
+                window.baseAgendamentos.push(ag);
+            });
+           
+            // Recarrega as views na tela se o usuário já estiver logado
+            if(document.getElementById('app-screen').style.display === 'flex') {
+                window.recarregarEventosNoCalendario();
+                if(window.sessaoAtual.role === 'admin') {
+                    window.renderizarDashboardCards();
+                    window.renderizarRelatorioEmLinhas();
+                }
+                if(window.dataVisualizadaNoInspetor) {
+                    window.abrirInspetorDeDia(window.dataVisualizadaNoInspetor);
+                }
+            }
+        });
+
+        // ========================================================
+        // GATEKEEPER (LOGIN)
+        // ========================================================
+        window.simularGoogleLogin = function() {
+            const email = prompt("AMBIENTE DE TESTE FIREBASE:\n- admin@shopee.com (Admin)\n- joao@shopee.com (Analista)");
+            const errorElement = document.getElementById('ui-error');
+            if(email === null || email.trim() === "") return;
+
+            if (email === 'admin@shopee.com') {
+                window.sessaoAtual.email = email; window.sessaoAtual.role = 'admin';
+                window.sessaoAtual.baseAtiva = document.getElementById('adminBaseSelector').value;
+                window.iniciarSessao(true);
+            } else if (email.endsWith('@shopee.com') || email.endsWith('@shopee.com.br')) {
+                window.sessaoAtual.email = email; window.sessaoAtual.role = 'analista';
+                errorElement.style.display = 'none';
+                document.getElementById('step-auth').style.display = 'none';
+                document.getElementById('step-base').style.display = 'block';
+            } else {
+                errorElement.style.display = 'block';
+                errorElement.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i> <strong>Acesso Negado.</strong>`;
+            }
+        }
+
+        window.iniciarSessaoAnalista = function() {
+            window.sessaoAtual.baseAtiva = document.getElementById('loginBaseSelector').value;
+            window.iniciarSessao(false);
+        }
+
+        window.iniciarSessao = function(isAdmin) {
+            document.getElementById('visorEmailLogado').innerText = window.sessaoAtual.email;
+            const badge = document.getElementById('badgeRole');
+           
+            if(isAdmin) {
+                badge.className = 'role-badge role-admin'; badge.innerText = 'Administrador';
+                document.getElementById('adminBaseSelector').style.display = 'block';
+                document.getElementById('visorBaseLogada').style.display = 'none';
+                document.getElementById('nav-dashboard').style.display = 'flex';
+                document.getElementById('nav-report').style.display = 'flex';
+                document.getElementById('btnSync').style.display = 'inline-block';
+            } else {
+                badge.className = 'role-badge role-analista'; badge.innerText = 'Analista';
+                document.getElementById('adminBaseSelector').style.display = 'none';
+                document.getElementById('visorBaseLogada').innerText = window.sessaoAtual.baseAtiva;
+                document.getElementById('visorBaseLogada').style.display = 'block';
+                document.getElementById('nav-dashboard').style.display = 'none';
+                document.getElementById('nav-report').style.display = 'none';
+                document.getElementById('btnSync').style.display = 'none';
+            }
+
+            window.switchView('calendar', document.getElementById('nav-calendar'));
+
+            document.getElementById('login-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'flex';
+               
+                window.simularCloudFunctionIntegracao();
+               
+                if(window.meuCalendario) { window.meuCalendario.render(); window.recarregarEventosNoCalendario(); }
+                if(isAdmin) {
+                    window.renderizarDashboardCards();
+                    window.renderizarRelatorioEmLinhas();
+                }
+            }, 500);
+        }
+
+        // ========================================================
+        // CONTROLES DE NAVEGAÇÃO SPA E UI
+        // ========================================================
+        window.trocarBaseAtiva = function(novaBase) {
+            window.sessaoAtual.baseAtiva = novaBase;
+            window.recarregarEventosNoCalendario();
+            document.getElementById('listaDrivers').innerHTML = `<div class="text-center text-muted mt-5 pt-4" style="font-size: 0.75rem;"><i class="fa-solid fa-rotate fs-4 mb-2"></i><br>Base alterada. Clique em um dia.</div>`;
+            document.getElementById('lblDiaSelecionado').innerText = 'Nenhum dia selecionado'; document.getElementById('lblCountStarts').innerText = '';
+        }
+
+        window.switchView = function(viewId, elementoClicado) {
+            document.querySelectorAll('.nav-icon').forEach(el => el.classList.remove('active')); elementoClicado.classList.add('active');
+            document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active')); document.getElementById('view-' + viewId).classList.add('active');
+           
+            if (window.sessaoAtual.role === 'admin') {
+                if (viewId === 'dashboard' || viewId === 'report') {
+                    document.getElementById('adminBaseSelector').style.display = 'none';
+                    document.getElementById('visorBaseLogada').innerText = "VISÃO GLOBAL (MG04)";
+                    document.getElementById('visorBaseLogada').style.display = 'block';
+                } else {
+                    document.getElementById('adminBaseSelector').style.display = 'block';
+                    document.getElementById('visorBaseLogada').style.display = 'none';
+                }
+            }
+
+            if (viewId === 'calendar' && window.meuCalendario) { setTimeout(() => window.meuCalendario.render(), 100); }
+            if (viewId === 'dashboard') { window.renderizarDashboardCards(); }
+            if (viewId === 'report') { window.renderizarRelatorioEmLinhas(); }
+        }
+
+        // ========================================================
+        // RENDERIZAÇÃO: RELATÓRIO GERAL E DASHBOARD
+        // ========================================================
+        window.renderizarRelatorioEmLinhas = function() {
+            let dadosFiltrados = [...window.baseAgendamentos];
+           
+            const filterBase = document.getElementById('filtroBase').value;
+            const filterStatus = document.getElementById('filtroStatus').value;
+            const filterSort = document.getElementById('filtroOrdem').value;
+
+            if (filterBase !== 'all') dadosFiltrados = dadosFiltrados.filter(d => d.base_alocada === filterBase);
+            if (filterStatus !== 'all') dadosFiltrados = dadosFiltrados.filter(d => d.status === filterStatus);
+
+            if (filterSort === 'az') dadosFiltrados.sort((a, b) => a.nome.localeCompare(b.nome));
+            else if (filterSort === 'za') dadosFiltrados.sort((a, b) => b.nome.localeCompare(a.nome));
+            else if (filterSort === 'date_desc') dadosFiltrados.sort((a, b) => new Date(b.data) - new Date(a.data));
+            else if (filterSort === 'date_asc') dadosFiltrados.sort((a, b) => new Date(a.data) - new Date(b.data));
+
+            document.getElementById('lblTotalReport').innerText = `${dadosFiltrados.length} Registros`;
+            let htmlRows = '';
+           
+            if(dadosFiltrados.length === 0) {
+                htmlRows = `<div class="text-center text-muted mt-5 pt-5"><i class="fa-solid fa-filter-circle-xmark fs-2 mb-3"></i><br>Nenhum motorista atende aos filtros selecionados.</div>`;
+            } else {
+                dadosFiltrados.forEach(d => {
+                    const dataFormatada = d.data.split('-').reverse().join('/');
+                    let statusBadge = d.status === 'em_rota' ? `<span class="status-badge status-rota"><i class="fa-solid fa-circle-check"></i> Em Rota</span>` :
+                                      d.status === 'ocorrencia' ? `<span class="status-badge status-ocorrencia"><i class="fa-solid fa-triangle-exclamation"></i> Ocorrência</span>` :
+                                      `<span class="status-badge status-agendado"><i class="fa-solid fa-clock"></i> Agendado</span>`;
+
+                    let veicIcon = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
+                    htmlRows += `
+                        <div class="report-row">
+                            <div class="row-col-perfil">
+                                <div class="row-avatar"><i class="fa-solid ${veicIcon}"></i></div>
+                                <div><div class="row-nome">${d.nome}</div><div class="row-id">ID: ${d.driver_id}</div></div>
+                            </div>
+                            <div class="row-col-base"><div class="row-label">Base / Cluster</div><div class="row-value">${d.base_alocada.replace(/LMG-\d+\s|UDI\s/, '')} <span class="text-muted">(${d.cluster})</span></div></div>
+                            <div class="row-col-data"><div class="row-label">Data Agendada</div><div class="row-value data-mono">${dataFormatada}</div></div>
+                            <div class="row-col-status">${statusBadge}</div>
+                            <div class="row-col-actions"><a href="https://wa.me/55${d.telefone}" target="_blank" class="btn-acao-lista btn-wpp" title="Contatar Driver"><i class="fa-brands fa-whatsapp"></i></a></div>
+                        </div>`;
+                });
+            }
+            document.getElementById('reportRowsContainer').innerHTML = htmlRows;
+        }
+
+        window.renderizarDashboardCards = function() {
+            const bases = ['LMG-48 Uberaba', 'UDI Uberlândia', 'LMG-39 Patos de Minas', 'LMG-36 Divinópolis', 'LMG-27 Lagoa da Prata', 'LMG-44 Varginha', 'LMG-19 Extrema'];
+            let htmlCards = '<div class="row g-3">';
+
+            bases.forEach(base => {
+                const driversDaBase = window.baseAgendamentos.filter(ag => ag.base_alocada === base);
+                if(driversDaBase.length === 0) return;
+
+                const totalStarts = driversDaBase.length;
+                const totalOcorrencias = driversDaBase.filter(d => d.status === 'ocorrencia').length;
+                const reincidentes = driversDaBase.filter(d => (d.reagendamentos || 0) > 0).sort((a,b) => b.reagendamentos - a.reagendamentos);
+
+                let reincidentesHTML = '';
+                if(reincidentes.length > 0) {
+                    reincidentes.forEach(r => {
+                        reincidentesHTML += `<div class="reincidente-box"><div class="reincidente-name" title="${r.nome}">${r.nome} (ID:${r.driver_id})</div><div class="reincidente-badge">${r.reagendamentos}x falhas</div></div>`;
+                    });
+                } else {
+                    reincidentesHTML = `<div class="text-muted small mt-2"><i class="fa-solid fa-check text-success me-1"></i> Nenhum motorista reincidente.</div>`;
+                }
+
+                htmlCards += `
+                <div class="col-md-4">
+                    <div class="base-dash-card border-top border-primary border-3 shadow-sm">
+                        <div class="base-dash-header">
+                            <span><i class="fa-solid fa-map-pin text-primary me-2"></i> ${base.replace(/LMG-\d+\s|UDI\s/, '')}</span>
+                            <span class="badge bg-dark">Ativos</span>
+                        </div>
+                        <div class="d-flex gap-2 mb-3">
+                            <div class="metric-box"><div class="metric-label">AGENDADOS / ROTA</div><div class="metric-val text-primary">${totalStarts}</div></div>
+                            <div class="metric-box"><div class="metric-label">OCORRÊNCIAS</div><div class="metric-val text-danger">${totalOcorrencias}</div></div>
+                        </div>
+                        <div class="text-warning mt-1" style="font-size: 0.65rem; font-weight: 700; border-bottom: 1px solid var(--border-dark); padding-bottom: 5px;"><i class="fa-solid fa-triangle-exclamation me-1"></i> TRACKING DE REAGENDAMENTOS</div>
+                        <div style="max-height: 120px; overflow-y: auto; padding-top: 5px;">${reincidentesHTML}</div>
+                    </div>
+                </div>`;
+            });
+            htmlCards += '</div>';
+            document.getElementById('dashboard-cards-container').innerHTML = htmlCards;
+        }
+
+        // ========================================================
+        // MODAIS E SUBMISSÕES FIREBASE (SET / UPDATE / PUSH)
+        // ========================================================
+        const modalPadrao = document.getElementById('modalCadastro');
+        const modalOcorrencia = document.getElementById('modalOcorrencia');
+
+        window.abrirModalCadastro = function() {
+            document.getElementById('tituloModalCadastro').innerHTML = `<i class="fa-solid fa-user-plus me-2 text-primary"></i> Agendar Driver <span class="text-muted text-lowercase" style="font-size:0.6rem;">(Base: ${window.sessaoAtual.baseAtiva})</span>`;
+            document.getElementById('boxNovaData').style.display = 'none';
+            document.getElementById('inputNovaData').removeAttribute('required');
+            document.getElementById('inputModoEdicao').value = '';
+            document.getElementById('inputId').readOnly = false;
+            modalPadrao.classList.add('active');
+            document.getElementById('inputId').focus();
+        }
+       
+        window.fecharModal = function() { modalPadrao.classList.remove('active'); document.getElementById('formStart').reset(); }
+
+        window.abrirModalReagendamento = function(idDriver) {
+            const driver = window.baseAgendamentos.find(d => d.id === idDriver);
+            if(!driver) return;
+            document.getElementById('tituloModalCadastro').innerHTML = `<i class="fa-solid fa-calendar-day me-2 text-warning"></i> Reagendar Driver`;
+            document.getElementById('inputModoEdicao').value = driver.id;
+            document.getElementById('boxNovaData').style.display = 'block';
+            document.getElementById('inputNovaData').setAttribute('required', 'true');
+            document.getElementById('inputId').value = driver.driver_id;
+            document.getElementById('inputId').readOnly = true;
+            document.getElementById('inputCluster').value = driver.cluster;
+            document.getElementById('inputNome').value = driver.nome;
+            document.getElementById('inputTelefone').value = driver.telefone;
+            document.getElementById('inputVeiculo').value = driver.veiculo;
+            modalPadrao.classList.add('active');
+        }
+
+        window.abrirModalOcorrencia = function(idDriver) {
+            document.getElementById('inputIdOcorrencia').value = idDriver;
+            modalOcorrencia.classList.add('active');
+            document.getElementById('inputJustificativa').focus();
+        }
+        window.fecharModalOcorrencia = function() { modalOcorrencia.classList.remove('active'); document.getElementById('formOcorrencia').reset(); }
+       
+        document.addEventListener('keydown', function(event) { if (event.key === "Escape") { window.fecharModal(); window.fecharModalOcorrencia(); } });
+
+        // SALVAR NOVO OU REAGENDAR NO FIREBASE REALTIME DB
+        document.getElementById('formStart').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const idEdicao = document.getElementById('inputModoEdicao').value;
+           
+            const payload = {
+                driver_id: document.getElementById('inputId').value,
+                nome: document.getElementById('inputNome').value,
+                cluster: document.getElementById('inputCluster').value,
+                veiculo: document.getElementById('inputVeiculo').value,
+                telefone: document.getElementById('inputTelefone').value.replace(/\D/g, ''),
+                status: 'agendado',
+                justificativa: ''
+            };
+
+            if(idEdicao) {
+                // UPDATE (Reagendamento)
+                const driverAntigo = window.baseAgendamentos.find(d => d.id === idEdicao);
+                payload.data = document.getElementById('inputNovaData').value;
+                payload.reagendamentos = (driverAntigo.reagendamentos || 0) + 1;
+               
+                await update(ref(db, 'agendamentos/' + idEdicao), payload);
+            } else {
+                // PUSH (Novo Cadastro)
+                payload.data = window.dataVisualizadaNoInspetor;
+                payload.base_alocada = window.sessaoAtual.baseAtiva;
+                payload.reagendamentos = 0;
+               
+                await push(ref(db, 'agendamentos'), payload);
+            }
+           
+            window.fecharModal();
+            window.simularCloudFunctionIntegracao(); // Checa back-end logo após salvar
+        });
+
+        // SALVAR OCORRÊNCIA NO FIREBASE
+        document.getElementById('formOcorrencia').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const idDriver = document.getElementById('inputIdOcorrencia').value;
+            const justificativa = document.getElementById('inputJustificativa').value;
+           
+            await update(ref(db, 'agendamentos/' + idDriver), {
+                status: 'ocorrencia',
+                justificativa: justificativa
+            });
+
+            window.fecharModalOcorrencia();
+        });
+
+        // ========================================================
+        // CALENDÁRIO & INSPETOR (Lendo Variável Global)
+        // ========================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            window.meuCalendario = new FullCalendar.Calendar(calendarEl, {
+                locale: 'pt-br', initialView: 'dayGridMonth', headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+                dayMaxEvents: 4, contentHeight: 'auto',
+               
+                eventContent: function(arg) {
+                    const dados = arg.event.extendedProps;
+                    let icon = dados.veiculo === 'moto' ? '<i class="fa-solid fa-motorcycle"></i>' : dados.veiculo === 'passeio' ? '<i class="fa-solid fa-car"></i>' : '<i class="fa-solid fa-van-shuttle"></i>';
+                    let classeAdicional = dados.status === 'ocorrencia' ? 'ocorrencia' : dados.status === 'em_rota' ? 'em-rota' : '';
+                    let iconeStatus = dados.status === 'ocorrencia' ? '<i class="fa-solid fa-triangle-exclamation ms-1"></i>' : dados.status === 'em_rota' ? '<i class="fa-solid fa-circle-check ms-1" style="color: var(--sucesso);"></i>' : '';
+                    let justificativaHtml = (dados.status === 'ocorrencia' && dados.justificativa) ? `<div style="font-size: 0.5rem; color: #fca5a5; margin-top: 3px; padding-top: 3px; border-top: 1px dashed rgba(239, 68, 68, 0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">Obs: ${dados.justificativa}</div>` : '';
+
+                    return { html: `
+                        <div class="card-start veic-${dados.veiculo} ${classeAdicional}" style="display: flex; flex-direction: column;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                <div class="d-flex align-items-center gap-1">
+                                    <span style="font-size: 0.55rem; color: var(--veic-${dados.veiculo})">${icon}</span>
+                                    <span class="c-nome">${arg.event.title} ${iconeStatus}</span>
+                                </div>
+                                <span class="c-cluster">${dados.cluster}</span>
+                            </div>
+                            ${justificativaHtml}
+                        </div>`
+                    };
+                },
+                dateClick: function(info) {
+                    window.abrirInspetorDeDia(info.dateStr);
+                    document.querySelectorAll('.fc-daygrid-day').forEach(el => el.classList.remove('fc-day-active'));
+                    info.dayEl.classList.add('fc-day-active');
+                }
+            });
+        });
+
+        window.recarregarEventosNoCalendario = function() {
+            if(!window.meuCalendario) return;
+            window.meuCalendario.removeAllEvents();
+            const driversDaBase = window.baseAgendamentos.filter(ag => ag.base_alocada === window.sessaoAtual.baseAtiva);
+            driversDaBase.forEach(ag => {
+                window.meuCalendario.addEvent({
+                    title: ag.nome, start: ag.data, allDay: true,
+                    extendedProps: { driver_id: ag.driver_id, cluster: ag.cluster, veiculo: ag.veiculo, telefone: ag.telefone, status: ag.status, justificativa: ag.justificativa }
+                });
+            });
+        }
+
+        window.abrirInspetorDeDia = function(dataStr) {
+            window.dataVisualizadaNoInspetor = dataStr;
+            const dataFormatada = dataStr.split('-').reverse().join('/');
+            document.getElementById('lblDiaSelecionado').innerText = dataFormatada;
+           
+            const driversDoDia = window.baseAgendamentos.filter(a => a.data === dataStr && a.base_alocada === window.sessaoAtual.baseAtiva);
+            document.getElementById('lblCountStarts').innerText = `Total de Agendados: ${driversDoDia.length}`;
+           
+            let htmlLista = '';
+            if(window.sessaoAtual.role === 'admin') {
+                htmlLista += `<button class="btn-action w-100 mb-3 shadow-sm" onclick="abrirModalCadastro()"><i class="fa-solid fa-plus me-2"></i> AGENDAR DRIVER</button>`;
+            }
+           
+            if(driversDoDia.length === 0) {
+                htmlLista += `<div class="text-center text-muted data-mono mt-4">Nenhum start programado na base ${window.sessaoAtual.baseAtiva}.</div>`;
+            } else {
+                driversDoDia.sort((a, b) => a.nome.localeCompare(b.nome));
+                driversDoDia.forEach(d => {
+                    let isOcorrencia = d.status === 'ocorrencia';
+                    let isEmRota = d.status === 'em_rota';
+                    let iconClass = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
+                    const linkWpp = `https://wa.me/55${d.telefone}?text=${encodeURIComponent(`Bom dia, tudo bem? Passando para confirmar o agendamento da sua primeira rota no dia ${dataFormatada}.`)}`;
+                   
+                    let botoesHTML = `<a href="${linkWpp}" target="_blank" class="btn-acao-lista btn-wpp" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>`;
+                   
+                    if(window.sessaoAtual.role === 'analista' && !isOcorrencia && !isEmRota) {
+                        botoesHTML += `<button class="btn-acao-lista btn-ocorrencia" onclick="abrirModalOcorrencia('${d.id}')" title="Registrar Ocorrência"><i class="fa-solid fa-flag"></i></button>`;
+                    }
+                    if(window.sessaoAtual.role === 'admin' && isOcorrencia) {
+                        botoesHTML += `<button class="btn-acao-lista btn-reagendar" onclick="abrirModalReagendamento('${d.id}')" title="Reagendar Start"><i class="fa-solid fa-calendar-day me-1"></i> Reagendar</button>`;
+                    }
+
+                    let htmlJustificativa = isOcorrencia ? `<div class="painel-ocorrencia"><i class="fa-solid fa-circle-info me-1"></i> <strong>OCORRÊNCIA:</strong> ${d.justificativa}</div>` : '';
+                    let htmlEmRota = isEmRota ? `<div class="mt-2"><span class="badge-em-rota"><i class="fa-solid fa-circle-check"></i> EM ROTA (VERIFICADO)</span></div>` : '';
+
+                    htmlLista += `
+                        <div class="driver-item ${isOcorrencia ? 'has-ocorrencia' : ''} ${isEmRota ? 'has-sucesso' : ''}">
+                            <div class="icon-veiculo bg-${d.veiculo}"><i class="fa-solid ${iconClass}"></i></div>
+                            <div class="d-info">
+                                <div class="d-nome" title="${d.nome}">${d.nome}</div>
+                                <div class="data-mono text-muted">ID:${d.driver_id} | ${d.cluster.toUpperCase()}</div>
+                                ${htmlEmRota}
+                            </div>
+                            <div class="acoes-driver">${botoesHTML}</div>
+                            ${htmlJustificativa}
+                        </div>`;
+                });
+            }
+            document.getElementById('listaDrivers').innerHTML = htmlLista;
+        }
+
+        // SIMULADOR DE CHECAGEM EXTERNA
+        const bancosOperacionaisLMG = { "LMG-48 Uberaba": ["1001"], "UDI Uberlândia": ["2001"] };
+        window.simularCloudFunctionIntegracao = function() {
+            const btn = document.getElementById('btnSync');
+            if(btn) btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sync...`;
+           
+            setTimeout(() => {
+                window.baseAgendamentos.forEach(async ag => {
+                    if (ag.status === 'agendado') {
+                        const driversQueRodaramHoje = bancosOperacionaisLMG[ag.base_alocada] || [];
+                        if (driversQueRodaramHoje.includes(ag.driver_id)) {
+                            // Se encontrar no banco da LMG, atualiza no Firebase Realtime DB
+                            await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
+                        }
+                    }
+                });
+                if(btn) btn.innerHTML = `<i class="fa-solid fa-rotate"></i> Sync`;
+            }, 800);
+        }
+
+    </script>
+</body>
+</html>
