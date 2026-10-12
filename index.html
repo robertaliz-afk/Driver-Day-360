@@ -36,7 +36,7 @@
         input[type=number] { -moz-appearance: textfield; }
 
         /* ========================================================
-           TELA DE LOGIN BLINDADA CONTRA TELA PRETA
+           TELA DE LOGIN
            ======================================================== */
         #login-screen {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -126,7 +126,7 @@
         .btn-action:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
         /* ========================================================
-           APLICAÇÃO PRINCIPAL: TOPBAR E MENUS
+           APLICAÇÃO: TOPBAR E MENUS
            ======================================================== */
         #app-screen { display: none; height: 100vh; flex-direction: column; }
         .topbar { background: #06080d; border-bottom: 1px solid var(--border-dark); height: 45px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
@@ -150,7 +150,7 @@
         .app-view.active { display: flex; }
         .view-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
 
-        /* COMPONENTES COMPARTILHADOS */
+        /* DASHBOARD & COMPONENTES */
         .filter-bar { display: flex; gap: 15px; padding: 15px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border-dark); align-items: center; flex-wrap: wrap; }
         .filter-group { display: flex; align-items: center; gap: 8px; }
         .filter-group label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin: 0; }
@@ -165,6 +165,7 @@
         .metric-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 5px; }
         .metric-val { font-size: 2rem; font-weight: 800; color: #fff; line-height: 1; }
 
+        /* RELATÓRIO GERAL (GRID DE LINHAS) */
         .report-list-container { padding: 20px; overflow-y: auto; flex-grow: 1; }
         .report-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg-panel); border: 1px solid var(--border-dark); padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; transition: 0.2s; }
         .report-row:hover { border-color: #475569; background: #1a2233; }
@@ -200,7 +201,7 @@
 
         .fc-event { border: none !important; background: transparent !important; margin: 2px !important; }
         .fc-daygrid-event-harness { margin: 2px 0 !important; }
-        .card-start { padding: 4px 6px; border-radius: 4px; background: #1a2233; border-left: 3px solid; margin-bottom: 2px; color: #fff; } /* Adicionado color: #fff para garantir visibilidade */
+        .card-start { padding: 4px 6px; border-radius: 4px; background: #1a2233; border-left: 3px solid; margin-bottom: 2px; color: #fff; }
         .card-start.veic-moto { border-color: var(--veic-moto); }
         .card-start.veic-passeio { border-color: var(--veic-passeio); }
         .card-start.veic-fiorino { border-color: var(--veic-fiorino); }
@@ -235,12 +236,10 @@
         .btn-ocorrencia:hover { background: var(--ocorrencia); color: #fff; }
         .btn-reagendar { background: rgba(245, 158, 11, 0.1); color: var(--veic-passeio); border-color: rgba(245, 158, 11, 0.3); width: auto; padding: 0 10px; font-weight: 600; }
         .btn-reagendar:hover { background: var(--veic-passeio); color: #fff; }
-       
-        /* Botão de excluir */
         .btn-excluir { background: rgba(239, 68, 68, 0.1); color: var(--ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); }
         .btn-excluir:hover { background: var(--ocorrencia); color: #fff; }
-
         .badge-em-rota { background: rgba(16, 185, 129, 0.1); color: var(--sucesso); border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; display: inline-block; }
+
         .painel-ocorrencia { width: 100%; margin-top: 5px; padding: 8px; background: rgba(239, 68, 68, 0.1); border: 1px dashed rgba(239, 68, 68, 0.3); border-radius: 4px; font-size: 0.65rem; color: #fca5a5; }
 
         /* MODAIS */
@@ -252,6 +251,7 @@
         .modal-title { font-size: 0.9rem; font-weight: 700; color: #fff; text-transform: uppercase; }
         .btn-close-modal { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
         .btn-close-modal:hover { color: var(--spx-orange); }
+
         .form-dark .form-label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
         .form-dark .form-control, .form-dark .form-select { background: #0b0f19; border: 1px solid var(--border-dark); color: #fff; font-size: 0.85rem; border-radius: 6px; padding: 8px 12px; }
         .form-dark .form-select option { background: var(--bg-panel); color: #fff; }
@@ -265,9 +265,6 @@
 </head>
 <body>
 
-    <!-- ========================================================
-         LOGIN BLINDADO: IMAGEM NO FUNDO E BOTÃO GIGANTE
-         ======================================================== -->
     <div id="login-screen">
         <div class="fallback-text">DRIVERS DAY 360<br><span style="font-size:1rem; font-weight:400;">Se a imagem falhou, você ainda pode logar clicando aqui pelo centro.</span></div>
         <div id="step-auth" style="width: 100%; height: 100%;">
@@ -289,7 +286,6 @@
         </div>
     </div>
 
-    <!-- APLICAÇÃO PRINCIPAL -->
     <div id="app-screen">
         <header class="topbar">
             <div class="logo-sys">DRIVERS DAY 360 <span>// AGENDAS</span></div>
@@ -351,7 +347,6 @@
                 </div>
             </main>
 
-            <!-- VIEW 2: DASHBOARD GERENCIAL -->
             <main class="app-view" id="view-dashboard">
                 <div class="view-header">
                     <div style="font-size: 0.8rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-chart-pie text-muted me-2"></i> INTELIGÊNCIA OPERACIONAL (DASHBOARD)</div>
@@ -430,7 +425,6 @@
                 </div>
             </main>
 
-            <!-- VIEW 3: RELATÓRIO GERAL -->
             <main class="app-view" id="view-report">
                 <div class="view-header">
                     <div style="font-size: 0.8rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-list-check text-muted me-2"></i> RELATÓRIO GLOBAL DE DRIVERS</div>
@@ -473,7 +467,6 @@
                 <div class="report-list-container" id="reportRowsContainer"></div>
             </main>
 
-            <!-- VIEW 4: GESTÃO DE ACESSOS (SÓ GESTOR VÊ) -->
             <main class="app-view" id="view-users">
                 <div class="view-header">
                     <div style="font-size: 0.8rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-users-gear text-muted me-2"></i> GESTÃO DE ACESSOS E PERFIS</div>
@@ -484,7 +477,7 @@
         </div>
     </div>
 
-    <!-- MODAIS DE CADASTRO -->
+    <!-- MODAIS DE CADASTRO E OCORRÊNCIA -->
     <div id="modalCadastro" class="modal-overlay">
         <div class="modal-box form-dark">
             <div class="modal-box-header">
@@ -516,7 +509,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE OCORRÊNCIA INTELIGENTE (ATUALIZADO COM OS MOTIVOS CORRETOS) -->
     <div id="modalOcorrencia" class="modal-overlay">
         <div class="modal-box form-dark" style="width: 400px; border-color: var(--ocorrencia);">
             <div class="modal-box-header" style="border-bottom-color: rgba(239, 68, 68, 0.2);">
@@ -549,7 +541,6 @@
     <!-- SCRIPT FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        // Importando a função "remove" para o botão de deletar
         import { getDatabase, ref, onValue, push, update, set, get, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
@@ -623,12 +614,15 @@
                 get(ref(db, `usuarios/${user.uid}`)).then((snapshot) => {
                     let role = 'analista';
 
+                    // TRAVA RAIZ: Estes e-mails são Gestores e ponto final. Ignora se houver "analista" no banco.
                     if (email === 'roberta.liz@shopee.com' || email === 'roberta.lis@shopee.com' || email === 'david.amaral@shopee.com') {
                         role = 'gestor';
                         set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'gestor' });
                     } else if (snapshot.exists()) {
+                        // Se o analista já logou antes ou se você (Gestor) promoveu ele no painel, pega a info do banco:
                         role = snapshot.val().role;
                     } else {
+                        // Se é login inédito de alguém novo (e não é o David/Roberta), entra como analista.
                         set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'analista' });
                     }
 
@@ -670,7 +664,7 @@
         }
 
         // ========================================================
-        // 3. INICIAÇÃO DO SISTEMA
+        // 3. INICIAÇÃO DO SISTEMA E TROCA DE TELAS
         // ========================================================
         window.iniciarSessaoAnalista = function() {
             window.sessaoAtual.baseAtiva = document.getElementById('loginBaseSelector').value;
@@ -782,7 +776,7 @@
         }
 
         // ========================================================
-        // 4. RENDERIZAÇÃO: DASHBOARD GERENCIAL SÊNIOR
+        // 4. DASHBOARD GERENCIAL SÊNIOR
         // ========================================================
         window.renderizarDashboardCompleto = function() {
             if(!document.getElementById('chartBasesDash')) return;
@@ -875,7 +869,7 @@
         }
 
         // ========================================================
-        // 5. RENDERIZAÇÃO DE USUÁRIOS E RELATÓRIO GLOBAL
+        // 5. RENDERIZAÇÃO DE USUÁRIOS (AÇÃO DO GESTOR) E RELATÓRIO
         // ========================================================
         window.renderizarUsuarios = function() {
             let html = '<div class="row g-3">';
@@ -952,7 +946,7 @@
         }
 
         // ========================================================
-        // 6. MOTOR NUVEM E CALENDÁRIO
+        // 6. MOTOR NUVEM E INSPETOR DE DIAS (CALENDÁRIO)
         // ========================================================
         const bancosOperacionaisLMG = {
             "LMG-48 Uberaba": ["1001", "8824"],
@@ -975,14 +969,6 @@
             });
         }
 
-        window.recarregarEventosNoCalendario = function() {
-            if(!window.meuCalendario) return;
-            window.meuCalendario.removeAllEvents();
-            window.baseAgendamentos.filter(ag => ag.base_alocada === window.sessaoAtual.baseAtiva).forEach(ag => {
-                window.meuCalendario.addEvent({ title: ag.nome, start: ag.data, allDay: true, extendedProps: { driver_id: ag.driver_id, cluster: ag.cluster, veiculo: ag.veiculo, telefone: ag.telefone, status: ag.status, justificativa: ag.justificativa } });
-            });
-        }
-
         window.abrirInspetorDeDia = function(dataStr) {
             window.dataVisualizadaNoInspetor = dataStr;
             document.getElementById('lblDiaSelecionado').innerText = dataStr.split('-').reverse().join('/');
@@ -999,19 +985,16 @@
                     let iconClass = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
                     let botoesHTML = `<a href="https://wa.me/55${d.telefone}" target="_blank" class="btn-acao-lista btn-wpp"><i class="fa-brands fa-whatsapp"></i></a>`;
                    
-                    // Removido o bloqueio para gestores, agora Analistas e Gestores veem o botão de Ocorrência!
                     if(!isOcorrencia && !isEmRota) {
                         botoesHTML += `<button class="btn-acao-lista btn-ocorrencia" title="Registrar Ocorrência" onclick="window.abrirModalOcorrencia('${d.id}')"><i class="fa-solid fa-flag"></i></button>`;
                     }
-                   
                     if(window.sessaoAtual.role === 'gestor' && isOcorrencia) {
                         botoesHTML += `<button class="btn-acao-lista btn-reagendar" title="Reagendar Driver" onclick="window.abrirModalReagendamento('${d.id}')"><i class="fa-solid fa-calendar-day"></i></button>`;
                     }
 
-                    // NOVO BOTÃO: LIXEIRA (Excluir Cadastro Errôneo)
                     botoesHTML += `<button class="btn-acao-lista btn-excluir" title="Excluir Agendamento" onclick="window.excluirAgendamento('${d.id}')"><i class="fa-solid fa-trash"></i></button>`;
 
-                    let htmlJustificativa = isOcorrencia ? `<div class="painel-ocorrencia"><i class="fa-solid fa-circle-info me-1"></i> <strong>OCORRÊNCIA:</strong> ${d.justificativa}</div>` : '';
+                    let htmlJustificativa = isOcorrencia ? `<div class="painel-ocorrencia"><i class="fa-solid fa-circle-info me-1"></i> <strong>OCORRência:</strong> ${d.justificativa}</div>` : '';
                     let htmlEmRota = isEmRota ? `<div class="mt-2"><span class="badge-em-rota"><i class="fa-solid fa-circle-check"></i> EM ROTA (VERIFICADO)</span></div>` : '';
 
                     htmlLista += `<div class="driver-item ${isOcorrencia ? 'has-ocorrencia' : ''} ${isEmRota ? 'has-sucesso' : ''}"><div class="icon-veiculo bg-${d.veiculo}"><i class="fa-solid ${iconClass}"></i></div><div class="d-info"><div class="d-nome" title="${d.nome}">${d.nome}</div><div class="data-mono text-muted">ID:${d.driver_id} | ${d.cluster.toUpperCase()}</div>${htmlEmRota}</div><div class="acoes-driver">${botoesHTML}</div>${htmlJustificativa}</div>`;
@@ -1020,7 +1003,6 @@
             document.getElementById('listaDrivers').innerHTML = htmlLista;
         }
 
-        // FUNÇÃO DELETAR AGENDAMENTO
         window.excluirAgendamento = async function(id) {
             if(confirm("ATENÇÃO: Deseja excluir este agendamento? Esta ação não pode ser desfeita.")) {
                 await remove(ref(db, 'agendamentos/' + id));
@@ -1028,7 +1010,7 @@
         }
 
         // ========================================================
-        // 7. MODAIS
+        // 7. MODAIS DE CADASTRO E OCORRÊNCIA
         // ========================================================
         const modalPadrao = document.getElementById('modalCadastro');
         const modalOcorrencia = document.getElementById('modalOcorrencia');
