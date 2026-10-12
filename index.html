@@ -40,8 +40,8 @@
            ======================================================== */
         #login-screen {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: var(--bg-dark); /* Cor de fundo caso a imagem falhe */
-            background-image: url('login.jpg'); /* Sua imagem */
+            background-color: var(--bg-dark);
+            background-image: url('login.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -49,7 +49,6 @@
             z-index: 9999; transition: opacity 0.5s ease;
         }
 
-        /* TEXTO DE EMERGÊNCIA: Só aparece se a imagem login.jpg não carregar */
         .fallback-text {
             position: absolute;
             color: rgba(255,255,255,0.2);
@@ -60,15 +59,14 @@
             pointer-events: none;
         }
 
-        /* O BOTÃO INVISÍVEL GIGANTE PARA NÃO TER ERRO DE CLIQUE */
         .invisible-btn {
             position: absolute;
-            top: 65%; /* Fica posicionado mais para a metade inferior da tela */
+            top: 65%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 50vw; /* 50% da largura da tela */
+            width: 50vw;
             max-width: 600px;
-            height: 15vh; /* 15% da altura da tela */
+            height: 15vh;
             min-height: 100px;
             background: transparent;
             border: none;
@@ -152,7 +150,7 @@
         .app-view.active { display: flex; }
         .view-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
 
-        /* COMPONENTES COMPARTILHADOS (FILTROS E CARDS) */
+        /* COMPONENTES COMPARTILHADOS */
         .filter-bar { display: flex; gap: 15px; padding: 15px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border-dark); align-items: center; flex-wrap: wrap; }
         .filter-group { display: flex; align-items: center; gap: 8px; }
         .filter-group label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin: 0; }
@@ -167,7 +165,6 @@
         .metric-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 5px; }
         .metric-val { font-size: 2rem; font-weight: 800; color: #fff; line-height: 1; }
 
-        /* RELATÓRIO GERAL (GRID DE LINHAS) */
         .report-list-container { padding: 20px; overflow-y: auto; flex-grow: 1; }
         .report-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg-panel); border: 1px solid var(--border-dark); padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; transition: 0.2s; }
         .report-row:hover { border-color: #475569; background: #1a2233; }
@@ -203,7 +200,7 @@
 
         .fc-event { border: none !important; background: transparent !important; margin: 2px !important; }
         .fc-daygrid-event-harness { margin: 2px 0 !important; }
-        .card-start { padding: 4px 6px; border-radius: 4px; background: #1a2233; border-left: 3px solid; margin-bottom: 2px; }
+        .card-start { padding: 4px 6px; border-radius: 4px; background: #1a2233; border-left: 3px solid; margin-bottom: 2px; color: #fff; } /* Adicionado color: #fff para garantir visibilidade */
         .card-start.veic-moto { border-color: var(--veic-moto); }
         .card-start.veic-passeio { border-color: var(--veic-passeio); }
         .card-start.veic-fiorino { border-color: var(--veic-fiorino); }
@@ -230,16 +227,20 @@
        
         .d-info { flex-grow: 1; overflow: hidden; }
         .d-nome { font-size: 0.75rem; font-weight: 600; color: #fff; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .btn-acao-lista { width: 26px; height: 26px; border-radius: 4px; border: 1px solid transparent; display: flex; justify-content: center; align-items: center; font-size: 0.75rem; cursor: pointer; text-decoration: none; }
+        .btn-acao-lista { width: 26px; height: 26px; border-radius: 4px; border: 1px solid transparent; display: flex; justify-content: center; align-items: center; font-size: 0.75rem; cursor: pointer; text-decoration: none; transition: 0.2s; }
        
         .btn-wpp { background: rgba(37, 211, 102, 0.1); color: var(--whatsapp); border-color: rgba(37, 211, 102, 0.2); }
         .btn-wpp:hover { background: var(--whatsapp); color: #fff; }
-        .btn-ocorrencia { background: transparent; color: var(--text-muted); }
-        .btn-ocorrencia:hover { background: rgba(239, 68, 68, 0.1); color: var(--ocorrencia); }
+        .btn-ocorrencia { background: rgba(239, 68, 68, 0.05); color: var(--ocorrencia); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .btn-ocorrencia:hover { background: var(--ocorrencia); color: #fff; }
         .btn-reagendar { background: rgba(245, 158, 11, 0.1); color: var(--veic-passeio); border-color: rgba(245, 158, 11, 0.3); width: auto; padding: 0 10px; font-weight: 600; }
         .btn-reagendar:hover { background: var(--veic-passeio); color: #fff; }
-        .badge-em-rota { background: rgba(16, 185, 129, 0.1); color: var(--sucesso); border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; display: inline-block; }
+       
+        /* Botão de excluir */
+        .btn-excluir { background: rgba(239, 68, 68, 0.1); color: var(--ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-excluir:hover { background: var(--ocorrencia); color: #fff; }
 
+        .badge-em-rota { background: rgba(16, 185, 129, 0.1); color: var(--sucesso); border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; display: inline-block; }
         .painel-ocorrencia { width: 100%; margin-top: 5px; padding: 8px; background: rgba(239, 68, 68, 0.1); border: 1px dashed rgba(239, 68, 68, 0.3); border-radius: 4px; font-size: 0.65rem; color: #fca5a5; }
 
         /* MODAIS */
@@ -251,7 +252,6 @@
         .modal-title { font-size: 0.9rem; font-weight: 700; color: #fff; text-transform: uppercase; }
         .btn-close-modal { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
         .btn-close-modal:hover { color: var(--spx-orange); }
-
         .form-dark .form-label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
         .form-dark .form-control, .form-dark .form-select { background: #0b0f19; border: 1px solid var(--border-dark); color: #fff; font-size: 0.85rem; border-radius: 6px; padding: 8px 12px; }
         .form-dark .form-select option { background: var(--bg-panel); color: #fff; }
@@ -270,14 +270,10 @@
          ======================================================== -->
     <div id="login-screen">
         <div class="fallback-text">DRIVERS DAY 360<br><span style="font-size:1rem; font-weight:400;">Se a imagem falhou, você ainda pode logar clicando aqui pelo centro.</span></div>
-       
         <div id="step-auth" style="width: 100%; height: 100%;">
-            <!-- BOTÃO GIGANTE: Cobre quase toda a área inferior da tela -->
             <button class="invisible-btn" onclick="window.simularGoogleLogin()" title="Fazer login com o Google"></button>
             <div id="ui-error" class="login-error"></div>
         </div>
-
-        <!-- Popup Base (Analistas) -->
         <div id="step-base" class="form-dark base-selector-card">
             <label class="form-label text-center d-block w-100 mb-3" style="color: #fff;">SELECIONE SUA BASE</label>
             <select class="form-select mb-4" id="loginBaseSelector">
@@ -326,7 +322,10 @@
 
             <main class="app-view active" id="view-calendar">
                 <div class="view-header">
-                    <div style="font-size: 0.75rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-calendar-week text-muted me-2"></i> GRADE DE STARTS (SINERGIA DE UTILITÁRIOS)</div>
+                    <div style="font-size: 0.75rem; font-weight: 600; color: #fff; display: flex; align-items: center;">
+                        <i class="fa-solid fa-calendar-week text-muted me-2"></i> GRADE DE STARTS
+                        <span id="dynamicBaseHeader" style="margin-left: 15px; color: var(--spx-orange); font-size: 0.8rem; background: rgba(238, 77, 45, 0.1); padding: 3px 10px; border-radius: 4px; border: 1px solid rgba(238, 77, 45, 0.3); text-transform: uppercase;"></span>
+                    </div>
                     <div class="d-flex gap-3" style="font-size: 0.65rem; font-weight: 600; text-transform: uppercase;">
                         <span style="color: var(--veic-moto);"><i class="fa-solid fa-motorcycle"></i> Moto</span>
                         <span style="color: var(--veic-passeio);"><i class="fa-solid fa-car"></i> Passeio</span>
@@ -431,7 +430,7 @@
                 </div>
             </main>
 
-            <!-- VIEW 3: RELATÓRIO GERAL (LINHAS) -->
+            <!-- VIEW 3: RELATÓRIO GERAL -->
             <main class="app-view" id="view-report">
                 <div class="view-header">
                     <div style="font-size: 0.8rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-list-check text-muted me-2"></i> RELATÓRIO GLOBAL DE DRIVERS</div>
@@ -517,7 +516,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE OCORRÊNCIA INTELIGENTE -->
+    <!-- MODAL DE OCORRÊNCIA INTELIGENTE (ATUALIZADO COM OS MOTIVOS CORRETOS) -->
     <div id="modalOcorrencia" class="modal-overlay">
         <div class="modal-box form-dark" style="width: 400px; border-color: var(--ocorrencia);">
             <div class="modal-box-header" style="border-bottom-color: rgba(239, 68, 68, 0.2);">
@@ -532,16 +531,16 @@
                     <label class="form-label">MOTIVO DA OCORRÊNCIA</label>
                     <select class="form-select mb-2" id="selectMotivoOcorrencia" onchange="window.toggleJustificativaTexto(this.value)" required>
                         <option value="" disabled selected>Selecione um motivo...</option>
-                        <option value="Problemas pessoais">Problemas pessoais</option>
                         <option value="Problemas mecânicos">Problemas mecânicos</option>
-                        <option value="Problemas com horário do agendamento">Problemas com horário do agendamento</option>
-                        <option value="Outros">Outros (Descrever)</option>
+                        <option value="Problemas pessoais">Problemas pessoais</option>
+                        <option value="Não é cluster de preferência">Não é cluster de preferência</option>
+                        <option value="Outros motivos">Outros motivos</option>
                     </select>
-                    <textarea class="form-control" id="inputJustificativaTexto" rows="2" placeholder="Descreva os detalhes..." style="display:none;"></textarea>
+                    <textarea class="form-control" id="inputJustificativaTexto" rows="2" placeholder="Especifique o motivo detalhadamente..." style="display:none;"></textarea>
                 </div>
                 <div class="modal-footer-actions">
                     <button type="button" class="btn-cancel" onclick="window.fecharModalOcorrencia()">Cancelar</button>
-                    <button type="submit" class="btn-danger-action"><i class="fa-solid fa-flag me-2"></i> Confirmar</button>
+                    <button type="submit" class="btn-danger-action"><i class="fa-solid fa-flag me-2"></i> Confirmar Ocorrência</button>
                 </div>
             </form>
         </div>
@@ -550,7 +549,8 @@
     <!-- SCRIPT FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getDatabase, ref, onValue, push, update, set, get } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+        // Importando a função "remove" para o botão de deletar
+        import { getDatabase, ref, onValue, push, update, set, get, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -589,7 +589,6 @@
             if(document.getElementById('app-screen').style.display === 'flex') {
                 window.recarregarEventosNoCalendario();
                 if(window.sessaoAtual.role === 'gestor') {
-                    // Impede o renderizarDashboardCompleto() de rodar invisível e travar o gráfico
                     if(document.getElementById('view-dashboard').classList.contains('active')) {
                         window.renderizarDashboardCompleto();
                     }
@@ -624,14 +623,12 @@
                 get(ref(db, `usuarios/${user.uid}`)).then((snapshot) => {
                     let role = 'analista';
 
-                    // TRAVA RAIZ SUPREMA: Esmaga o banco de dados se os Gestores entrarem.
                     if (email === 'roberta.liz@shopee.com' || email === 'roberta.lis@shopee.com' || email === 'david.amaral@shopee.com') {
                         role = 'gestor';
                         set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'gestor' });
                     } else if (snapshot.exists()) {
                         role = snapshot.val().role;
                     } else {
-                        // Logins novos sempre como analistas
                         set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'analista' });
                     }
 
@@ -683,6 +680,8 @@
         window.iniciarSessao = function(isGestor) {
             document.getElementById('visorEmailLogado').innerText = window.sessaoAtual.email;
             const badge = document.getElementById('badgeRole');
+           
+            document.getElementById('dynamicBaseHeader').innerText = window.sessaoAtual.baseAtiva.replace(/LMG-\d+\s|UDI\s/, '');
            
             if(isGestor) {
                 badge.className = 'role-badge role-gestor'; badge.innerText = 'Gestor';
@@ -749,13 +748,14 @@
                 if(isGestor) {
                     window.renderizarRelatorioEmLinhas();
                     window.renderizarUsuarios();
-                    // Dash removido do load inicial para impedir crash do ChartJS; renderiza apenas no clique.
                 }
             }, 500);
         }
 
         window.trocarBaseAtiva = function(novaBase) {
-            window.sessaoAtual.baseAtiva = novaBase; window.recarregarEventosNoCalendario();
+            window.sessaoAtual.baseAtiva = novaBase;
+            document.getElementById('dynamicBaseHeader').innerText = novaBase.replace(/LMG-\d+\s|UDI\s/, '');
+            window.recarregarEventosNoCalendario();
             document.getElementById('listaDrivers').innerHTML = `<div class="text-center text-muted mt-5 pt-4" style="font-size: 0.75rem;"><i class="fa-solid fa-rotate fs-4 mb-2"></i><br>Base alterada. Clique em um dia.</div>`;
             document.getElementById('lblDiaSelecionado').innerText = 'Nenhum dia selecionado'; document.getElementById('lblCountStarts').innerText = '';
         }
@@ -778,8 +778,6 @@
             if (viewId === 'calendar' && window.meuCalendario) { setTimeout(() => window.meuCalendario.render(), 100); }
             if (viewId === 'report') { window.renderizarRelatorioEmLinhas(); }
             if (viewId === 'users') { window.renderizarUsuarios(); }
-           
-            // O Dashboard Sênior só é renderizado quando a tela dele está ativada.
             if (viewId === 'dashboard') { setTimeout(() => window.renderizarDashboardCompleto(), 100); }
         }
 
@@ -787,14 +785,13 @@
         // 4. RENDERIZAÇÃO: DASHBOARD GERENCIAL SÊNIOR
         // ========================================================
         window.renderizarDashboardCompleto = function() {
-            if(!document.getElementById('chartBasesDash')) return; // Proteção extra contra travamento
+            if(!document.getElementById('chartBasesDash')) return;
 
             const filtroTempo = document.getElementById('dashFiltroTempo').value;
             const filtroBase = document.getElementById('dashFiltroBase').value;
 
             let dadosFiltrados = [...window.baseAgendamentos];
 
-            // Filtro de Base
             if (filtroBase !== 'all') {
                 dadosFiltrados = dadosFiltrados.filter(d => d.base_alocada === filtroBase);
                 document.getElementById('lblDashBase').innerText = `(${filtroBase.replace(/LMG-\d+\s|UDI\s/, '')})`;
@@ -802,7 +799,6 @@
                 document.getElementById('lblDashBase').innerText = `(MG04)`;
             }
 
-            // Filtro de Tempo
             const hoje = new Date();
             if (filtroTempo === 'week') {
                 const seteDiasAtras = new Date(hoje.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -812,7 +808,6 @@
                 dadosFiltrados = dadosFiltrados.filter(d => new Date(d.data) >= trintaDiasAtras);
             }
 
-            // Atualiza KPIs
             const qtdAgendados = dadosFiltrados.filter(d => d.status === 'agendado').length;
             const qtdEmRota = dadosFiltrados.filter(d => d.status === 'em_rota').length;
             const qtdOcorrencias = dadosFiltrados.filter(d => d.status === 'ocorrencia').length;
@@ -822,7 +817,6 @@
             document.getElementById('kpiRotaDash').innerText = qtdEmRota;
             document.getElementById('kpiOcorrenciaDash').innerText = qtdOcorrencias;
 
-            // DADOS GRÁFICO 1: Evolução por Base (Barras)
             const mapBases = {};
             dadosFiltrados.forEach(d => {
                 const nomeBase = d.base_alocada.replace(/LMG-\d+\s|UDI\s/, '');
@@ -847,7 +841,6 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
 
-            // DADOS GRÁFICO 2: Estatística de Ocorrências (Rosca)
             const mapMotivos = {};
             dadosFiltrados.filter(d => d.status === 'ocorrencia').forEach(d => {
                 const motivo = d.justificativa || 'Não especificado';
@@ -982,6 +975,14 @@
             });
         }
 
+        window.recarregarEventosNoCalendario = function() {
+            if(!window.meuCalendario) return;
+            window.meuCalendario.removeAllEvents();
+            window.baseAgendamentos.filter(ag => ag.base_alocada === window.sessaoAtual.baseAtiva).forEach(ag => {
+                window.meuCalendario.addEvent({ title: ag.nome, start: ag.data, allDay: true, extendedProps: { driver_id: ag.driver_id, cluster: ag.cluster, veiculo: ag.veiculo, telefone: ag.telefone, status: ag.status, justificativa: ag.justificativa } });
+            });
+        }
+
         window.abrirInspetorDeDia = function(dataStr) {
             window.dataVisualizadaNoInspetor = dataStr;
             document.getElementById('lblDiaSelecionado').innerText = dataStr.split('-').reverse().join('/');
@@ -998,8 +999,17 @@
                     let iconClass = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
                     let botoesHTML = `<a href="https://wa.me/55${d.telefone}" target="_blank" class="btn-acao-lista btn-wpp"><i class="fa-brands fa-whatsapp"></i></a>`;
                    
-                    if(window.sessaoAtual.role === 'analista' && !isOcorrencia && !isEmRota) botoesHTML += `<button class="btn-acao-lista btn-ocorrencia" onclick="window.abrirModalOcorrencia('${d.id}')"><i class="fa-solid fa-flag"></i></button>`;
-                    if(window.sessaoAtual.role === 'gestor' && isOcorrencia) botoesHTML += `<button class="btn-acao-lista btn-reagendar" onclick="window.abrirModalReagendamento('${d.id}')"><i class="fa-solid fa-calendar-day me-1"></i> Reagendar</button>`;
+                    // Removido o bloqueio para gestores, agora Analistas e Gestores veem o botão de Ocorrência!
+                    if(!isOcorrencia && !isEmRota) {
+                        botoesHTML += `<button class="btn-acao-lista btn-ocorrencia" title="Registrar Ocorrência" onclick="window.abrirModalOcorrencia('${d.id}')"><i class="fa-solid fa-flag"></i></button>`;
+                    }
+                   
+                    if(window.sessaoAtual.role === 'gestor' && isOcorrencia) {
+                        botoesHTML += `<button class="btn-acao-lista btn-reagendar" title="Reagendar Driver" onclick="window.abrirModalReagendamento('${d.id}')"><i class="fa-solid fa-calendar-day"></i></button>`;
+                    }
+
+                    // NOVO BOTÃO: LIXEIRA (Excluir Cadastro Errôneo)
+                    botoesHTML += `<button class="btn-acao-lista btn-excluir" title="Excluir Agendamento" onclick="window.excluirAgendamento('${d.id}')"><i class="fa-solid fa-trash"></i></button>`;
 
                     let htmlJustificativa = isOcorrencia ? `<div class="painel-ocorrencia"><i class="fa-solid fa-circle-info me-1"></i> <strong>OCORRÊNCIA:</strong> ${d.justificativa}</div>` : '';
                     let htmlEmRota = isEmRota ? `<div class="mt-2"><span class="badge-em-rota"><i class="fa-solid fa-circle-check"></i> EM ROTA (VERIFICADO)</span></div>` : '';
@@ -1008,6 +1018,13 @@
                 });
             }
             document.getElementById('listaDrivers').innerHTML = htmlLista;
+        }
+
+        // FUNÇÃO DELETAR AGENDAMENTO
+        window.excluirAgendamento = async function(id) {
+            if(confirm("ATENÇÃO: Deseja excluir este agendamento? Esta ação não pode ser desfeita.")) {
+                await remove(ref(db, 'agendamentos/' + id));
+            }
         }
 
         // ========================================================
@@ -1046,7 +1063,7 @@
        
         window.toggleJustificativaTexto = function(valor) {
             const txtArea = document.getElementById('inputJustificativaTexto');
-            if(valor === 'Outros') {
+            if(valor === 'Outros motivos') {
                 txtArea.style.display = 'block';
                 txtArea.setAttribute('required', 'true');
             } else {
@@ -1088,7 +1105,7 @@
             e.preventDefault();
             const motivoSelect = document.getElementById('selectMotivoOcorrencia').value;
             const textoExtra = document.getElementById('inputJustificativaTexto').value;
-            const justificativaFinal = motivoSelect === 'Outros' ? textoExtra : motivoSelect;
+            const justificativaFinal = motivoSelect === 'Outros motivos' ? textoExtra : motivoSelect;
 
             await update(ref(db, 'agendamentos/' + document.getElementById('inputIdOcorrencia').value), {
                 status: 'ocorrencia', justificativa: justificativaFinal
