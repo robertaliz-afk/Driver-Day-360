@@ -36,37 +36,40 @@
         input[type=number] { -moz-appearance: textfield; }
 
         /* ========================================================
-           TELA DE LOGIN
+           TELA DE LOGIN BLINDADA CONTRA TELA PRETA
            ======================================================== */
         #login-screen {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: var(--bg-dark);
+            background-color: var(--bg-dark); /* Cor de fundo caso a imagem falhe */
+            background-image: url('login.jpg'); /* Sua imagem */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             display: flex; align-items: center; justify-content: center;
             z-index: 9999; transition: opacity 0.5s ease;
         }
 
-        .interactive-overlay {
-            position: relative;
-            aspect-ratio: 16 / 9;
-            width: 100vw;
-            max-width: 1920px;
-            max-height: 100vh;
-            background-image: url('login.jpg');
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        /* TEXTO DE EMERGÊNCIA: Só aparece se a imagem login.jpg não carregar */
+        .fallback-text {
+            position: absolute;
+            color: rgba(255,255,255,0.2);
+            font-size: 1.5rem;
+            font-weight: 800;
+            z-index: 1;
+            text-align: center;
+            pointer-events: none;
         }
-       
+
+        /* O BOTÃO INVISÍVEL GIGANTE PARA NÃO TER ERRO DE CLIQUE */
         .invisible-btn {
             position: absolute;
-            top: 62.5%;
+            top: 65%; /* Fica posicionado mais para a metade inferior da tela */
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 32%;  
-            height: 9%;  
+            width: 50vw; /* 50% da largura da tela */
+            max-width: 600px;
+            height: 15vh; /* 15% da altura da tela */
+            min-height: 100px;
             background: transparent;
             border: none;
             cursor: pointer;
@@ -76,7 +79,7 @@
 
         .login-error {
             position: absolute;
-            top: 72%;
+            top: 75%;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(239, 68, 68, 0.95);
@@ -125,7 +128,7 @@
         .btn-action:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
         /* ========================================================
-           APLICAÇÃO: TOPBAR E MENUS
+           APLICAÇÃO PRINCIPAL: TOPBAR E MENUS
            ======================================================== */
         #app-screen { display: none; height: 100vh; flex-direction: column; }
         .topbar { background: #06080d; border-bottom: 1px solid var(--border-dark); height: 45px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
@@ -263,28 +266,30 @@
 <body>
 
     <!-- ========================================================
-         LOGIN COM MAPA DE CLIQUE INVISÍVEL
+         LOGIN BLINDADO: IMAGEM NO FUNDO E BOTÃO GIGANTE
          ======================================================== -->
     <div id="login-screen">
-        <div class="interactive-overlay">
-            <div id="step-auth" style="width: 100%; height: 100%;">
-                <button class="invisible-btn" onclick="window.simularGoogleLogin()" title="Fazer login com o Google"></button>
-                <div id="ui-error" class="login-error"></div>
-            </div>
-            <!-- O popup da escolha de base (Apenas Analistas) -->
-            <div id="step-base" class="form-dark base-selector-card">
-                <label class="form-label text-center d-block w-100 mb-3" style="color: #fff;">SELECIONE SUA BASE</label>
-                <select class="form-select mb-4" id="loginBaseSelector">
-                    <option value="LMG-48 Uberaba">LMG-48 - Uberaba</option>
-                    <option value="UDI Uberlândia">UDI - Uberlândia</option>
-                    <option value="LMG-39 Patos de Minas">LMG-39 - Patos de Minas</option>
-                    <option value="LMG-36 Divinópolis">LMG-36 - Divinópolis</option>
-                    <option value="LMG-27 Lagoa da Prata">LMG-27 - Lagoa da Prata</option>
-                    <option value="LMG-44 Varginha">LMG-44 - Varginha</option>
-                    <option value="LMG-19 Extrema">LMG-19 - Extrema</option>
-                </select>
-                <button class="btn-action" onclick="window.iniciarSessaoAnalista()">Entrar no Painel</button>
-            </div>
+        <div class="fallback-text">DRIVERS DAY 360<br><span style="font-size:1rem; font-weight:400;">Se a imagem falhou, você ainda pode logar clicando aqui pelo centro.</span></div>
+       
+        <div id="step-auth" style="width: 100%; height: 100%;">
+            <!-- BOTÃO GIGANTE: Cobre quase toda a área inferior da tela -->
+            <button class="invisible-btn" onclick="window.simularGoogleLogin()" title="Fazer login com o Google"></button>
+            <div id="ui-error" class="login-error"></div>
+        </div>
+
+        <!-- Popup Base (Analistas) -->
+        <div id="step-base" class="form-dark base-selector-card">
+            <label class="form-label text-center d-block w-100 mb-3" style="color: #fff;">SELECIONE SUA BASE</label>
+            <select class="form-select mb-4" id="loginBaseSelector">
+                <option value="LMG-48 Uberaba">LMG-48 - Uberaba</option>
+                <option value="UDI Uberlândia">UDI - Uberlândia</option>
+                <option value="LMG-39 Patos de Minas">LMG-39 - Patos de Minas</option>
+                <option value="LMG-36 Divinópolis">LMG-36 - Divinópolis</option>
+                <option value="LMG-27 Lagoa da Prata">LMG-27 - Lagoa da Prata</option>
+                <option value="LMG-44 Varginha">LMG-44 - Varginha</option>
+                <option value="LMG-19 Extrema">LMG-19 - Extrema</option>
+            </select>
+            <button class="btn-action" onclick="window.iniciarSessaoAnalista()">Entrar no Painel</button>
         </div>
     </div>
 
@@ -319,7 +324,6 @@
                 <a class="nav-icon" id="nav-users" title="Gestão de Acessos" onclick="window.switchView('users', this)"><i class="fa-solid fa-users-gear"></i></a>
             </nav>
 
-            <!-- VIEW 1: CALENDÁRIO -->
             <main class="app-view active" id="view-calendar">
                 <div class="view-header">
                     <div style="font-size: 0.75rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-calendar-week text-muted me-2"></i> GRADE DE STARTS (SINERGIA DE UTILITÁRIOS)</div>
@@ -348,7 +352,7 @@
                 </div>
             </main>
 
-            <!-- VIEW 2: DASHBOARD GERENCIAL (NOVO - SÊNIOR) -->
+            <!-- VIEW 2: DASHBOARD GERENCIAL -->
             <main class="app-view" id="view-dashboard">
                 <div class="view-header">
                     <div style="font-size: 0.8rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-chart-pie text-muted me-2"></i> INTELIGÊNCIA OPERACIONAL (DASHBOARD)</div>
@@ -379,7 +383,6 @@
                 </div>
 
                 <div class="dashboard-container">
-                    <!-- KPIs -->
                     <div class="row g-3 mb-4">
                         <div class="col-md-3">
                             <div class="metric-box border-top border-primary border-3 shadow-sm">
@@ -407,7 +410,6 @@
                         </div>
                     </div>
 
-                    <!-- Gráficos -->
                     <div class="row g-3">
                         <div class="col-md-8">
                             <div class="base-dash-card shadow-sm">
@@ -573,11 +575,9 @@
         window.baseAgendamentos = [];
         window.listaUsuarios = [];
        
-        // Váriaveis Globais dos Gráficos para poderem ser destruídos/atualizados
         window.chartBasesObj = null;
         window.chartMotivosObj = null;
 
-        // 1. REATIVIDADE EM TEMPO REAL
         onValue(agendamentosRef, (snapshot) => {
             window.baseAgendamentos = [];
             snapshot.forEach((child) => {
@@ -589,7 +589,10 @@
             if(document.getElementById('app-screen').style.display === 'flex') {
                 window.recarregarEventosNoCalendario();
                 if(window.sessaoAtual.role === 'gestor') {
-                    window.renderizarDashboardCompleto();
+                    // Impede o renderizarDashboardCompleto() de rodar invisível e travar o gráfico
+                    if(document.getElementById('view-dashboard').classList.contains('active')) {
+                        window.renderizarDashboardCompleto();
+                    }
                     window.renderizarRelatorioEmLinhas();
                 }
                 if(window.dataVisualizadaNoInspetor) window.abrirInspetorDeDia(window.dataVisualizadaNoInspetor);
@@ -607,29 +610,29 @@
         });
 
         // ========================================================
-        // 2. SISTEMA DE LOGIN (SSO)
+        // 2. SISTEMA DE LOGIN: A FORÇA BRUTA DO GESTOR
         // ========================================================
         onAuthStateChanged(auth, (user) => {
             if (user) { window.processarAcesso(user); }
         });
 
         window.processarAcesso = function(user) {
-            const email = user.email;
+            const email = (user.email || '').toLowerCase();
             const errorElement = document.getElementById('ui-error');
            
             if (email.endsWith('@shopee.com') || email.endsWith('@shopee.com.br')) {
                 get(ref(db, `usuarios/${user.uid}`)).then((snapshot) => {
-                    let role = 'analista'; // Default SEMPRE é analista
+                    let role = 'analista';
 
-                    // TRAVA RAIZ: Apenas estes emails viram Gestores nativamente
-                    if (email === 'roberta.liz@shopee.com' || email === 'david.amaral@shopee.com') {
+                    // TRAVA RAIZ SUPREMA: Esmaga o banco de dados se os Gestores entrarem.
+                    if (email === 'roberta.liz@shopee.com' || email === 'roberta.lis@shopee.com' || email === 'david.amaral@shopee.com') {
                         role = 'gestor';
-                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: role });
+                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'gestor' });
                     } else if (snapshot.exists()) {
                         role = snapshot.val().role;
                     } else {
-                        // Novo login corporativo entra como analista
-                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: role });
+                        // Logins novos sempre como analistas
+                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'analista' });
                     }
 
                     window.sessaoAtual.uid = user.uid;
@@ -656,10 +659,11 @@
         window.simularGoogleLogin = function() {
             const errorElement = document.getElementById('ui-error');
             errorElement.style.display = 'none';
+
             signInWithPopup(auth, provider).catch((error) => {
                 if(error.code !== 'auth/popup-closed-by-user') {
                     errorElement.style.display = 'block';
-                    errorElement.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i> Falha: Tente recarregar a página.`;
+                    errorElement.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i> Falha de conexão Google.`;
                 }
             });
         }
@@ -743,9 +747,9 @@
                 window.simularCloudFunctionIntegracao();
 
                 if(isGestor) {
-                    window.renderizarDashboardCompleto();
                     window.renderizarRelatorioEmLinhas();
                     window.renderizarUsuarios();
+                    // Dash removido do load inicial para impedir crash do ChartJS; renderiza apenas no clique.
                 }
             }, 500);
         }
@@ -772,15 +776,19 @@
             }
 
             if (viewId === 'calendar' && window.meuCalendario) { setTimeout(() => window.meuCalendario.render(), 100); }
-            if (viewId === 'dashboard') { window.renderizarDashboardCompleto(); }
             if (viewId === 'report') { window.renderizarRelatorioEmLinhas(); }
             if (viewId === 'users') { window.renderizarUsuarios(); }
+           
+            // O Dashboard Sênior só é renderizado quando a tela dele está ativada.
+            if (viewId === 'dashboard') { setTimeout(() => window.renderizarDashboardCompleto(), 100); }
         }
 
         // ========================================================
         // 4. RENDERIZAÇÃO: DASHBOARD GERENCIAL SÊNIOR
         // ========================================================
         window.renderizarDashboardCompleto = function() {
+            if(!document.getElementById('chartBasesDash')) return; // Proteção extra contra travamento
+
             const filtroTempo = document.getElementById('dashFiltroTempo').value;
             const filtroBase = document.getElementById('dashFiltroBase').value;
 
@@ -848,7 +856,6 @@
 
             if (window.chartMotivosObj) window.chartMotivosObj.destroy();
            
-            // Se não tiver ocorrência, mostra gráfico vazio
             if (Object.keys(mapMotivos).length === 0) {
                 mapMotivos['Sem Ocorrências'] = 1;
             }
@@ -972,14 +979,6 @@
                         await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
                     }
                 }
-            });
-        }
-
-        window.recarregarEventosNoCalendario = function() {
-            if(!window.meuCalendario) return;
-            window.meuCalendario.removeAllEvents();
-            window.baseAgendamentos.filter(ag => ag.base_alocada === window.sessaoAtual.baseAtiva).forEach(ag => {
-                window.meuCalendario.addEvent({ title: ag.nome, start: ag.data, allDay: true, extendedProps: { driver_id: ag.driver_id, cluster: ag.cluster, veiculo: ag.veiculo, telefone: ag.telefone, status: ag.status, justificativa: ag.justificativa } });
             });
         }
 
