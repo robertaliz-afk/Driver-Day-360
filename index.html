@@ -4,23 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drivers Day 360 - Control Tower</title>
-    
+   
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
+   
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
-            --spx-orange: #ee4d2d; 
+            --spx-orange: #ee4d2d;
             --spx-orange-gradient: linear-gradient(135deg, #ff6a00 0%, #ee4d2d 100%);
             --bg-dark: #0b0f19; --bg-panel: #151a23;
             --border-dark: #2a313e; --text-main: #e2e8f0; --text-muted: #8b949e;
-            --veic-moto: #0ea5e9; --veic-passeio: #f59e0b; --veic-fiorino: #10b981; 
+            --veic-moto: #0ea5e9; --veic-passeio: #f59e0b; --veic-fiorino: #10b981;
             --whatsapp: #25D366; --ocorrencia: #ef4444; --sucesso: #10b981;
         }
 
@@ -35,57 +36,57 @@
         input[type=number] { -moz-appearance: textfield; }
 
         /* ========================================================
-           NOVA TELA DE LOGIN (OTIMIZADA PARA 15" a 18" - 16:9)
+           TELA DE LOGIN
            ======================================================== */
-        #login-screen { 
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background-color: var(--bg-dark); 
-            display: flex; align-items: center; justify-content: center; 
-            z-index: 9999; transition: opacity 0.5s ease; 
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: var(--bg-dark);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; transition: opacity 0.5s ease;
         }
 
         .interactive-overlay {
             position: relative;
-            aspect-ratio: 16 / 9; 
+            aspect-ratio: 16 / 9;
             width: 100vw;
-            max-width: 1920px; 
+            max-width: 1920px;
             max-height: 100vh;
-            background-image: url('login.jpg'); 
+            background-image: url('login.jpg');
             background-size: cover;
             background-position: center;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8); 
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
-        
+       
         .invisible-btn {
             position: absolute;
-            top: 59%; 
+            top: 62.5%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 22%;  
-            height: 6.5%; 
-            background: transparent; 
+            width: 32%;  
+            height: 9%;  
+            background: transparent;
             border: none;
             cursor: pointer;
             z-index: 10;
-            border-radius: 30px;
+            border-radius: 50px;
         }
 
-        .login-error { 
+        .login-error {
             position: absolute;
-            top: 70%;
+            top: 72%;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(239, 68, 68, 0.95); 
-            color: #fff; 
-            padding: 12px 24px; 
-            border-radius: 8px; 
-            font-size: 0.85rem; 
+            background: rgba(239, 68, 68, 0.95);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.85rem;
             font-weight: 600;
-            display: none; 
-            text-align: center; 
+            display: none;
+            text-align: center;
             width: auto;
             box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
             z-index: 11;
@@ -103,23 +104,23 @@
             display: none;
             flex-direction: column;
             text-align: left;
-            position: absolute; 
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
         }
 
-        .btn-action { 
-            background: var(--spx-orange-gradient); 
-            color: white; 
-            font-weight: 700; 
-            padding: 14px; 
-            width: 100%; 
-            border-radius: 12px; 
-            border: none; 
-            transition: all 0.25s ease; 
-            text-transform: uppercase; 
-            font-size: 0.9rem; 
+        .btn-action {
+            background: var(--spx-orange-gradient);
+            color: white;
+            font-weight: 700;
+            padding: 14px;
+            width: 100%;
+            border-radius: 12px;
+            border: none;
+            transition: all 0.25s ease;
+            text-transform: uppercase;
+            font-size: 0.9rem;
         }
         .btn-action:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
@@ -135,7 +136,7 @@
         .base-selector-top { background: transparent; border: 1px solid var(--border-dark); color: var(--text-main); font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; outline: none; cursor: pointer; display: none; }
         .base-selector-top option { background-color: var(--bg-panel); color: #fff; }
         .base-selector-top:focus { border-color: var(--spx-orange); }
-        
+       
         .role-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
         .role-gestor { background: rgba(238, 77, 45, 0.2); color: var(--spx-orange); border: 1px solid rgba(238, 77, 45, 0.3); }
         .role-analista { background: rgba(14, 165, 233, 0.2); color: var(--veic-moto); border: 1px solid rgba(14, 165, 233, 0.3); }
@@ -148,28 +149,26 @@
         .app-view.active { display: flex; }
         .view-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
 
-        /* DASHBOARD MULTI-BASES & ACESSOS */
-        .dashboard-container { padding: 20px; overflow-y: auto; flex-grow: 1; align-content: flex-start; }
-        .base-dash-card { background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 8px; padding: 15px; height: 100%; display: flex; flex-direction: column; }
-        .base-dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 10px; margin-bottom: 15px; font-weight: 700; color: #fff; font-size: 0.85rem; text-transform: uppercase; }
-        .metric-box { text-align: center; background: rgba(255,255,255,0.02); border-radius: 6px; padding: 10px; flex: 1; border: 1px solid var(--border-dark); }
-        .metric-label { font-size: 0.6rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; }
-        .metric-val { font-size: 1.5rem; font-weight: 700; color: #fff; line-height: 1.2; }
-        .reincidente-box { background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 6px; padding: 8px; margin-top: 5px; display: flex; justify-content: space-between; align-items: center; }
-        .reincidente-name { font-size: 0.7rem; color: #fff; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
-        .reincidente-badge { font-size: 0.6rem; font-weight: 700; color: var(--ocorrencia); background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius: 4px; }
-
-        /* RELATÓRIO GERAL (GRID DE LINHAS) */
+        /* COMPONENTES COMPARTILHADOS (FILTROS E CARDS) */
         .filter-bar { display: flex; gap: 15px; padding: 15px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border-dark); align-items: center; flex-wrap: wrap; }
         .filter-group { display: flex; align-items: center; gap: 8px; }
         .filter-group label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin: 0; }
         .filter-select { background: #0b0f19; border: 1px solid var(--border-dark); color: #fff; font-size: 0.8rem; border-radius: 4px; padding: 6px 12px; outline: none; }
         .filter-select:focus { border-color: var(--spx-orange); }
-        
+
+        .dashboard-container { padding: 20px; overflow-y: auto; flex-grow: 1; align-content: flex-start; }
+        .base-dash-card { background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 8px; padding: 15px; height: 100%; display: flex; flex-direction: column; }
+        .base-dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 10px; margin-bottom: 15px; font-weight: 700; color: #fff; font-size: 0.85rem; text-transform: uppercase; }
+       
+        .metric-box { background: rgba(255,255,255,0.02); border-radius: 6px; padding: 15px; flex: 1; border: 1px solid var(--border-dark); display: flex; flex-direction: column; justify-content: center; }
+        .metric-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 5px; }
+        .metric-val { font-size: 2rem; font-weight: 800; color: #fff; line-height: 1; }
+
+        /* RELATÓRIO GERAL (GRID DE LINHAS) */
         .report-list-container { padding: 20px; overflow-y: auto; flex-grow: 1; }
         .report-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg-panel); border: 1px solid var(--border-dark); padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; transition: 0.2s; }
         .report-row:hover { border-color: #475569; background: #1a2233; }
-        
+       
         .row-col-perfil { display: flex; align-items: center; gap: 15px; width: 250px; }
         .row-avatar { width: 35px; height: 35px; background: var(--bg-dark); border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 1rem; color: #fff; border: 1px solid var(--border-dark); }
         .row-nome { font-size: 0.85rem; font-weight: 600; color: #fff; margin-bottom: 2px; }
@@ -180,7 +179,7 @@
         .row-col-actions { width: 50px; display: flex; justify-content: flex-end; }
         .row-label { font-size: 0.6rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 2px; }
         .row-value { font-size: 0.8rem; font-weight: 500; color: #cbd5e1; }
-        
+       
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
         .status-agendado { background: rgba(245, 158, 11, 0.1); color: var(--veic-passeio); border: 1px solid rgba(245, 158, 11, 0.3); }
         .status-rota { background: rgba(16, 185, 129, 0.1); color: var(--sucesso); border: 1px solid rgba(16, 185, 129, 0.3); }
@@ -207,17 +206,17 @@
         .card-start.veic-fiorino { border-color: var(--veic-fiorino); }
         .c-nome { font-size: 0.6rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60px; }
         .c-cluster { font-size: 0.5rem; color: #000; background: #94a3b8; padding: 0 4px; border-radius: 2px; font-weight: 700; }
-        
+       
         .card-start.ocorrencia { background: rgba(239, 68, 68, 0.15); border-left: 3px solid var(--ocorrencia); border-right: 1px solid var(--ocorrencia); border-top: 1px solid var(--ocorrencia); border-bottom: 1px solid var(--ocorrencia); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
         .card-start.ocorrencia .c-nome { color: var(--ocorrencia); font-weight: 700; }
         .card-start.ocorrencia .c-cluster { background: var(--ocorrencia); color: #fff; }
         .card-start.em-rota { background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--sucesso); }
         .card-start.em-rota .c-nome { color: var(--sucesso); font-weight: 700; }
-        
+       
         .day-inspector { width: 350px; background: var(--bg-panel); border-left: 1px solid var(--border-dark); display: flex; flex-direction: column; transition: 0.3s; flex-shrink: 0; }
         .inspector-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); flex-shrink: 0; }
         .inspector-body { flex-grow: 1; padding: 15px 20px; overflow-y: auto; }
-        
+       
         .driver-item { background: #0b0f19; border: 1px solid var(--border-dark); border-radius: 6px; padding: 8px; margin-bottom: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
         .driver-item.has-ocorrencia { border-color: var(--ocorrencia); background: rgba(239, 68, 68, 0.05); }
         .driver-item.has-sucesso { border-color: rgba(16, 185, 129, 0.4); border-left: 3px solid var(--sucesso); }
@@ -225,11 +224,11 @@
         .bg-moto { background: rgba(14, 165, 233, 0.2); color: var(--veic-moto); border: 1px solid rgba(14, 165, 233, 0.3); }
         .bg-passeio { background: rgba(245, 158, 11, 0.2); color: var(--veic-passeio); border: 1px solid rgba(245, 158, 11, 0.3); }
         .bg-fiorino { background: rgba(16, 185, 129, 0.2); color: var(--veic-fiorino); border: 1px solid rgba(16, 185, 129, 0.3); }
-        
+       
         .d-info { flex-grow: 1; overflow: hidden; }
         .d-nome { font-size: 0.75rem; font-weight: 600; color: #fff; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .btn-acao-lista { width: 26px; height: 26px; border-radius: 4px; border: 1px solid transparent; display: flex; justify-content: center; align-items: center; font-size: 0.75rem; cursor: pointer; text-decoration: none; }
-        
+       
         .btn-wpp { background: rgba(37, 211, 102, 0.1); color: var(--whatsapp); border-color: rgba(37, 211, 102, 0.2); }
         .btn-wpp:hover { background: var(--whatsapp); color: #fff; }
         .btn-ocorrencia { background: transparent; color: var(--text-muted); }
@@ -268,13 +267,11 @@
          ======================================================== -->
     <div id="login-screen">
         <div class="interactive-overlay">
-            
             <div id="step-auth" style="width: 100%; height: 100%;">
                 <button class="invisible-btn" onclick="window.simularGoogleLogin()" title="Fazer login com o Google"></button>
                 <div id="ui-error" class="login-error"></div>
             </div>
-
-            <!-- O popup da escolha de base (Apenas Analistas veem) -->
+            <!-- O popup da escolha de base (Apenas Analistas) -->
             <div id="step-base" class="form-dark base-selector-card">
                 <label class="form-label text-center d-block w-100 mb-3" style="color: #fff;">SELECIONE SUA BASE</label>
                 <select class="form-select mb-4" id="loginBaseSelector">
@@ -288,7 +285,6 @@
                 </select>
                 <button class="btn-action" onclick="window.iniciarSessaoAnalista()">Entrar no Painel</button>
             </div>
-
         </div>
     </div>
 
@@ -310,7 +306,7 @@
                 <div id="badgeRole" class="role-badge"></div>
             </div>
             <div class="data-mono text-muted d-flex align-items-center">
-                <span id="visorEmailLogado">usuario@shopee.com</span> 
+                <span id="visorEmailLogado">usuario@shopee.com</span>
                 <i class="fa-solid fa-power-off ms-3 text-danger fs-6" style="cursor:pointer;" onclick="window.fazerLogout()" title="Desconectar"></i>
             </div>
         </header>
@@ -318,9 +314,8 @@
         <div class="workspace">
             <nav class="sidebar-slim">
                 <a class="nav-icon active" id="nav-calendar" title="Agenda Tática" onclick="window.switchView('calendar', this)"><i class="fa-solid fa-calendar-days"></i></a>
-                <a class="nav-icon" id="nav-dashboard" title="Controle de Bases (Cards)" onclick="window.switchView('dashboard', this)"><i class="fa-solid fa-layer-group"></i></a>
+                <a class="nav-icon" id="nav-dashboard" title="Dashboard Gerencial" onclick="window.switchView('dashboard', this)"><i class="fa-solid fa-chart-pie"></i></a>
                 <a class="nav-icon" id="nav-report" title="Relatório Global" onclick="window.switchView('report', this)"><i class="fa-solid fa-list-check"></i></a>
-                <!-- ÍCONE NOVO: GESTÃO DE USUÁRIOS (APENAS GESTOR) -->
                 <a class="nav-icon" id="nav-users" title="Gestão de Acessos" onclick="window.switchView('users', this)"><i class="fa-solid fa-users-gear"></i></a>
             </nav>
 
@@ -353,21 +348,94 @@
                 </div>
             </main>
 
-            <!-- VIEW 2: DASHBOARD MULTI-BASES -->
+            <!-- VIEW 2: DASHBOARD GERENCIAL (NOVO - SÊNIOR) -->
             <main class="app-view" id="view-dashboard">
                 <div class="view-header">
-                    <div style="font-size: 0.8rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-layer-group text-muted me-2"></i> PAINEL DE CONTROLE DAS BASES</div>
+                    <div style="font-size: 0.8rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-chart-pie text-muted me-2"></i> INTELIGÊNCIA OPERACIONAL (DASHBOARD)</div>
                 </div>
-                <div class="dashboard-container" id="dashboard-cards-container"></div>
+               
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Período:</label>
+                        <select class="filter-select" id="dashFiltroTempo" onchange="window.renderizarDashboardCompleto()">
+                            <option value="all">Todo o Histórico</option>
+                            <option value="week">Últimos 7 Dias</option>
+                            <option value="month">Últimos 30 Dias</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Base Operacional:</label>
+                        <select class="filter-select" id="dashFiltroBase" onchange="window.renderizarDashboardCompleto()">
+                            <option value="all">Visão Global (Todas as Bases)</option>
+                            <option value="LMG-48 Uberaba">LMG-48 Uberaba</option>
+                            <option value="UDI Uberlândia">UDI Uberlândia</option>
+                            <option value="LMG-39 Patos de Minas">LMG-39 Patos</option>
+                            <option value="LMG-36 Divinópolis">LMG-36 Divinópolis</option>
+                            <option value="LMG-27 Lagoa da Prata">LMG-27 Lagoa da Prata</option>
+                            <option value="LMG-44 Varginha">LMG-44 Varginha</option>
+                            <option value="LMG-19 Extrema">LMG-19 Extrema</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="dashboard-container">
+                    <!-- KPIs -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="metric-box border-top border-primary border-3 shadow-sm">
+                                <div class="metric-label">Total Schedulings</div>
+                                <div class="metric-val text-primary" id="kpiTotalDash">0</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-box border-top border-warning border-3 shadow-sm">
+                                <div class="metric-label">Aguardando Start</div>
+                                <div class="metric-val text-warning" id="kpiAgendadoDash">0</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-box border-top border-success border-3 shadow-sm" style="border-color: var(--sucesso) !important;">
+                                <div class="metric-label">Em Rota (Sucesso)</div>
+                                <div class="metric-val" style="color: var(--sucesso);" id="kpiRotaDash">0</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-box border-top border-danger border-3 shadow-sm" style="border-color: var(--ocorrencia) !important;">
+                                <div class="metric-label">Ocorrências (Recusas)</div>
+                                <div class="metric-val text-danger" id="kpiOcorrenciaDash">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos -->
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <div class="base-dash-card shadow-sm">
+                                <div class="base-dash-header">Evolução de Volume <span id="lblDashBase"></span></div>
+                                <div style="position: relative; height: 300px; width: 100%;">
+                                    <canvas id="chartBasesDash"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="base-dash-card shadow-sm">
+                                <div class="base-dash-header text-danger"><i class="fa-solid fa-chart-pie me-1"></i> Top Motivos (Recusas)</div>
+                                <div style="position: relative; height: 300px; width: 100%;">
+                                    <canvas id="chartMotivosDash"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
 
-            <!-- VIEW 3: RELATÓRIO GERAL -->
+            <!-- VIEW 3: RELATÓRIO GERAL (LINHAS) -->
             <main class="app-view" id="view-report">
                 <div class="view-header">
                     <div style="font-size: 0.8rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-list-check text-muted me-2"></i> RELATÓRIO GLOBAL DE DRIVERS</div>
                     <span class="badge bg-primary" id="lblTotalReport">0 Registros</span>
                 </div>
-                
+               
                 <div class="filter-bar">
                     <div class="filter-group">
                         <label>Base Operacional:</label>
@@ -410,9 +478,7 @@
                     <div style="font-size: 0.8rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-users-gear text-muted me-2"></i> GESTÃO DE ACESSOS E PERFIS</div>
                     <span class="badge bg-dark">Apenas Gestores</span>
                 </div>
-                <div class="dashboard-container" id="users-container">
-                    <!-- Cards injetados via JS -->
-                </div>
+                <div class="dashboard-container" id="users-container"></div>
             </main>
         </div>
     </div>
@@ -426,7 +492,7 @@
             </div>
             <form id="formStart">
                 <input type="hidden" id="inputModoEdicao" value="">
-                
+               
                 <div class="mb-3" id="boxNovaData" style="display: none;">
                     <label class="form-label text-warning"><i class="fa-regular fa-calendar me-1"></i> NOVA DATA DO START</label>
                     <input type="date" class="form-control" id="inputNovaData">
@@ -459,7 +525,7 @@
             <form id="formOcorrencia">
                 <input type="hidden" id="inputIdOcorrencia">
                 <p class="text-muted" style="font-size: 0.8rem;">Selecione o motivo pelo qual o driver não realizará o start.</p>
-                
+               
                 <div class="mb-3">
                     <label class="form-label">MOTIVO DA OCORRÊNCIA</label>
                     <select class="form-select mb-2" id="selectMotivoOcorrencia" onchange="window.toggleJustificativaTexto(this.value)" required>
@@ -469,10 +535,8 @@
                         <option value="Problemas com horário do agendamento">Problemas com horário do agendamento</option>
                         <option value="Outros">Outros (Descrever)</option>
                     </select>
-                    
                     <textarea class="form-control" id="inputJustificativaTexto" rows="2" placeholder="Descreva os detalhes..." style="display:none;"></textarea>
                 </div>
-                
                 <div class="modal-footer-actions">
                     <button type="button" class="btn-cancel" onclick="window.fecharModalOcorrencia()">Cancelar</button>
                     <button type="submit" class="btn-danger-action"><i class="fa-solid fa-flag me-2"></i> Confirmar</button>
@@ -481,11 +545,11 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE COMPLETO -->
+    <!-- SCRIPT FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
         import { getDatabase, ref, onValue, push, update, set, get } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAWoaxC02mZNqeFgDQZBVRxAavVReDJ74M",
@@ -508,27 +572,30 @@
         window.dataVisualizadaNoInspetor = '';
         window.baseAgendamentos = [];
         window.listaUsuarios = [];
+       
+        // Váriaveis Globais dos Gráficos para poderem ser destruídos/atualizados
+        window.chartBasesObj = null;
+        window.chartMotivosObj = null;
 
-        // ONVALUE: AGENDAMENTOS
+        // 1. REATIVIDADE EM TEMPO REAL
         onValue(agendamentosRef, (snapshot) => {
             window.baseAgendamentos = [];
             snapshot.forEach((child) => {
                 const ag = child.val();
-                ag.id = child.key; 
+                ag.id = child.key;
                 window.baseAgendamentos.push(ag);
             });
-            
+           
             if(document.getElementById('app-screen').style.display === 'flex') {
                 window.recarregarEventosNoCalendario();
                 if(window.sessaoAtual.role === 'gestor') {
-                    window.renderizarDashboardCards();
+                    window.renderizarDashboardCompleto();
                     window.renderizarRelatorioEmLinhas();
                 }
                 if(window.dataVisualizadaNoInspetor) window.abrirInspetorDeDia(window.dataVisualizadaNoInspetor);
             }
         });
 
-        // ONVALUE: USUÁRIOS
         onValue(usuariosRef, (snapshot) => {
             window.listaUsuarios = [];
             snapshot.forEach(child => {
@@ -539,55 +606,60 @@
             }
         });
 
-        // 1. SISTEMA DE LOGIN GOOGLE COM SALVAMENTO E VERIFICAÇÃO DE USUÁRIO
+        // ========================================================
+        // 2. SISTEMA DE LOGIN (SSO)
+        // ========================================================
+        onAuthStateChanged(auth, (user) => {
+            if (user) { window.processarAcesso(user); }
+        });
+
+        window.processarAcesso = function(user) {
+            const email = user.email;
+            const errorElement = document.getElementById('ui-error');
+           
+            if (email.endsWith('@shopee.com') || email.endsWith('@shopee.com.br')) {
+                get(ref(db, `usuarios/${user.uid}`)).then((snapshot) => {
+                    let role = 'analista'; // Default SEMPRE é analista
+
+                    // TRAVA RAIZ: Apenas estes emails viram Gestores nativamente
+                    if (email === 'roberta.liz@shopee.com' || email === 'david.amaral@shopee.com') {
+                        role = 'gestor';
+                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: role });
+                    } else if (snapshot.exists()) {
+                        role = snapshot.val().role;
+                    } else {
+                        // Novo login corporativo entra como analista
+                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: role });
+                    }
+
+                    window.sessaoAtual.uid = user.uid;
+                    window.sessaoAtual.email = email;
+                    window.sessaoAtual.role = role;
+                   
+                    if (role === 'gestor') {
+                        window.sessaoAtual.baseAtiva = document.getElementById('adminBaseSelector').value;
+                        window.iniciarSessao(true);
+                    } else {
+                        document.getElementById('step-auth').style.display = 'none';
+                        document.getElementById('step-base').style.display = 'flex';
+                    }
+                });
+            } else {
+                signOut(auth).then(() => {
+                    document.getElementById('login-screen').style.display = 'flex';
+                    errorElement.style.display = 'block';
+                    errorElement.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i> <strong>Acesso Negado.</strong><br>Email sem permissão operacional da Shopee.`;
+                });
+            }
+        };
+
         window.simularGoogleLogin = function() {
             const errorElement = document.getElementById('ui-error');
             errorElement.style.display = 'none';
-
-            signInWithPopup(auth, provider).then((result) => {
-                const user = result.user;
-                const email = user.email;
-                
-                if (email.endsWith('@shopee.com') || email.endsWith('@shopee.com.br')) {
-                    
-                    // Verifica se o usuário existe no DB para pegar a Role
-                    get(ref(db, `usuarios/${user.uid}`)).then((snapshot) => {
-                        let role = 'analista'; // Por padrão todos entram como analista
-
-                        if (snapshot.exists()) {
-                            role = snapshot.val().role;
-                        } else {
-                            // Se for admin@shopee.com, ele ganha privilégios de gestor automaticamente pra você não ficar de fora
-                            if (email === 'admin@shopee.com') role = 'gestor';
-                            
-                            // Registra o novo usuário no banco
-                            set(ref(db, `usuarios/${user.uid}`), { email: email, role: role });
-                        }
-
-                        window.sessaoAtual.uid = user.uid;
-                        window.sessaoAtual.email = email; 
-                        window.sessaoAtual.role = role;
-                        
-                        if (role === 'gestor') {
-                            window.sessaoAtual.baseAtiva = document.getElementById('adminBaseSelector').value; 
-                            window.iniciarSessao(true); 
-                        } else {
-                            // Se é analista, exige que ele escolha a base antes de entrar
-                            document.getElementById('step-auth').style.display = 'none';
-                            document.getElementById('step-base').style.display = 'flex';
-                        }
-                    });
-
-                } else {
-                    signOut(auth).then(() => {
-                        errorElement.style.display = 'block';
-                        errorElement.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i> <strong>Acesso Negado.</strong><br>Email sem permissão operacional da Shopee.`;
-                    });
-                }
-            }).catch((error) => {
+            signInWithPopup(auth, provider).catch((error) => {
                 if(error.code !== 'auth/popup-closed-by-user') {
                     errorElement.style.display = 'block';
-                    errorElement.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i> Erro ao conectar ao Google.`;
+                    errorElement.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i> Falha: Tente recarregar a página.`;
                 }
             });
         }
@@ -596,6 +668,9 @@
             signOut(auth).then(() => window.location.reload());
         }
 
+        // ========================================================
+        // 3. INICIAÇÃO DO SISTEMA
+        // ========================================================
         window.iniciarSessaoAnalista = function() {
             window.sessaoAtual.baseAtiva = document.getElementById('loginBaseSelector').value;
             window.iniciarSessao(false);
@@ -604,35 +679,33 @@
         window.iniciarSessao = function(isGestor) {
             document.getElementById('visorEmailLogado').innerText = window.sessaoAtual.email;
             const badge = document.getElementById('badgeRole');
-            
+           
             if(isGestor) {
                 badge.className = 'role-badge role-gestor'; badge.innerText = 'Gestor';
                 document.getElementById('adminBaseSelector').style.display = 'block';
                 document.getElementById('visorBaseLogada').style.display = 'none';
-                
-                // Habilita menus de Gestor
+               
                 document.getElementById('nav-dashboard').style.display = 'flex';
-                document.getElementById('nav-report').style.display = 'flex'; 
-                document.getElementById('nav-users').style.display = 'flex'; 
+                document.getElementById('nav-report').style.display = 'flex';
+                document.getElementById('nav-users').style.display = 'flex';
             } else {
                 badge.className = 'role-badge role-analista'; badge.innerText = 'Analista';
                 document.getElementById('adminBaseSelector').style.display = 'none';
                 document.getElementById('visorBaseLogada').innerText = window.sessaoAtual.baseAtiva;
                 document.getElementById('visorBaseLogada').style.display = 'block';
-                
-                // Oculta menus de Gestor
+               
                 document.getElementById('nav-dashboard').style.display = 'none';
-                document.getElementById('nav-report').style.display = 'none'; 
-                document.getElementById('nav-users').style.display = 'none'; 
+                document.getElementById('nav-report').style.display = 'none';
+                document.getElementById('nav-users').style.display = 'none';
             }
 
-            window.switchView('calendar', document.getElementById('nav-calendar')); 
+            window.switchView('calendar', document.getElementById('nav-calendar'));
 
             document.getElementById('login-screen').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'flex';
-                
+               
                 if(!window.meuCalendario) {
                     const calendarEl = document.getElementById('calendar');
                     window.meuCalendario = new FullCalendar.Calendar(calendarEl, {
@@ -665,11 +738,13 @@
                         }
                     });
                 }
-                
+               
                 window.meuCalendario.render(); window.recarregarEventosNoCalendario();
-                if(isGestor) { 
-                    window.renderizarDashboardCards(); 
-                    window.renderizarRelatorioEmLinhas(); 
+                window.simularCloudFunctionIntegracao();
+
+                if(isGestor) {
+                    window.renderizarDashboardCompleto();
+                    window.renderizarRelatorioEmLinhas();
                     window.renderizarUsuarios();
                 }
             }, 500);
@@ -684,7 +759,7 @@
         window.switchView = function(viewId, elementoClicado) {
             document.querySelectorAll('.nav-icon').forEach(el => el.classList.remove('active')); elementoClicado.classList.add('active');
             document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active')); document.getElementById('view-' + viewId).classList.add('active');
-            
+           
             if (window.sessaoAtual.role === 'gestor') {
                 if (viewId === 'dashboard' || viewId === 'report' || viewId === 'users') {
                     document.getElementById('adminBaseSelector').style.display = 'none';
@@ -697,28 +772,135 @@
             }
 
             if (viewId === 'calendar' && window.meuCalendario) { setTimeout(() => window.meuCalendario.render(), 100); }
-            if (viewId === 'dashboard') { window.renderizarDashboardCards(); }
+            if (viewId === 'dashboard') { window.renderizarDashboardCompleto(); }
             if (viewId === 'report') { window.renderizarRelatorioEmLinhas(); }
             if (viewId === 'users') { window.renderizarUsuarios(); }
         }
 
-        // TELA DE GESTÃO DE USUÁRIOS
+        // ========================================================
+        // 4. RENDERIZAÇÃO: DASHBOARD GERENCIAL SÊNIOR
+        // ========================================================
+        window.renderizarDashboardCompleto = function() {
+            const filtroTempo = document.getElementById('dashFiltroTempo').value;
+            const filtroBase = document.getElementById('dashFiltroBase').value;
+
+            let dadosFiltrados = [...window.baseAgendamentos];
+
+            // Filtro de Base
+            if (filtroBase !== 'all') {
+                dadosFiltrados = dadosFiltrados.filter(d => d.base_alocada === filtroBase);
+                document.getElementById('lblDashBase').innerText = `(${filtroBase.replace(/LMG-\d+\s|UDI\s/, '')})`;
+            } else {
+                document.getElementById('lblDashBase').innerText = `(MG04)`;
+            }
+
+            // Filtro de Tempo
+            const hoje = new Date();
+            if (filtroTempo === 'week') {
+                const seteDiasAtras = new Date(hoje.getTime() - 7 * 24 * 60 * 60 * 1000);
+                dadosFiltrados = dadosFiltrados.filter(d => new Date(d.data) >= seteDiasAtras);
+            } else if (filtroTempo === 'month') {
+                const trintaDiasAtras = new Date(hoje.getTime() - 30 * 24 * 60 * 60 * 1000);
+                dadosFiltrados = dadosFiltrados.filter(d => new Date(d.data) >= trintaDiasAtras);
+            }
+
+            // Atualiza KPIs
+            const qtdAgendados = dadosFiltrados.filter(d => d.status === 'agendado').length;
+            const qtdEmRota = dadosFiltrados.filter(d => d.status === 'em_rota').length;
+            const qtdOcorrencias = dadosFiltrados.filter(d => d.status === 'ocorrencia').length;
+
+            document.getElementById('kpiTotalDash').innerText = dadosFiltrados.length;
+            document.getElementById('kpiAgendadoDash').innerText = qtdAgendados;
+            document.getElementById('kpiRotaDash').innerText = qtdEmRota;
+            document.getElementById('kpiOcorrenciaDash').innerText = qtdOcorrencias;
+
+            // DADOS GRÁFICO 1: Evolução por Base (Barras)
+            const mapBases = {};
+            dadosFiltrados.forEach(d => {
+                const nomeBase = d.base_alocada.replace(/LMG-\d+\s|UDI\s/, '');
+                mapBases[nomeBase] = (mapBases[nomeBase] || 0) + 1;
+            });
+
+            if (window.chartBasesObj) window.chartBasesObj.destroy();
+            Chart.defaults.color = '#8b949e';
+            Chart.defaults.borderColor = '#2a313e';
+           
+            window.chartBasesObj = new Chart(document.getElementById('chartBasesDash'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(mapBases),
+                    datasets: [{
+                        label: 'Total Agendamentos',
+                        data: Object.values(mapBases),
+                        backgroundColor: '#ee4d2d',
+                        borderRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            // DADOS GRÁFICO 2: Estatística de Ocorrências (Rosca)
+            const mapMotivos = {};
+            dadosFiltrados.filter(d => d.status === 'ocorrencia').forEach(d => {
+                const motivo = d.justificativa || 'Não especificado';
+                mapMotivos[motivo] = (mapMotivos[motivo] || 0) + 1;
+            });
+
+            if (window.chartMotivosObj) window.chartMotivosObj.destroy();
+           
+            // Se não tiver ocorrência, mostra gráfico vazio
+            if (Object.keys(mapMotivos).length === 0) {
+                mapMotivos['Sem Ocorrências'] = 1;
+            }
+
+            window.chartMotivosObj = new Chart(document.getElementById('chartMotivosDash'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(mapMotivos),
+                    datasets: [{
+                        data: Object.values(mapMotivos),
+                        backgroundColor: ['#ef4444', '#f59e0b', '#0ea5e9', '#8b949e', '#10b981'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 10} } }
+                    }
+                }
+            });
+        }
+
+        // ========================================================
+        // 5. RENDERIZAÇÃO DE USUÁRIOS E RELATÓRIO GLOBAL
+        // ========================================================
         window.renderizarUsuarios = function() {
             let html = '<div class="row g-3">';
             window.listaUsuarios.forEach(u => {
                 let isCurrent = u.uid === window.sessaoAtual.uid;
                 let badge = u.role === 'gestor' ? '<span class="badge bg-danger">Gestor</span>' : '<span class="badge bg-secondary">Analista</span>';
-                let btnTxt = u.role === 'gestor' ? 'Rebaixar para Analista' : 'Promover a Gestor';
-                let btnClass = u.role === 'gestor' ? 'btn-outline-secondary' : 'btn-outline-danger';
-
+               
                 html += `
                 <div class="col-md-3">
                     <div class="base-dash-card border-top border-dark shadow-sm p-3">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; word-break: break-all;">${u.email}</div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; word-break: break-all; padding-right: 10px;">${u.email}</div>
+                            ${!isCurrent ? `
+                            <div class="dropdown">
+                                <button class="btn btn-sm text-muted border-0 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-ellipsis-vertical fs-5"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-dark shadow">
+                                    <li><h6 class="dropdown-header">Alterar Permissão</h6></li>
+                                    <li><a class="dropdown-item ${u.role === 'gestor' ? 'active' : ''}" href="#" onclick="window.toggleRole('${u.uid}', 'gestor')"><i class="fa-solid fa-user-tie me-2"></i> Gestor</a></li>
+                                    <li><a class="dropdown-item ${u.role === 'analista' ? 'active' : ''}" href="#" onclick="window.toggleRole('${u.uid}', 'analista')"><i class="fa-solid fa-user me-2"></i> Analista</a></li>
+                                </ul>
+                            </div>` : ''}
                         </div>
-                        <div class="mb-3">${badge} ${isCurrent ? '<span class="badge bg-success">Você</span>' : ''}</div>
-                        ${!isCurrent ? `<button class="btn btn-sm ${btnClass} w-100 mt-auto" style="font-size: 0.7rem; font-weight: 600; text-transform: uppercase;" onclick="window.toggleRole('${u.uid}', '${u.role}')">${btnTxt}</button>` : '<div class="text-muted small mt-auto text-center">Gestão Própria Desativada</div>'}
+                        <div>${badge} ${isCurrent ? '<span class="badge bg-success">Você</span>' : ''}</div>
                     </div>
                 </div>`;
             });
@@ -726,13 +908,12 @@
             document.getElementById('users-container').innerHTML = html;
         }
 
-        window.toggleRole = async function(uid, currentRole) {
-            const newRole = currentRole === 'gestor' ? 'analista' : 'gestor';
+        window.toggleRole = async function(uid, newRole) {
             await update(ref(db, `usuarios/${uid}`), { role: newRole });
         }
 
         window.renderizarRelatorioEmLinhas = function() {
-            let dadosFiltrados = [...window.baseAgendamentos]; 
+            let dadosFiltrados = [...window.baseAgendamentos];
             const filterBase = document.getElementById('filtroBase').value;
             const filterStatus = document.getElementById('filtroStatus').value;
             const filterSort = document.getElementById('filtroOrdem').value;
@@ -747,14 +928,14 @@
 
             document.getElementById('lblTotalReport').innerText = `${dadosFiltrados.length} Registros`;
             let htmlRows = '';
-            
+           
             if(dadosFiltrados.length === 0) {
                 htmlRows = `<div class="text-center text-muted mt-5 pt-5"><i class="fa-solid fa-filter-circle-xmark fs-2 mb-3"></i><br>Nenhum motorista atende aos filtros selecionados.</div>`;
             } else {
                 dadosFiltrados.forEach(d => {
                     const dataFormatada = d.data.split('-').reverse().join('/');
-                    let statusBadge = d.status === 'em_rota' ? `<span class="status-badge status-rota"><i class="fa-solid fa-circle-check"></i> Em Rota</span>` : 
-                                      d.status === 'ocorrencia' ? `<span class="status-badge status-ocorrencia"><i class="fa-solid fa-triangle-exclamation"></i> Ocorrência</span>` : 
+                    let statusBadge = d.status === 'em_rota' ? `<span class="status-badge status-rota"><i class="fa-solid fa-circle-check"></i> Em Rota</span>` :
+                                      d.status === 'ocorrencia' ? `<span class="status-badge status-ocorrencia"><i class="fa-solid fa-triangle-exclamation"></i> Ocorrência</span>` :
                                       `<span class="status-badge status-agendado"><i class="fa-solid fa-clock"></i> Agendado</span>`;
                     let veicIcon = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
                     htmlRows += `
@@ -770,33 +951,28 @@
             document.getElementById('reportRowsContainer').innerHTML = htmlRows;
         }
 
-        window.renderizarDashboardCards = function() {
-            const bases = ['LMG-48 Uberaba', 'UDI Uberlândia', 'LMG-39 Patos de Minas', 'LMG-36 Divinópolis', 'LMG-27 Lagoa da Prata', 'LMG-44 Varginha', 'LMG-19 Extrema'];
-            let htmlCards = '<div class="row g-3">';
-            bases.forEach(base => {
-                const driversDaBase = window.baseAgendamentos.filter(ag => ag.base_alocada === base);
-                if(driversDaBase.length === 0) return;
+        // ========================================================
+        // 6. MOTOR NUVEM E CALENDÁRIO
+        // ========================================================
+        const bancosOperacionaisLMG = {
+            "LMG-48 Uberaba": ["1001", "8824"],
+            "UDI Uberlândia": ["2001"],        
+            "LMG-39 Patos de Minas": [],
+            "LMG-36 Divinópolis": [],
+            "LMG-27 Lagoa da Prata": [],
+            "LMG-44 Varginha": [],
+            "LMG-19 Extrema": []
+        };
 
-                const totalStarts = driversDaBase.length;
-                const totalOcorrencias = driversDaBase.filter(d => d.status === 'ocorrencia').length;
-                const reincidentes = driversDaBase.filter(d => (d.reagendamentos || 0) > 0).sort((a,b) => b.reagendamentos - a.reagendamentos);
-
-                let reincidentesHTML = reincidentes.length > 0 ? reincidentes.map(r => `<div class="reincidente-box"><div class="reincidente-name" title="${r.nome}">${r.nome} (ID:${r.driver_id})</div><div class="reincidente-badge">${r.reagendamentos}x falhas</div></div>`).join('') : `<div class="text-muted small mt-2"><i class="fa-solid fa-check text-success me-1"></i> Nenhum motorista reincidente.</div>`;
-
-                htmlCards += `
-                <div class="col-md-4">
-                    <div class="base-dash-card border-top border-primary border-3 shadow-sm">
-                        <div class="base-dash-header"><span><i class="fa-solid fa-map-pin text-primary me-2"></i> ${base.replace(/LMG-\d+\s|UDI\s/, '')}</span><span class="badge bg-dark">Ativos</span></div>
-                        <div class="d-flex gap-2 mb-3">
-                            <div class="metric-box"><div class="metric-label">AGENDADOS / ROTA</div><div class="metric-val text-primary">${totalStarts}</div></div>
-                            <div class="metric-box"><div class="metric-label">OCORRÊNCIAS</div><div class="metric-val text-danger">${totalOcorrencias}</div></div>
-                        </div>
-                        <div class="text-warning mt-1" style="font-size: 0.65rem; font-weight: 700; border-bottom: 1px solid var(--border-dark); padding-bottom: 5px;"><i class="fa-solid fa-triangle-exclamation me-1"></i> TRACKING DE REAGENDAMENTOS</div>
-                        <div style="max-height: 120px; overflow-y: auto; padding-top: 5px;">${reincidentesHTML}</div>
-                    </div>
-                </div>`;
+        window.simularCloudFunctionIntegracao = function() {
+            window.baseAgendamentos.forEach(async ag => {
+                if (ag.status === 'agendado') {
+                    const driversQueRodaramHoje = bancosOperacionaisLMG[ag.base_alocada] || [];
+                    if (driversQueRodaramHoje.includes(ag.driver_id)) {
+                        await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
+                    }
+                }
             });
-            document.getElementById('dashboard-cards-container').innerHTML = htmlCards + '</div>';
         }
 
         window.recarregarEventosNoCalendario = function() {
@@ -812,9 +988,9 @@
             document.getElementById('lblDiaSelecionado').innerText = dataStr.split('-').reverse().join('/');
             const driversDoDia = window.baseAgendamentos.filter(a => a.data === dataStr && a.base_alocada === window.sessaoAtual.baseAtiva);
             document.getElementById('lblCountStarts').innerText = `Total de Agendados: ${driversDoDia.length}`;
-            
+           
             let htmlLista = window.sessaoAtual.role === 'gestor' ? `<button class="btn-action w-100 mb-3 shadow-sm" onclick="window.abrirModalCadastro()"><i class="fa-solid fa-plus me-2"></i> AGENDAR DRIVER</button>` : '';
-            
+           
             if(driversDoDia.length === 0) {
                 htmlLista += `<div class="text-center text-muted data-mono mt-4">Nenhum start programado na base.</div>`;
             } else {
@@ -822,7 +998,7 @@
                     let isOcorrencia = d.status === 'ocorrencia'; let isEmRota = d.status === 'em_rota';
                     let iconClass = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
                     let botoesHTML = `<a href="https://wa.me/55${d.telefone}" target="_blank" class="btn-acao-lista btn-wpp"><i class="fa-brands fa-whatsapp"></i></a>`;
-                    
+                   
                     if(window.sessaoAtual.role === 'analista' && !isOcorrencia && !isEmRota) botoesHTML += `<button class="btn-acao-lista btn-ocorrencia" onclick="window.abrirModalOcorrencia('${d.id}')"><i class="fa-solid fa-flag"></i></button>`;
                     if(window.sessaoAtual.role === 'gestor' && isOcorrencia) botoesHTML += `<button class="btn-acao-lista btn-reagendar" onclick="window.abrirModalReagendamento('${d.id}')"><i class="fa-solid fa-calendar-day me-1"></i> Reagendar</button>`;
 
@@ -835,36 +1011,40 @@
             document.getElementById('listaDrivers').innerHTML = htmlLista;
         }
 
+        // ========================================================
+        // 7. MODAIS
+        // ========================================================
         const modalPadrao = document.getElementById('modalCadastro');
         const modalOcorrencia = document.getElementById('modalOcorrencia');
 
-        window.abrirModalCadastro = function() { 
+        window.abrirModalCadastro = function() {
             document.getElementById('tituloModalCadastro').innerHTML = `<i class="fa-solid fa-user-plus me-2 text-primary"></i> Agendar Driver <span class="text-muted text-lowercase" style="font-size:0.6rem;">(Base: ${window.sessaoAtual.baseAtiva})</span>`;
             document.getElementById('boxNovaData').style.display = 'none'; document.getElementById('inputNovaData').removeAttribute('required');
             document.getElementById('inputModoEdicao').value = ''; document.getElementById('inputId').readOnly = false;
-            modalPadrao.classList.add('active'); document.getElementById('inputId').focus(); 
+            modalPadrao.classList.add('active'); document.getElementById('inputId').focus();
         }
+       
         window.fecharModal = function() { modalPadrao.classList.remove('active'); document.getElementById('formStart').reset(); }
-        
+       
         window.abrirModalReagendamento = function(idDriver) {
             const driver = window.baseAgendamentos.find(d => d.id === idDriver);
             if(!driver) return;
             document.getElementById('tituloModalCadastro').innerHTML = `<i class="fa-solid fa-calendar-day me-2 text-warning"></i> Reagendar Driver`;
             document.getElementById('inputModoEdicao').value = driver.id; document.getElementById('boxNovaData').style.display = 'block'; document.getElementById('inputNovaData').setAttribute('required', 'true');
-            document.getElementById('inputId').value = driver.driver_id; document.getElementById('inputId').readOnly = true; 
+            document.getElementById('inputId').value = driver.driver_id; document.getElementById('inputId').readOnly = true;
             document.getElementById('inputCluster').value = driver.cluster; document.getElementById('inputNome').value = driver.nome;
             document.getElementById('inputTelefone').value = driver.telefone; document.getElementById('inputVeiculo').value = driver.veiculo;
-            modalPadrao.classList.add('active'); 
+            modalPadrao.classList.add('active');
         }
 
-        window.abrirModalOcorrencia = function(idDriver) { 
-            document.getElementById('inputIdOcorrencia').value = idDriver; 
-            window.toggleJustificativaTexto(''); // Reseta a caixa de texto
-            modalOcorrencia.classList.add('active'); 
+        window.abrirModalOcorrencia = function(idDriver) {
+            document.getElementById('inputIdOcorrencia').value = idDriver;
+            window.toggleJustificativaTexto('');
+            modalOcorrencia.classList.add('active');
         }
-        
+       
         window.fecharModalOcorrencia = function() { modalOcorrencia.classList.remove('active'); document.getElementById('formOcorrencia').reset(); }
-        
+       
         window.toggleJustificativaTexto = function(valor) {
             const txtArea = document.getElementById('inputJustificativaTexto');
             if(valor === 'Outros') {
@@ -879,6 +1059,9 @@
 
         document.addEventListener('keydown', function(event) { if (event.key === "Escape") { window.fecharModal(); window.fecharModalOcorrencia(); } });
 
+        // ========================================================
+        // 8. SUBMISSÕES FIREBASE (SET/PUSH)
+        // ========================================================
         document.getElementById('formStart').addEventListener('submit', async function(e) {
             e.preventDefault();
             const idEdicao = document.getElementById('inputModoEdicao').value;
@@ -899,15 +1082,13 @@
                 payload.reagendamentos = 0;
                 await push(ref(db, 'agendamentos'), payload);
             }
-            window.fecharModal(); 
+            window.fecharModal();
         });
 
         document.getElementById('formOcorrencia').addEventListener('submit', async function(e) {
             e.preventDefault();
             const motivoSelect = document.getElementById('selectMotivoOcorrencia').value;
             const textoExtra = document.getElementById('inputJustificativaTexto').value;
-            
-            // Lógica Sênior: Se for Outros, salva o texto digitado. Se não, salva o motivo do select.
             const justificativaFinal = motivoSelect === 'Outros' ? textoExtra : motivoSelect;
 
             await update(ref(db, 'agendamentos/' + document.getElementById('inputIdOcorrencia').value), {
