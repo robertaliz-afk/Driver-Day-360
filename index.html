@@ -36,7 +36,7 @@
         input[type=number] { -moz-appearance: textfield; }
 
         /* ========================================================
-           TELA DE LOGIN
+           TELA DE LOGIN BLINDADA
            ======================================================== */
         #login-screen {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -93,40 +93,8 @@
             z-index: 11;
         }
 
-        .base-selector-card {
-            background: rgba(11, 15, 25, 0.98);
-            backdrop-filter: blur(15px);
-            padding: 30px;
-            border-radius: 16px;
-            width: 340px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-            border: 1px solid rgba(255,255,255,0.15);
-            z-index: 20;
-            display: none;
-            flex-direction: column;
-            text-align: left;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .btn-action {
-            background: var(--spx-orange-gradient);
-            color: white;
-            font-weight: 700;
-            padding: 14px;
-            width: 100%;
-            border-radius: 12px;
-            border: none;
-            transition: all 0.25s ease;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-        }
-        .btn-action:hover { filter: brightness(1.1); transform: translateY(-1px); }
-
         /* ========================================================
-           APLICAÇÃO: TOPBAR E MENUS
+           APLICAÇÃO PRINCIPAL: TOPBAR E MENUS
            ======================================================== */
         #app-screen { display: none; height: 100vh; flex-direction: column; }
         .topbar { background: #06080d; border-bottom: 1px solid var(--border-dark); height: 45px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
@@ -143,14 +111,14 @@
         .role-analista { background: rgba(14, 165, 233, 0.2); color: var(--veic-moto); border: 1px solid rgba(14, 165, 233, 0.3); }
 
         .workspace { display: flex; height: calc(100vh - 45px); width: 100vw; }
-        .sidebar-slim { width: 60px; background: #06080d; border-right: 1px solid var(--border-dark); display: flex; flex-direction: column; align-items: center; padding-top: 15px; z-index: 10; }
+        .sidebar-slim { width: 60px; background: #06080d; border-right: 1px solid var(--border-dark); display: flex; flex-direction: column; align-items: center; padding-top: 15px; z-index: 10; transition: 0.3s ease; }
         .nav-icon { width: 40px; height: 40px; border-radius: 6px; display: flex; justify-content: center; align-items: center; color: var(--text-muted); text-decoration: none; margin-bottom: 10px; transition: 0.2s; font-size: 1rem; cursor: pointer; }
         .nav-icon:hover, .nav-icon.active { background: var(--border-dark); color: var(--spx-orange); }
         .app-view { display: none; flex-grow: 1; flex-direction: column; background: var(--bg-dark); overflow: hidden; width: 100%; }
         .app-view.active { display: flex; }
         .view-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
 
-        /* DASHBOARD & COMPONENTES */
+        /* COMPONENTES COMPARTILHADOS */
         .filter-bar { display: flex; gap: 15px; padding: 15px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border-dark); align-items: center; flex-wrap: wrap; }
         .filter-group { display: flex; align-items: center; gap: 8px; }
         .filter-group label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin: 0; }
@@ -165,7 +133,6 @@
         .metric-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 5px; }
         .metric-val { font-size: 2rem; font-weight: 800; color: #fff; line-height: 1; }
 
-        /* RELATÓRIO GERAL (GRID DE LINHAS) */
         .report-list-container { padding: 20px; overflow-y: auto; flex-grow: 1; }
         .report-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg-panel); border: 1px solid var(--border-dark); padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; transition: 0.2s; }
         .report-row:hover { border-color: #475569; background: #1a2233; }
@@ -271,19 +238,7 @@
             <button class="invisible-btn" onclick="window.simularGoogleLogin()" title="Fazer login com o Google"></button>
             <div id="ui-error" class="login-error"></div>
         </div>
-        <div id="step-base" class="form-dark base-selector-card">
-            <label class="form-label text-center d-block w-100 mb-3" style="color: #fff;">SELECIONE SUA BASE</label>
-            <select class="form-select mb-4" id="loginBaseSelector">
-                <option value="LMG-48 Uberaba">LMG-48 - Uberaba</option>
-                <option value="UDI Uberlândia">UDI - Uberlândia</option>
-                <option value="LMG-39 Patos de Minas">LMG-39 - Patos de Minas</option>
-                <option value="LMG-36 Divinópolis">LMG-36 - Divinópolis</option>
-                <option value="LMG-27 Lagoa da Prata">LMG-27 - Lagoa da Prata</option>
-                <option value="LMG-44 Varginha">LMG-44 - Varginha</option>
-                <option value="LMG-19 Extrema">LMG-19 - Extrema</option>
-            </select>
-            <button class="btn-action" onclick="window.iniciarSessaoAnalista()">Entrar no Painel</button>
-        </div>
+        <!-- Selector removido do Login: Analistas agora dependem do Gestor alocar a base por dentro do sistema -->
     </div>
 
     <div id="app-screen">
@@ -309,12 +264,19 @@
         </header>
 
         <div class="workspace">
-            <nav class="sidebar-slim">
+            <nav class="sidebar-slim" id="main-sidebar">
                 <a class="nav-icon active" id="nav-calendar" title="Agenda Tática" onclick="window.switchView('calendar', this)"><i class="fa-solid fa-calendar-days"></i></a>
                 <a class="nav-icon" id="nav-dashboard" title="Dashboard Gerencial" onclick="window.switchView('dashboard', this)"><i class="fa-solid fa-chart-pie"></i></a>
                 <a class="nav-icon" id="nav-report" title="Relatório Global" onclick="window.switchView('report', this)"><i class="fa-solid fa-list-check"></i></a>
                 <a class="nav-icon" id="nav-users" title="Gestão de Acessos" onclick="window.switchView('users', this)"><i class="fa-solid fa-users-gear"></i></a>
             </nav>
+
+            <!-- TELA DE ESPERA PARA ANALISTAS SEM BASE -->
+            <main class="app-view" id="view-waiting" style="justify-content: center; align-items: center; text-align: center; flex-direction: column;">
+                <i class="fa-solid fa-satellite-dish text-muted" style="font-size: 5rem; margin-bottom: 25px; color: var(--spx-orange) !important; opacity: 0.8;"></i>
+                <h3 style="color: #fff; font-weight: 700; margin-bottom: 10px;">Aguardando Gestão do Hub</h3>
+                <p class="text-muted" style="max-width: 450px; font-size: 0.9rem; line-height: 1.5;">Seu login foi autenticado com sucesso. Aguarde um Gestor acessar o painel e atribuir a sua Base Operacional.<br><br><span style="color: var(--veic-passeio);"><i class="fa-solid fa-spinner fa-spin me-1"></i> Esta tela será atualizada automaticamente.</span></p>
+            </main>
 
             <main class="app-view active" id="view-calendar">
                 <div class="view-header">
@@ -477,7 +439,7 @@
         </div>
     </div>
 
-    <!-- MODAIS DE CADASTRO E OCORRÊNCIA -->
+    <!-- MODAIS DE CADASTRO -->
     <div id="modalCadastro" class="modal-overlay">
         <div class="modal-box form-dark">
             <div class="modal-box-header">
@@ -509,6 +471,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE OCORRÊNCIA INTELIGENTE -->
     <div id="modalOcorrencia" class="modal-overlay">
         <div class="modal-box form-dark" style="width: 400px; border-color: var(--ocorrencia);">
             <div class="modal-box-header" style="border-bottom-color: rgba(239, 68, 68, 0.2);">
@@ -561,7 +524,7 @@
         const agendamentosRef = ref(db, 'agendamentos');
         const usuariosRef = ref(db, 'usuarios');
 
-        window.sessaoAtual = { uid: '', email: '', role: '', baseAtiva: 'LMG-48 Uberaba' };
+        window.sessaoAtual = { uid: '', email: '', role: '', baseAtiva: '' };
         window.dataVisualizadaNoInspetor = '';
         window.baseAgendamentos = [];
         window.listaUsuarios = [];
@@ -589,18 +552,34 @@
             }
         });
 
+        // REATIVIDADE DE USUÁRIOS E AUTO-LIBERAÇÃO DE SALA DE ESPERA
         onValue(usuariosRef, (snapshot) => {
             window.listaUsuarios = [];
+            let myUserData = null;
+           
             snapshot.forEach(child => {
-                window.listaUsuarios.push({ uid: child.key, ...child.val() });
+                const data = child.val();
+                window.listaUsuarios.push({ uid: child.key, ...data });
+                if (child.key === window.sessaoAtual.uid) myUserData = data;
             });
-            if(document.getElementById('app-screen').style.display === 'flex' && window.sessaoAtual.role === 'gestor') {
-                window.renderizarUsuarios();
+           
+            if(document.getElementById('app-screen').style.display === 'flex') {
+                if(window.sessaoAtual.role === 'gestor') {
+                    window.renderizarUsuarios();
+                }
+               
+                // Se um Analista estiver logado (talvez na sala de espera) e o Gestor acabou de dar uma base pra ele:
+                if(window.sessaoAtual.role === 'analista' && myUserData) {
+                    if (myUserData.base_alocada && window.sessaoAtual.baseAtiva !== myUserData.base_alocada) {
+                        window.sessaoAtual.baseAtiva = myUserData.base_alocada;
+                        window.iniciarSessao(false); // Atualiza a tela pra ele na mesma hora
+                    }
+                }
             }
         });
 
         // ========================================================
-        // 2. SISTEMA DE LOGIN: A FORÇA BRUTA DO GESTOR
+        // 2. SISTEMA DE LOGIN SSO: GESTÃO INTELIGENTE DE BASES E SALA DE ESPERA
         // ========================================================
         onAuthStateChanged(auth, (user) => {
             if (user) { window.processarAcesso(user); }
@@ -613,17 +592,18 @@
             if (email.endsWith('@shopee.com') || email.endsWith('@shopee.com.br')) {
                 get(ref(db, `usuarios/${user.uid}`)).then((snapshot) => {
                     let role = 'analista';
+                    let base_alocada = '';
 
-                    // TRAVA RAIZ: Estes e-mails são Gestores e ponto final. Ignora se houver "analista" no banco.
+                    // Gestores Supremes
                     if (email === 'roberta.liz@shopee.com' || email === 'roberta.lis@shopee.com' || email === 'david.amaral@shopee.com') {
                         role = 'gestor';
-                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'gestor' });
+                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'gestor', base_alocada: 'Todas' });
                     } else if (snapshot.exists()) {
-                        // Se o analista já logou antes ou se você (Gestor) promoveu ele no painel, pega a info do banco:
                         role = snapshot.val().role;
+                        base_alocada = snapshot.val().base_alocada || '';
                     } else {
-                        // Se é login inédito de alguém novo (e não é o David/Roberta), entra como analista.
-                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'analista' });
+                        // Novo Analista entra "zerado", aguardando atribuição
+                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'analista', base_alocada: '' });
                     }
 
                     window.sessaoAtual.uid = user.uid;
@@ -634,8 +614,8 @@
                         window.sessaoAtual.baseAtiva = document.getElementById('adminBaseSelector').value;
                         window.iniciarSessao(true);
                     } else {
-                        document.getElementById('step-auth').style.display = 'none';
-                        document.getElementById('step-base').style.display = 'flex';
+                        window.sessaoAtual.baseAtiva = base_alocada;
+                        window.iniciarSessao(false); // A sala de espera cuidará disso se a base for vazia
                     }
                 });
             } else {
@@ -664,80 +644,87 @@
         }
 
         // ========================================================
-        // 3. INICIAÇÃO DO SISTEMA E TROCA DE TELAS
+        // 3. INICIAÇÃO DO SISTEMA (COM PROTEÇÃO DE SALA DE ESPERA)
         // ========================================================
-        window.iniciarSessaoAnalista = function() {
-            window.sessaoAtual.baseAtiva = document.getElementById('loginBaseSelector').value;
-            window.iniciarSessao(false);
-        }
-
         window.iniciarSessao = function(isGestor) {
             document.getElementById('visorEmailLogado').innerText = window.sessaoAtual.email;
             const badge = document.getElementById('badgeRole');
            
-            document.getElementById('dynamicBaseHeader').innerText = window.sessaoAtual.baseAtiva.replace(/LMG-\d+\s|UDI\s/, '');
+            document.getElementById('dynamicBaseHeader').innerText = window.sessaoAtual.baseAtiva ? window.sessaoAtual.baseAtiva.replace(/LMG-\d+\s|UDI\s/, '') : 'AGUARDANDO BASE';
            
             if(isGestor) {
                 badge.className = 'role-badge role-gestor'; badge.innerText = 'Gestor';
                 document.getElementById('adminBaseSelector').style.display = 'block';
                 document.getElementById('visorBaseLogada').style.display = 'none';
                
+                document.getElementById('main-sidebar').style.display = 'flex';
                 document.getElementById('nav-dashboard').style.display = 'flex';
                 document.getElementById('nav-report').style.display = 'flex';
                 document.getElementById('nav-users').style.display = 'flex';
+                window.switchView('calendar', document.getElementById('nav-calendar'));
             } else {
                 badge.className = 'role-badge role-analista'; badge.innerText = 'Analista';
                 document.getElementById('adminBaseSelector').style.display = 'none';
-                document.getElementById('visorBaseLogada').innerText = window.sessaoAtual.baseAtiva;
+                document.getElementById('visorBaseLogada').innerText = window.sessaoAtual.baseAtiva || 'Acesso Pendente';
                 document.getElementById('visorBaseLogada').style.display = 'block';
                
                 document.getElementById('nav-dashboard').style.display = 'none';
                 document.getElementById('nav-report').style.display = 'none';
                 document.getElementById('nav-users').style.display = 'none';
+               
+                // LÓGICA DA SALA DE ESPERA PARA ANALISTAS SEM BASE
+                if (!window.sessaoAtual.baseAtiva) {
+                    document.getElementById('main-sidebar').style.display = 'none'; // Esconde menu lateral todo
+                    window.switchView('waiting', null);
+                } else {
+                    document.getElementById('main-sidebar').style.display = 'flex'; // Mostra menu
+                    window.switchView('calendar', document.getElementById('nav-calendar'));
+                }
             }
-
-            window.switchView('calendar', document.getElementById('nav-calendar'));
 
             document.getElementById('login-screen').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'flex';
                
-                if(!window.meuCalendario) {
-                    const calendarEl = document.getElementById('calendar');
-                    window.meuCalendario = new FullCalendar.Calendar(calendarEl, {
-                        locale: 'pt-br', initialView: 'dayGridMonth', headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
-                        dayMaxEvents: 4, contentHeight: 'auto',
-                        eventContent: function(arg) {
-                            const dados = arg.event.extendedProps;
-                            let icon = dados.veiculo === 'moto' ? '<i class="fa-solid fa-motorcycle"></i>' : dados.veiculo === 'passeio' ? '<i class="fa-solid fa-car"></i>' : '<i class="fa-solid fa-van-shuttle"></i>';
-                            let classeAdicional = dados.status === 'ocorrencia' ? 'ocorrencia' : dados.status === 'em_rota' ? 'em-rota' : '';
-                            let iconeStatus = dados.status === 'ocorrencia' ? '<i class="fa-solid fa-triangle-exclamation ms-1"></i>' : dados.status === 'em_rota' ? '<i class="fa-solid fa-circle-check ms-1" style="color: var(--sucesso);"></i>' : '';
-                            let justificativaHtml = (dados.status === 'ocorrencia' && dados.justificativa) ? `<div style="font-size: 0.5rem; color: #fca5a5; margin-top: 3px; padding-top: 3px; border-top: 1px dashed rgba(239, 68, 68, 0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">Obs: ${dados.justificativa}</div>` : '';
+                // Só renderiza o calendário se tiver uma base, evitando bugs visuais na Sala de Espera
+                if (window.sessaoAtual.baseAtiva || isGestor) {
+                    if(!window.meuCalendario) {
+                        const calendarEl = document.getElementById('calendar');
+                        window.meuCalendario = new FullCalendar.Calendar(calendarEl, {
+                            locale: 'pt-br', initialView: 'dayGridMonth', headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+                            dayMaxEvents: 4, contentHeight: 'auto',
+                            eventContent: function(arg) {
+                                const dados = arg.event.extendedProps;
+                                let icon = dados.veiculo === 'moto' ? '<i class="fa-solid fa-motorcycle"></i>' : dados.veiculo === 'passeio' ? '<i class="fa-solid fa-car"></i>' : '<i class="fa-solid fa-van-shuttle"></i>';
+                                let classeAdicional = dados.status === 'ocorrencia' ? 'ocorrencia' : dados.status === 'em_rota' ? 'em-rota' : '';
+                                let iconeStatus = dados.status === 'ocorrencia' ? '<i class="fa-solid fa-triangle-exclamation ms-1"></i>' : dados.status === 'em_rota' ? '<i class="fa-solid fa-circle-check ms-1" style="color: var(--sucesso);"></i>' : '';
+                                let justificativaHtml = (dados.status === 'ocorrencia' && dados.justificativa) ? `<div style="font-size: 0.5rem; color: #fca5a5; margin-top: 3px; padding-top: 3px; border-top: 1px dashed rgba(239, 68, 68, 0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">Obs: ${dados.justificativa}</div>` : '';
 
-                            return { html: `
-                                <div class="card-start veic-${dados.veiculo} ${classeAdicional}" style="display: flex; flex-direction: column;">
-                                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                                        <div class="d-flex align-items-center gap-1">
-                                            <span style="font-size: 0.55rem; color: var(--veic-${dados.veiculo})">${icon}</span>
-                                            <span class="c-nome">${arg.event.title} ${iconeStatus}</span>
+                                return { html: `
+                                    <div class="card-start veic-${dados.veiculo} ${classeAdicional}" style="display: flex; flex-direction: column;">
+                                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                            <div class="d-flex align-items-center gap-1">
+                                                <span style="font-size: 0.55rem; color: var(--veic-${dados.veiculo})">${icon}</span>
+                                                <span class="c-nome">${arg.event.title} ${iconeStatus}</span>
+                                            </div>
+                                            <span class="c-cluster">${dados.cluster}</span>
                                         </div>
-                                        <span class="c-cluster">${dados.cluster}</span>
-                                    </div>
-                                    ${justificativaHtml}
-                                </div>`
-                            };
-                        },
-                        dateClick: function(info) {
-                            window.abrirInspetorDeDia(info.dateStr);
-                            document.querySelectorAll('.fc-daygrid-day').forEach(el => el.classList.remove('fc-day-active'));
-                            info.dayEl.classList.add('fc-day-active');
-                        }
-                    });
+                                        ${justificativaHtml}
+                                    </div>`
+                                };
+                            },
+                            dateClick: function(info) {
+                                window.abrirInspetorDeDia(info.dateStr);
+                                document.querySelectorAll('.fc-daygrid-day').forEach(el => el.classList.remove('fc-day-active'));
+                                info.dayEl.classList.add('fc-day-active');
+                            }
+                        });
+                    }
+                   
+                    window.meuCalendario.render(); window.recarregarEventosNoCalendario();
+                    window.simularCloudFunctionIntegracao();
                 }
-               
-                window.meuCalendario.render(); window.recarregarEventosNoCalendario();
-                window.simularCloudFunctionIntegracao();
 
                 if(isGestor) {
                     window.renderizarRelatorioEmLinhas();
@@ -755,8 +742,11 @@
         }
 
         window.switchView = function(viewId, elementoClicado) {
-            document.querySelectorAll('.nav-icon').forEach(el => el.classList.remove('active')); elementoClicado.classList.add('active');
-            document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active')); document.getElementById('view-' + viewId).classList.add('active');
+            document.querySelectorAll('.nav-icon').forEach(el => el.classList.remove('active'));
+            if(elementoClicado) elementoClicado.classList.add('active');
+           
+            document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
            
             if (window.sessaoAtual.role === 'gestor') {
                 if (viewId === 'dashboard' || viewId === 'report' || viewId === 'users') {
@@ -869,7 +859,7 @@
         }
 
         // ========================================================
-        // 5. RENDERIZAÇÃO DE USUÁRIOS (AÇÃO DO GESTOR) E RELATÓRIO
+        // 5. GESTÃO DE USUÁRIOS E ATRIBUIÇÃO DE BASES (O GESTOR NO COMANDO)
         // ========================================================
         window.renderizarUsuarios = function() {
             let html = '<div class="row g-3">';
@@ -877,8 +867,22 @@
                 let isCurrent = u.uid === window.sessaoAtual.uid;
                 let badge = u.role === 'gestor' ? '<span class="badge bg-danger">Gestor</span>' : '<span class="badge bg-secondary">Analista</span>';
                
+                // O Dropdown Novo: Gestor escolhe qual base o Analista vai olhar no sistema!
+                let selectBaseHTML = '';
+                if (u.role === 'analista') {
+                    const basesOpts = ['LMG-48 Uberaba', 'UDI Uberlândia', 'LMG-39 Patos de Minas', 'LMG-36 Divinópolis', 'LMG-27 Lagoa da Prata', 'LMG-44 Varginha', 'LMG-19 Extrema'];
+                    selectBaseHTML = `
+                        <div class="mt-3" style="border-top: 1px solid var(--border-dark); padding-top: 10px;">
+                            <label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">ATRIBUIR BASE AO ANALISTA:</label>
+                            <select class="form-select form-select-sm mt-1" style="background:#0b0f19; color:#fff; border-color:#2a313e; font-size:0.75rem;" onchange="window.alterarBaseUsuario('${u.uid}', this.value)">
+                                <option value="" disabled ${!u.base_alocada ? 'selected' : ''}>-- Nenhuma Base (Acesso Pendente) --</option>
+                                ${basesOpts.map(b => `<option value="${b}" ${u.base_alocada === b ? 'selected' : ''}>${b}</option>`).join('')}
+                            </select>
+                        </div>`;
+                }
+
                 html += `
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <div class="base-dash-card border-top border-dark shadow-sm p-3">
                         <div class="d-flex justify-content-between align-items-start mb-3">
                             <div style="font-size: 0.8rem; font-weight: 700; color: #fff; word-break: break-all; padding-right: 10px;">${u.email}</div>
@@ -895,6 +899,7 @@
                             </div>` : ''}
                         </div>
                         <div>${badge} ${isCurrent ? '<span class="badge bg-success">Você</span>' : ''}</div>
+                        ${selectBaseHTML}
                     </div>
                 </div>`;
             });
@@ -905,7 +910,15 @@
         window.toggleRole = async function(uid, newRole) {
             await update(ref(db, `usuarios/${uid}`), { role: newRole });
         }
+       
+        window.alterarBaseUsuario = async function(uid, novaBase) {
+            // Salva a base escolhida pelo Gestor em tempo real no banco para liberar a Sala de Espera do Analista!
+            await update(ref(db, `usuarios/${uid}`), { base_alocada: novaBase });
+        }
 
+        // ========================================================
+        // 6. RELATÓRIOS E WPP AUTOMÁTICO
+        // ========================================================
         window.renderizarRelatorioEmLinhas = function() {
             let dadosFiltrados = [...window.baseAgendamentos];
             const filterBase = document.getElementById('filtroBase').value;
@@ -932,22 +945,23 @@
                                       d.status === 'ocorrencia' ? `<span class="status-badge status-ocorrencia"><i class="fa-solid fa-triangle-exclamation"></i> Ocorrência</span>` :
                                       `<span class="status-badge status-agendado"><i class="fa-solid fa-clock"></i> Agendado</span>`;
                     let veicIcon = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
+                   
+                    // Texto do WPP Automático Injetado
+                    let msgWpp = encodeURIComponent(`Oi, tudo bem? Você confirma seu agendamento para a data do dia ${dataFormatada}?`);
+
                     htmlRows += `
                         <div class="report-row">
                             <div class="row-col-perfil"><div class="row-avatar"><i class="fa-solid ${veicIcon}"></i></div><div><div class="row-nome">${d.nome}</div><div class="row-id">ID: ${d.driver_id}</div></div></div>
                             <div class="row-col-base"><div class="row-label">Base / Cluster</div><div class="row-value">${d.base_alocada.replace(/LMG-\d+\s|UDI\s/, '')} <span class="text-muted">(${d.cluster})</span></div></div>
                             <div class="row-col-data"><div class="row-label">Data Agendada</div><div class="row-value data-mono">${dataFormatada}</div></div>
                             <div class="row-col-status">${statusBadge}</div>
-                            <div class="row-col-actions"><a href="https://wa.me/55${d.telefone}" target="_blank" class="btn-acao-lista btn-wpp" title="Contatar"><i class="fa-brands fa-whatsapp"></i></a></div>
+                            <div class="row-col-actions"><a href="https://wa.me/55${d.telefone}?text=${msgWpp}" target="_blank" class="btn-acao-lista btn-wpp" title="Contatar (Com Mensagem)"><i class="fa-brands fa-whatsapp"></i></a></div>
                         </div>`;
                 });
             }
             document.getElementById('reportRowsContainer').innerHTML = htmlRows;
         }
 
-        // ========================================================
-        // 6. MOTOR NUVEM E INSPETOR DE DIAS (CALENDÁRIO)
-        // ========================================================
         const bancosOperacionaisLMG = {
             "LMG-48 Uberaba": ["1001", "8824"],
             "UDI Uberlândia": ["2001"],        
@@ -969,9 +983,19 @@
             });
         }
 
+        window.recarregarEventosNoCalendario = function() {
+            if(!window.meuCalendario) return;
+            window.meuCalendario.removeAllEvents();
+            window.baseAgendamentos.filter(ag => ag.base_alocada === window.sessaoAtual.baseAtiva).forEach(ag => {
+                window.meuCalendario.addEvent({ title: ag.nome, start: ag.data, allDay: true, extendedProps: { driver_id: ag.driver_id, cluster: ag.cluster, veiculo: ag.veiculo, telefone: ag.telefone, status: ag.status, justificativa: ag.justificativa } });
+            });
+        }
+
         window.abrirInspetorDeDia = function(dataStr) {
             window.dataVisualizadaNoInspetor = dataStr;
-            document.getElementById('lblDiaSelecionado').innerText = dataStr.split('-').reverse().join('/');
+            const dataBr = dataStr.split('-').reverse().join('/');
+            document.getElementById('lblDiaSelecionado').innerText = dataBr;
+           
             const driversDoDia = window.baseAgendamentos.filter(a => a.data === dataStr && a.base_alocada === window.sessaoAtual.baseAtiva);
             document.getElementById('lblCountStarts').innerText = `Total de Agendados: ${driversDoDia.length}`;
            
@@ -983,7 +1007,10 @@
                 driversDoDia.sort((a, b) => a.nome.localeCompare(b.nome)).forEach(d => {
                     let isOcorrencia = d.status === 'ocorrencia'; let isEmRota = d.status === 'em_rota';
                     let iconClass = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
-                    let botoesHTML = `<a href="https://wa.me/55${d.telefone}" target="_blank" class="btn-acao-lista btn-wpp"><i class="fa-brands fa-whatsapp"></i></a>`;
+                   
+                    // Texto do WPP Automático no botão do Menu Lateral
+                    let msgWpp = encodeURIComponent(`Oi, tudo bem? Você confirma seu agendamento para a data do dia ${dataBr}?`);
+                    let botoesHTML = `<a href="https://wa.me/55${d.telefone}?text=${msgWpp}" target="_blank" class="btn-acao-lista btn-wpp" title="Confirmar Start no WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>`;
                    
                     if(!isOcorrencia && !isEmRota) {
                         botoesHTML += `<button class="btn-acao-lista btn-ocorrencia" title="Registrar Ocorrência" onclick="window.abrirModalOcorrencia('${d.id}')"><i class="fa-solid fa-flag"></i></button>`;
@@ -994,7 +1021,7 @@
 
                     botoesHTML += `<button class="btn-acao-lista btn-excluir" title="Excluir Agendamento" onclick="window.excluirAgendamento('${d.id}')"><i class="fa-solid fa-trash"></i></button>`;
 
-                    let htmlJustificativa = isOcorrencia ? `<div class="painel-ocorrencia"><i class="fa-solid fa-circle-info me-1"></i> <strong>OCORRência:</strong> ${d.justificativa}</div>` : '';
+                    let htmlJustificativa = isOcorrencia ? `<div class="painel-ocorrencia"><i class="fa-solid fa-circle-info me-1"></i> <strong>OCORRÊNCIA:</strong> ${d.justificativa}</div>` : '';
                     let htmlEmRota = isEmRota ? `<div class="mt-2"><span class="badge-em-rota"><i class="fa-solid fa-circle-check"></i> EM ROTA (VERIFICADO)</span></div>` : '';
 
                     htmlLista += `<div class="driver-item ${isOcorrencia ? 'has-ocorrencia' : ''} ${isEmRota ? 'has-sucesso' : ''}"><div class="icon-veiculo bg-${d.veiculo}"><i class="fa-solid ${iconClass}"></i></div><div class="d-info"><div class="d-nome" title="${d.nome}">${d.nome}</div><div class="data-mono text-muted">ID:${d.driver_id} | ${d.cluster.toUpperCase()}</div>${htmlEmRota}</div><div class="acoes-driver">${botoesHTML}</div>${htmlJustificativa}</div>`;
@@ -1010,7 +1037,7 @@
         }
 
         // ========================================================
-        // 7. MODAIS DE CADASTRO E OCORRÊNCIA
+        // 7. MODAIS
         // ========================================================
         const modalPadrao = document.getElementById('modalCadastro');
         const modalOcorrencia = document.getElementById('modalOcorrencia');
