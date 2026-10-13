@@ -23,7 +23,7 @@
             --spx-orange: #ee4d2d;
             --spx-orange-gradient: linear-gradient(135deg, #ff6a00 0%, #ee4d2d 100%);
            
-            /* Status Cores (Mantém nos dois modos) */
+            /* Status Cores */
             --st-agendado: #3b82f6;
             --st-rodou: #10b981;    
             --st-ocorrencia: #ef4444;
@@ -42,7 +42,7 @@
             --shadow-color: rgba(0,0,0,0.2);
         }
 
-        /* LIGHT MODE (Ativado via JS) */
+        /* LIGHT MODE */
         body.light-mode {
             --bg-dark: #f1f5f9;
             --bg-panel: #ffffff;
@@ -60,14 +60,7 @@
         ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--spx-orange); }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            height: 100vh; overflow: hidden; margin: 0;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-       
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; transition: background-color 0.3s ease, color 0.3s ease; }
         .data-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: -0.5px; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
@@ -75,39 +68,21 @@
         /* ========================================================
            TELA DE LOGIN BLINDADA
            ======================================================== */
-        #login-screen {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: #0b0f19;
-            background-image: url('login.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 9999; transition: opacity 0.5s ease;
-        }
-
+        #login-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: #0b0f19; background-image: url('login.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; display: flex; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease; }
         .fallback-text { position: absolute; color: rgba(255,255,255,0.2); font-size: 1.5rem; font-weight: 800; z-index: 1; text-align: center; pointer-events: none; }
         .invisible-btn { position: absolute; top: 65%; left: 50%; transform: translate(-50%, -50%); width: 50vw; max-width: 600px; height: 15vh; min-height: 100px; background: transparent; border: none; cursor: pointer; z-index: 10; border-radius: 50px; }
-
-        .login-error {
-            position: absolute; top: 75%; left: 50%; transform: translateX(-50%);
-            background: rgba(239, 68, 68, 0.95); color: #fff; padding: 12px 24px;
-            border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: none; text-align: center; width: auto; z-index: 11;
-        }
-
+        .login-error { position: absolute; top: 75%; left: 50%; transform: translateX(-50%); background: rgba(239, 68, 68, 0.95); color: #fff; padding: 12px 24px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: none; text-align: center; width: auto; z-index: 11; }
         .btn-action { background: var(--spx-orange-gradient); color: white; font-weight: 700; padding: 14px; width: 100%; border-radius: 12px; border: none; transition: all 0.25s ease; text-transform: uppercase; font-size: 0.9rem; }
         .btn-action:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
         /* ========================================================
-           APLICAÇÃO PRINCIPAL: TOPBAR E MENUS
+           TOPBAR E MENUS
            ======================================================== */
         #app-screen { display: none; height: 100vh; flex-direction: column; }
         .topbar { background: var(--bg-header); border-bottom: 1px solid var(--border-dark); height: 45px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; transition: 0.3s ease; }
-       
         .logo-sys { font-weight: 700; color: var(--text-main); font-size: 0.85rem; letter-spacing: 1px; display: flex; align-items: center; }
         .logo-sys span { color: var(--spx-orange); font-size: 0.75rem; margin-right: 15px; }
        
-        /* BOTÃO DE TEMA (DARK/LIGHT) */
         .theme-toggle-btn { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .theme-toggle-btn:hover { background: var(--input-bg); color: var(--spx-orange); }
 
@@ -129,7 +104,15 @@
         .app-view.active { display: flex; }
         .view-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; transition: 0.3s ease;}
 
-        /* DASHBOARD GERENCIAL */
+        /* ========================================================
+           NOVO DASHBOARD: NOVATOS E DOBRAS
+           ======================================================== */
+        .dash-tab-btn { background: transparent; border: none; color: var(--text-muted); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; padding: 6px 14px; border-radius: 4px; transition: 0.2s; cursor: pointer; }
+        .dash-tab-btn.active { background: var(--spx-orange-gradient); color: #fff; box-shadow: 0 4px 10px rgba(238, 77, 45, 0.3); }
+        .dash-content { display: none; animation: fadeIn 0.3s ease forwards; }
+        .dash-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
         .filter-bar { display: flex; gap: 15px; padding: 15px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border-dark); align-items: center; flex-wrap: wrap; transition: 0.3s ease;}
         .filter-group { display: flex; align-items: center; gap: 8px; }
         .filter-group label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin: 0; }
@@ -137,22 +120,12 @@
         .filter-select:focus { border-color: var(--spx-orange); }
 
         .dashboard-container { padding: 25px; overflow-y: auto; flex-grow: 1; align-content: flex-start; }
-       
-        .kpi-card { background: var(--card-bg); border: 1px solid var(--border-dark); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: 0 10px 20px var(--shadow-color); transition: 0.3s ease; }
-        .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 15px 30px var(--shadow-color); }
-        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
-        .kpi-blue::before { background: var(--st-agendado); }
-        .kpi-green::before { background: var(--st-rodou); }
-        .kpi-red::before { background: var(--st-ocorrencia); }
-        .kpi-orange::before { background: var(--st-falta); }
-       
-        .kpi-title { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
-        .kpi-value { font-size: 2.2rem; font-weight: 800; color: var(--text-main); line-height: 1; }
+        .base-dash-card { background: var(--card-bg); border: 1px solid var(--border-dark); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; box-shadow: 0 10px 20px var(--shadow-color); transition: 0.3s ease; }
+        .base-dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 15px; margin-bottom: 15px; font-weight: 700; color: var(--text-main); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .base-dash-card { background: var(--card-bg); border: 1px solid var(--border-dark); border-radius: 12px; padding: 20px; height: 100%; display: flex; flex-direction: column; box-shadow: 0 10px 20px var(--shadow-color); transition: 0.3s ease; }
-        .base-dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 15px; margin-bottom: 20px; font-weight: 700; color: var(--text-main); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
-
-        /* RELATÓRIO GERAL (GRID DE LINHAS) */
+        /* ========================================================
+           RELATÓRIOS E CALENDÁRIO
+           ======================================================== */
         .report-list-container { padding: 20px; overflow-y: auto; flex-grow: 1; }
         .report-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg-panel); border: 1px solid var(--border-dark); padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; transition: 0.2s; }
         .report-row:hover { border-color: var(--spx-orange); }
@@ -167,7 +140,6 @@
         .row-col-actions { width: 50px; display: flex; justify-content: flex-end; }
         .row-label { font-size: 0.6rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 2px; }
         .row-value { font-size: 0.8rem; font-weight: 500; color: var(--text-main); }
-       
         .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
 
         /* CALENDÁRIO E INSPETOR */
@@ -182,7 +154,6 @@
         .fc-daygrid-day-number { color: var(--text-muted); font-size: 0.75rem; padding: 4px; }
         .fc-daygrid-day:hover { background-color: var(--input-bg); cursor: pointer; }
         .fc-day-active { background-color: var(--input-bg) !important; box-shadow: inset 0 0 0 1px var(--spx-orange); }
-
         .fc-event { border: none !important; background: transparent !important; margin: 2px !important; }
         .fc-daygrid-event-harness { margin: 2px 0 !important; }
        
@@ -190,23 +161,23 @@
         .inspector-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); flex-shrink: 0; }
         .inspector-body { flex-grow: 1; padding: 15px 20px; overflow-y: auto; }
        
-        .driver-item { background: var(--input-bg); border: 1px solid var(--border-dark); border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; box-shadow: 0 4px 6px var(--shadow-color); transition: 0.3s ease; }
+        /* NOVO DESIGN DO CARD DO INSPETOR (MAIS COMPACTO COM AÇÕES EMBAIXO) */
+        .driver-item { background: var(--input-bg); border: 1px solid var(--border-dark); border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 6px var(--shadow-color); transition: 0.3s ease; }
         .icon-status { width: 32px; height: 32px; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 0.85rem; flex-shrink: 0; }
-       
         .d-info { flex-grow: 1; overflow: hidden; }
         .d-nome { font-size: 0.75rem; font-weight: 700; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
-        .btn-acao-lista { width: 28px; height: 28px; border-radius: 6px; border: 1px solid transparent; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; cursor: pointer; text-decoration: none; transition: 0.2s; }
        
+        .btn-acao-lista { width: 100%; height: 28px; border-radius: 6px; border: 1px solid transparent; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; cursor: pointer; text-decoration: none; transition: 0.2s; flex: 1;}
         .btn-wpp { background: rgba(37, 211, 102, 0.1); color: var(--whatsapp); border-color: rgba(37, 211, 102, 0.2); }
         .btn-wpp:hover { background: var(--whatsapp); color: #fff; }
         .btn-ocorrencia { background: rgba(239, 68, 68, 0.05); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.2); }
         .btn-ocorrencia:hover { background: var(--st-ocorrencia); color: #fff; }
-        .btn-reagendar { background: rgba(245, 158, 11, 0.1); color: var(--st-falta); border-color: rgba(245, 158, 11, 0.3); width: auto; padding: 0 10px; font-weight: 600; }
+        .btn-reagendar { background: rgba(245, 158, 11, 0.1); color: var(--st-falta); border-color: rgba(245, 158, 11, 0.3); font-weight: 600; }
         .btn-reagendar:hover { background: var(--st-falta); color: #fff; }
         .btn-excluir { background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); }
         .btn-excluir:hover { background: var(--st-ocorrencia); color: #fff; }
 
-        .painel-ocorrencia { width: 100%; margin-top: 5px; padding: 8px; background: rgba(239, 68, 68, 0.1); border: 1px dashed rgba(239, 68, 68, 0.3); border-radius: 4px; font-size: 0.65rem; color: #fca5a5; }
+        .painel-ocorrencia { width: 100%; margin-top: 2px; padding: 8px; background: rgba(239, 68, 68, 0.1); border: 1px dashed rgba(239, 68, 68, 0.3); border-radius: 4px; font-size: 0.65rem; color: #fca5a5; }
 
         /* MODAIS */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 10000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s ease; }
@@ -217,7 +188,6 @@
         .modal-title { font-size: 0.9rem; font-weight: 700; color: var(--text-main); text-transform: uppercase; }
         .btn-close-modal { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
         .btn-close-modal:hover { color: var(--spx-orange); }
-
         .form-dark .form-label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
         .form-dark .form-control, .form-dark .form-select { background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-main); font-size: 0.85rem; border-radius: 6px; padding: 8px 12px; transition: 0.3s ease; }
         .form-dark .form-select option { background: var(--bg-panel); color: var(--text-main); }
@@ -241,7 +211,6 @@
 
     <div id="app-screen">
         <header class="topbar">
-            <!-- LOGO E NOVO BOTÃO THEME TOGGLE -->
             <div class="logo-sys">
                 DRIVERS DAY 360 <span>// AGENDAS</span>
                 <button id="themeToggleBtn" class="theme-toggle-btn" onclick="window.toggleTheme()" title="Alternar Tema (Dark/Light)">
@@ -271,7 +240,7 @@
         <div class="workspace">
             <nav class="sidebar-slim" id="main-sidebar">
                 <a class="nav-icon active" id="nav-calendar" title="Agenda Tática" onclick="window.switchView('calendar', this)"><i class="fa-solid fa-calendar-days"></i></a>
-                <a class="nav-icon" id="nav-dashboard" title="Dashboard Gerencial" onclick="window.switchView('dashboard', this)"><i class="fa-solid fa-chart-pie"></i></a>
+                <a class="nav-icon" id="nav-dashboard" title="Controle de Novatos e Dobras" onclick="window.switchView('dashboard', this)"><i class="fa-solid fa-clipboard-user"></i></a>
                 <a class="nav-icon" id="nav-report" title="Relatório Global" onclick="window.switchView('report', this)"><i class="fa-solid fa-list-check"></i></a>
                 <a class="nav-icon" id="nav-users" title="Gestão de Acessos" onclick="window.switchView('users', this)"><i class="fa-solid fa-users-gear"></i></a>
             </nav>
@@ -313,14 +282,22 @@
                 </div>
             </main>
 
+            <!-- NOVO DASHBOARD: NOVATOS E DOBRAS -->
             <main class="app-view" id="view-dashboard">
                 <div class="view-header">
-                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);"><i class="fa-solid fa-chart-pie text-muted me-2"></i> INTELIGÊNCIA OPERACIONAL (DASHBOARD)</div>
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center;">
+                        <i class="fa-solid fa-clipboard-user text-muted me-2"></i> CONTROLE DE NOVATOS E DOBRAS
+                    </div>
+                   
+                    <div class="d-flex p-1 rounded" style="background: var(--input-bg); border: 1px solid var(--border-dark);">
+                        <button class="dash-tab-btn active" id="btn-tab-novatos" onclick="window.switchDashTab('novatos')"><i class="fa-solid fa-seedling me-1"></i> Hub Novatos</button>
+                        <button class="dash-tab-btn" id="btn-tab-dobras" onclick="window.switchDashTab('dobras')"><i class="fa-solid fa-bolt me-1"></i> Controle de Dobras</button>
+                    </div>
                 </div>
                
                 <div class="filter-bar">
                     <div class="filter-group">
-                        <label>Período:</label>
+                        <label>Período de Análise:</label>
                         <select class="filter-select" id="dashFiltroTempo" onchange="window.renderizarDashboardCompleto()">
                             <option value="all">Todo o Histórico</option>
                             <option value="week">Últimos 7 Dias</option>
@@ -343,51 +320,34 @@
                 </div>
 
                 <div class="dashboard-container">
-                    <div class="row g-3 mb-4">
-                        <div class="col">
-                            <div class="kpi-card kpi-blue">
-                                <div class="kpi-title">Agendamentos Totais</div>
-                                <div class="kpi-value text-primary" id="kpiAgendadoDash">0</div>
+                   
+                    <div id="content-novatos" class="dash-content active">
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="base-dash-card" style="padding: 15px;">
+                                    <div class="base-dash-header text-danger mb-0" style="border-bottom: none;"><i class="fa-solid fa-chart-pie me-1"></i> Principais Gargalos (Recusas no Período Filtrado)</div>
+                                    <div style="position: relative; height: 120px; width: 100%;">
+                                        <canvas id="chartMotivosNovatos"></canvas>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col">
-                            <div class="kpi-card kpi-green">
-                                <div class="kpi-title">Starts Realizados (Rodou)</div>
-                                <div class="kpi-value" style="color: var(--st-rodou);" id="kpiRotaDash">0</div>
-                            </div>
+                       
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 style="color: var(--text-main); font-weight: 700; margin: 0; text-transform: uppercase; font-size: 0.8rem;"><i class="fa-solid fa-users me-2"></i> Drivers em Adaptação (Rodaram < 15 Dias)</h6>
+                            <span class="badge" style="background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-main);" id="lblCountNovatos">0 Novatos</span>
                         </div>
-                        <div class="col">
-                            <div class="kpi-card kpi-red">
-                                <div class="kpi-title">Ocorrências (Falhas)</div>
-                                <div class="kpi-value" style="color: var(--st-ocorrencia);" id="kpiOcorrenciaDash">0</div>
-                            </div>
-                        </div>
-                        <div class="col">
-                            <div class="kpi-card kpi-orange">
-                                <div class="kpi-title">Faltas (Não Rodou)</div>
-                                <div class="kpi-value" style="color: var(--st-falta);" id="kpiFaltaDash">0</div>
-                            </div>
+                       
+                        <div id="container-novatos-list"></div>
+                    </div>
+
+                    <div id="content-dobras" class="dash-content">
+                        <div class="base-dash-card">
+                            <div class="base-dash-header mb-3"><i class="fa-solid fa-bolt text-warning me-2"></i> Histórico de Dobras Operacionais (AM/PM)</div>
+                            <div id="container-dobras-list"></div>
                         </div>
                     </div>
 
-                    <div class="row g-3">
-                        <div class="col-md-8">
-                            <div class="base-dash-card">
-                                <div class="base-dash-header">Volume de Agendamentos por Hub <span id="lblDashBase" class="text-muted text-lowercase" style="font-size: 0.65rem;"></span></div>
-                                <div style="position: relative; height: 300px; width: 100%;">
-                                    <canvas id="chartBasesDash"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="base-dash-card">
-                                <div class="base-dash-header" style="color: var(--st-ocorrencia);"><i class="fa-solid fa-chart-pie me-1"></i> Principais Gargalos (Recusas)</div>
-                                <div style="position: relative; height: 300px; width: 100%;">
-                                    <canvas id="chartMotivosDash"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </main>
 
@@ -444,7 +404,7 @@
         </div>
     </div>
 
-    <!-- MODAIS -->
+    <!-- MODAIS DE CADASTRO -->
     <div id="modalCadastro" class="modal-overlay">
         <div class="modal-box form-dark">
             <div class="modal-box-header">
@@ -465,8 +425,14 @@
                 </div>
                 <div class="mb-3"><label class="form-label">NOME COMPLETO</label><input type="text" class="form-control" id="inputNome" required></div>
                 <div class="row g-3 mb-2">
-                    <div class="col-7"><label class="form-label">WHATSAPP (DDD+Nº)</label><input type="text" class="form-control data-mono" id="inputTelefone" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required></div>
-                    <div class="col-5"><label class="form-label">VEÍCULO</label><select class="form-select" id="inputVeiculo" required><option value="moto">Moto</option><option value="passeio">Passeio</option><option value="fiorino">Fiorino</option></select></div>
+                    <div class="col-4"><label class="form-label">TURNO</label>
+                        <select class="form-select" id="inputTurno" required>
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                    </div>
+                    <div class="col-4"><label class="form-label">WHATSAPP (Nº)</label><input type="text" class="form-control data-mono" id="inputTelefone" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required></div>
+                    <div class="col-4"><label class="form-label">VEÍCULO</label><select class="form-select" id="inputVeiculo" required><option value="moto">Moto</option><option value="passeio">Passeio</option><option value="fiorino">Fiorino</option></select></div>
                 </div>
                 <div class="modal-footer-actions">
                     <button type="button" class="btn-cancel" onclick="window.fecharModal()">Cancelar</button>
@@ -476,6 +442,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE OCORRÊNCIA INTELIGENTE -->
     <div id="modalOcorrencia" class="modal-overlay">
         <div class="modal-box form-dark" style="width: 400px; border-color: var(--st-ocorrencia);">
             <div class="modal-box-header" style="border-bottom-color: rgba(239, 68, 68, 0.2);">
@@ -532,11 +499,8 @@
         window.dataVisualizadaNoInspetor = '';
         window.baseAgendamentos = [];
         window.listaUsuarios = [];
-       
-        window.chartBasesObj = null;
-        window.chartMotivosObj = null;
+        window.chartMotivosDashObj = null;
 
-        // INICIALIZADOR DE TEMA (DARK/LIGHT)
         window.toggleTheme = function() {
             const body = document.body;
             const btnIcon = document.querySelector('#themeToggleBtn i');
@@ -547,16 +511,14 @@
                 btnIcon.classList.add('fa-sun');
                 localStorage.setItem('theme', 'light');
                 Chart.defaults.color = '#64748b';
-                Chart.defaults.borderColor = '#cbd5e1';
             } else {
                 btnIcon.classList.remove('fa-sun');
                 btnIcon.classList.add('fa-moon');
                 localStorage.setItem('theme', 'dark');
                 Chart.defaults.color = '#8b949e';
-                Chart.defaults.borderColor = '#2a313e';
             }
             if (document.getElementById('view-dashboard').classList.contains('active')) {
-                window.renderDashboardCompleto();
+                window.renderizarDashboardCompleto();
             }
         };
 
@@ -565,12 +527,8 @@
             if (savedTheme === 'light') {
                 document.body.classList.add('light-mode');
                 const btnIcon = document.querySelector('#themeToggleBtn i');
-                if(btnIcon) {
-                    btnIcon.classList.remove('fa-moon');
-                    btnIcon.classList.add('fa-sun');
-                }
+                if(btnIcon) { btnIcon.classList.remove('fa-moon'); btnIcon.classList.add('fa-sun'); }
                 Chart.defaults.color = '#64748b';
-                Chart.defaults.borderColor = '#cbd5e1';
             }
         });
 
@@ -599,7 +557,7 @@
                 window.recarregarEventosNoCalendario();
                 if(window.sessaoAtual.role === 'gestor') {
                     if(document.getElementById('view-dashboard').classList.contains('active')) {
-                        window.renderDashboardCompleto();
+                        window.renderizarDashboardCompleto();
                     }
                     window.renderizarRelatorioEmLinhas();
                 }
@@ -682,9 +640,7 @@
             });
         }
 
-        window.fazerLogout = function() {
-            signOut(auth).then(() => window.location.reload());
-        }
+        window.fazerLogout = function() { signOut(auth).then(() => window.location.reload()); }
 
         window.iniciarSessao = function(isGestor) {
             document.getElementById('visorEmailLogado').innerText = window.sessaoAtual.email;
@@ -732,12 +688,32 @@
                         window.meuCalendario = new FullCalendar.Calendar(calendarEl, {
                             locale: 'pt-br', initialView: 'dayGridMonth', headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
                             dayMaxEvents: 4, contentHeight: 'auto',
+                            // 1) NOVO RECURSO: CONTAGEM DE AGENDAMENTOS NO CABEÇALHO DO DIA
+                            dayCellContent: function(arg) {
+                                let d = arg.date;
+                                let dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                                const total = window.baseAgendamentos.filter(a => a.data === dateStr && a.base_alocada === window.sessaoAtual.baseAtiva).length;
+                               
+                                let html = `<div style="display:flex; justify-content:space-between; width:100%; padding:2px 4px;">`;
+                                if (total > 0) {
+                                    html += `<span style="font-size:0.6rem; color:var(--text-muted); background:var(--input-bg); padding:1px 5px; border-radius:10px;">${total}</span>`;
+                                } else {
+                                    html += `<span></span>`;
+                                }
+                                html += `<span>${arg.dayNumberText}</span></div>`;
+                                return { html: html };
+                            },
                             eventContent: function(arg) {
                                 const dados = arg.event.extendedProps;
                                 let icon = dados.veiculo === 'moto' ? '<i class="fa-solid fa-motorcycle"></i>' : dados.veiculo === 'passeio' ? '<i class="fa-solid fa-car"></i>' : '<i class="fa-solid fa-van-shuttle"></i>';
                                
                                 const configCor = window.getStatusInfo(dados.status, arg.event.startStr);
                                 let justificativaHtml = (dados.status === 'ocorrencia' && dados.justificativa) ? `<div style="font-size: 0.5rem; color: #fca5a5; margin-top: 3px; padding-top: 3px; border-top: 1px dashed rgba(239, 68, 68, 0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">Obs: ${dados.justificativa}</div>` : '';
+
+                                // LÓGICA DE TURNO (AM/PM) NO CALENDÁRIO
+                                let tagTurno = '';
+                                if (dados.turno === 'AM') tagTurno = '<span style="color:#ccff00; font-size: 0.45rem; font-weight: 800; margin-left: 3px;">AM</span>';
+                                if (dados.turno === 'PM') tagTurno = '<span style="color:#ff6a00; font-size: 0.45rem; font-weight: 800; margin-left: 3px;">PM</span>';
 
                                 return { html: `
                                     <div class="card-start" style="display: flex; flex-direction: column; background: ${configCor.bg}; border-left: 3px solid ${configCor.cor}; padding: 4px 6px; border-radius: 4px; margin-bottom: 2px;">
@@ -746,7 +722,7 @@
                                                 <span style="font-size: 0.55rem; color: var(--text-muted);">${icon}</span>
                                                 <span class="c-nome" style="color: ${configCor.cor}; font-weight: 700;">${arg.event.title}</span>
                                             </div>
-                                            <span class="c-cluster" style="font-size: 0.5rem; color: var(--text-main); background: var(--border-dark); padding: 1px 4px; border-radius: 2px; font-weight: 700;">${dados.cluster}</span>
+                                            <span class="c-cluster" style="font-size: 0.5rem; color: var(--text-main); background: var(--border-dark); padding: 1px 4px; border-radius: 2px; font-weight: 700;">${dados.cluster}${tagTurno}</span>
                                         </div>
                                         ${justificativaHtml}
                                     </div>`
@@ -803,20 +779,22 @@
             if (viewId === 'dashboard') { setTimeout(() => window.renderizarDashboardCompleto(), 100); }
         }
 
+        window.switchDashTab = function(tabName) {
+            document.querySelectorAll('.dash-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.dash-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('btn-tab-' + tabName).classList.add('active');
+            document.getElementById('content-' + tabName).classList.add('active');
+        }
+
         window.renderizarDashboardCompleto = function() {
-            if(!document.getElementById('chartBasesDash')) return;
+            if(!document.getElementById('content-novatos')) return;
 
             const filtroTempo = document.getElementById('dashFiltroTempo').value;
             const filtroBase = document.getElementById('dashFiltroBase').value;
 
             let dadosFiltrados = [...window.baseAgendamentos];
 
-            if (filtroBase !== 'all') {
-                dadosFiltrados = dadosFiltrados.filter(d => d.base_alocada === filtroBase);
-                document.getElementById('lblDashBase').innerText = `(${filtroBase.replace(/LMG-\d+\s|UDI\s/, '')})`;
-            } else {
-                document.getElementById('lblDashBase').innerText = `(MG04)`;
-            }
+            if (filtroBase !== 'all') { dadosFiltrados = dadosFiltrados.filter(d => d.base_alocada === filtroBase); }
 
             const hoje = new Date();
             if (filtroTempo === 'week') {
@@ -827,41 +805,62 @@
                 dadosFiltrados = dadosFiltrados.filter(d => new Date(d.data) >= trintaDiasAtras);
             }
 
-            const hojeStr = window.getHojeString();
-            const qtdAgendados = dadosFiltrados.filter(d => d.status === 'agendado' && d.data >= hojeStr).length;
-            const qtdEmRota = dadosFiltrados.filter(d => d.status === 'em_rota').length;
-            const qtdOcorrencias = dadosFiltrados.filter(d => d.status === 'ocorrencia').length;
-            const qtdFaltas = dadosFiltrados.filter(d => d.status === 'agendado' && d.data < hojeStr).length;
+            let statsDriver = {};
+            window.baseAgendamentos.forEach(d => {
+                if(!statsDriver[d.driver_id]) { statsDriver[d.driver_id] = { id: d.driver_id, nome: d.nome, rodou: 0, recusas: 0, motivos: new Set() }; }
+                if(d.status === 'em_rota') statsDriver[d.driver_id].rodou++;
+                if(d.status === 'ocorrencia') {
+                    statsDriver[d.driver_id].recusas++;
+                    if(d.justificativa) statsDriver[d.driver_id].motivos.add(d.justificativa);
+                }
+            });
 
-            document.getElementById('kpiAgendadoDash').innerText = dadosFiltrados.length;
-            document.getElementById('kpiRotaDash').innerText = qtdEmRota;
-            document.getElementById('kpiOcorrenciaDash').innerText = qtdOcorrencias;
-            document.getElementById('kpiFaltaDash').innerText = qtdFaltas;
+            let novatosIds = Object.values(statsDriver).filter(s => s.rodou < 15).map(s => s.id);
 
-            const mapBases = {};
+            let novatosDisplayMap = {};
             dadosFiltrados.forEach(d => {
-                const nomeBase = d.base_alocada.replace(/LMG-\d+\s|UDI\s/, '');
-                mapBases[nomeBase] = (mapBases[nomeBase] || 0) + 1;
+                if(novatosIds.includes(d.driver_id)) {
+                    if(!novatosDisplayMap[d.driver_id]) {
+                        novatosDisplayMap[d.driver_id] = {
+                            id: d.driver_id, nome: d.nome, base_recente: d.base_alocada,
+                            lifetime_rodou: statsDriver[d.driver_id].rodou,
+                            lifetime_recusas: statsDriver[d.driver_id].recusas,
+                            motivos: Array.from(statsDriver[d.driver_id].motivos)
+                        };
+                    }
+                }
             });
 
-            if (window.chartBasesObj) window.chartBasesObj.destroy();
-            const isLight = document.body.classList.contains('light-mode');
-            Chart.defaults.color = isLight ? '#64748b' : '#8b949e';
-            Chart.defaults.borderColor = isLight ? '#cbd5e1' : '#2a313e';
-           
-            window.chartBasesObj = new Chart(document.getElementById('chartBasesDash'), {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(mapBases),
-                    datasets: [{
-                        label: 'Total Agendamentos',
-                        data: Object.values(mapBases),
-                        backgroundColor: '#ee4d2d',
-                        borderRadius: 4
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
+            const novatosParaExibir = Object.values(novatosDisplayMap).sort((a,b) => b.lifetime_recusas - a.lifetime_recusas);
+            document.getElementById('lblCountNovatos').innerText = `${novatosParaExibir.length} Novato(s)`;
+
+            let htmlNovatos = '<div class="row g-3">';
+            if(novatosParaExibir.length === 0) {
+                htmlNovatos += `<div class="col-12 text-center text-muted p-5"><i class="fa-solid fa-user-check fs-2 mb-3"></i><br>Nenhum novato encontrado para este filtro.</div>`;
+            } else {
+                novatosParaExibir.forEach(n => {
+                    let perc = Math.min((n.lifetime_rodou / 15) * 100, 100);
+                    let motivosHtml = n.motivos.length > 0 ? `<div class="mt-3 pt-2" style="border-top: 1px solid var(--border-dark); font-size:0.65rem; color: var(--st-ocorrencia);"><i class="fa-solid fa-triangle-exclamation"></i> <strong>Causas:</strong> ${n.motivos.join(', ')}</div>` : '';
+                    let baseHtml = filtroBase === 'all' ? `<span class="badge" style="background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border-dark); font-size:0.5rem; margin-left: 5px;">${n.base_recente.replace(/LMG-\d+\s|UDI\s/, '')}</span>` : '';
+                   
+                    htmlNovatos += `
+                    <div class="col-md-4">
+                        <div class="base-dash-card p-3" style="min-height: auto;">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div><div style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">${n.nome}</div><div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 2px;">ID: ${n.id} ${baseHtml}</div></div>
+                                <div class="text-end"><span class="badge" style="background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3);"><i class="fa-solid fa-ban"></i> ${n.lifetime_recusas} Recusa(s)</span></div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="d-flex justify-content-between mb-1" style="font-size: 0.65rem; font-weight: 600; color: var(--text-muted);"><span>Progresso de Adaptação</span><span>${n.lifetime_rodou} / 15 Dias</span></div>
+                                <div class="progress" style="height: 6px; background-color: var(--input-bg); border: 1px solid var(--border-dark);"><div class="progress-bar" role="progressbar" style="width: ${perc}%; background-color: var(--st-rodou);" aria-valuenow="${n.lifetime_rodou}" aria-valuemin="0" aria-valuemax="15"></div></div>
+                            </div>
+                            ${motivosHtml}
+                        </div>
+                    </div>`;
+                });
+            }
+            htmlNovatos += '</div>';
+            document.getElementById('container-novatos-list').innerHTML = htmlNovatos;
 
             const mapMotivos = {};
             dadosFiltrados.filter(d => d.status === 'ocorrencia').forEach(d => {
@@ -869,21 +868,37 @@
                 mapMotivos[motivo] = (mapMotivos[motivo] || 0) + 1;
             });
 
-            if (window.chartMotivosObj) window.chartMotivosObj.destroy();
+            if (window.chartMotivosDashObj) window.chartMotivosDashObj.destroy();
             if (Object.keys(mapMotivos).length === 0) { mapMotivos['Sem Ocorrências'] = 1; }
 
-            window.chartMotivosObj = new Chart(document.getElementById('chartMotivosDash'), {
+            window.chartMotivosDashObj = new Chart(document.getElementById('chartMotivosNovatos'), {
                 type: 'doughnut',
-                data: {
-                    labels: Object.keys(mapMotivos),
-                    datasets: [{
-                        data: Object.values(mapMotivos),
-                        backgroundColor: ['#ef4444', '#f59e0b', '#0ea5e9', '#8b949e', '#10b981'],
-                        borderWidth: 0
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 10} } } } }
+                data: { labels: Object.keys(mapMotivos), datasets: [{ data: Object.values(mapMotivos), backgroundColor: ['#ef4444', '#f59e0b', '#0ea5e9', '#8b949e', '#10b981'], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: {size: 11} } } } }
             });
+
+            let dobrasMap = {};
+            dadosFiltrados.filter(d => d.status === 'em_rota').forEach(d => {
+                let key = `${d.data}|${d.driver_id}`;
+                if(!dobrasMap[key]) { dobrasMap[key] = { data: d.data, driver_id: d.driver_id, nome: d.nome, base: d.base_alocada, count: 0 }; }
+                dobrasMap[key].count++;
+            });
+
+            let dobrasList = Object.values(dobrasMap).filter(x => x.count >= 2);
+            dobrasList.sort((a,b) => new Date(b.data) - new Date(a.data));
+
+            let htmlDobras = '';
+            if(dobrasList.length === 0) {
+                htmlDobras = `<div class="text-center text-muted p-5"><i class="fa-solid fa-bolt fs-2 mb-3"></i><br>Nenhum registro de dobra operacional encontrado neste filtro.</div>`;
+            } else {
+                htmlDobras += `<div class="table-responsive"><table class="table table-borderless table-hover" style="color: var(--text-main); font-size: 0.8rem; margin: 0;"><thead style="border-bottom: 1px solid var(--border-dark); color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;"><tr><th>Data</th><th>Motorista</th><th>ID</th><th>Base</th><th class="text-center">Qtd. Starts</th></tr></thead><tbody>`;
+                dobrasList.forEach(dob => {
+                    const dataFormatada = dob.data.split('-').reverse().join('/');
+                    htmlDobras += `<tr style="border-bottom: 1px solid var(--border-dark);"><td class="align-middle data-mono text-warning">${dataFormatada}</td><td class="align-middle fw-bold">${dob.nome}</td><td class="align-middle data-mono text-muted">${dob.driver_id}</td><td class="align-middle"><span class="badge" style="background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-main);">${dob.base.replace(/LMG-\d+\s|UDI\s/, '')}</span></td><td class="align-middle text-center"><span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--st-rodou); border: 1px solid rgba(16, 185, 129, 0.3);"><i class="fa-solid fa-bolt me-1"></i> ${dob.count}x Starts</span></td></tr>`;
+                });
+                htmlDobras += `</tbody></table></div>`;
+            }
+            document.getElementById('container-dobras-list').innerHTML = htmlDobras;
         }
 
         window.renderizarUsuarios = function() {
@@ -895,37 +910,10 @@
                 let selectBaseHTML = '';
                 if (u.role === 'analista') {
                     const basesOpts = ['LMG-48 Uberaba', 'UDI Uberlândia', 'LMG-39 Patos de Minas', 'LMG-36 Divinópolis', 'LMG-27 Lagoa da Prata', 'LMG-44 Varginha', 'LMG-19 Extrema'];
-                    selectBaseHTML = `
-                        <div class="mt-3" style="border-top: 1px solid var(--border-dark); padding-top: 10px;">
-                            <label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">ATRIBUIR BASE AO ANALISTA:</label>
-                            <select class="form-select form-select-sm mt-1" style="background: var(--input-bg); color: var(--text-main); border-color: var(--border-dark); font-size:0.75rem;" onchange="window.alterarBaseUsuario('${u.uid}', this.value)">
-                                <option value="" disabled ${!u.base_alocada ? 'selected' : ''}>-- Nenhuma Base (Acesso Pendente) --</option>
-                                ${basesOpts.map(b => `<option value="${b}" ${u.base_alocada === b ? 'selected' : ''}>${b}</option>`).join('')}
-                            </select>
-                        </div>`;
+                    selectBaseHTML = `<div class="mt-3" style="border-top: 1px solid var(--border-dark); padding-top: 10px;"><label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">ATRIBUIR BASE AO ANALISTA:</label><select class="form-select form-select-sm mt-1" style="background: var(--input-bg); color: var(--text-main); border-color: var(--border-dark); font-size:0.75rem;" onchange="window.alterarBaseUsuario('${u.uid}', this.value)"><option value="" disabled ${!u.base_alocada ? 'selected' : ''}>-- Nenhuma Base (Acesso Pendente) --</option>${basesOpts.map(b => `<option value="${b}" ${u.base_alocada === b ? 'selected' : ''}>${b}</option>`).join('')}</select></div>`;
                 }
 
-                html += `
-                <div class="col-md-4">
-                    <div class="base-dash-card">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); word-break: break-all; padding-right: 10px;">${u.email}</div>
-                            ${!isCurrent ? `
-                            <div class="dropdown">
-                                <button class="btn btn-sm text-muted border-0 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa-solid fa-ellipsis-vertical fs-5"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-dark shadow">
-                                    <li><h6 class="dropdown-header">Alterar Permissão</h6></li>
-                                    <li><a class="dropdown-item ${u.role === 'gestor' ? 'active' : ''}" href="#" onclick="window.toggleRole('${u.uid}', 'gestor')"><i class="fa-solid fa-user-tie me-2"></i> Gestor</a></li>
-                                    <li><a class="dropdown-item ${u.role === 'analista' ? 'active' : ''}" href="#" onclick="window.toggleRole('${u.uid}', 'analista')"><i class="fa-solid fa-user me-2"></i> Analista</a></li>
-                                </ul>
-                            </div>` : ''}
-                        </div>
-                        <div>${badge} ${isCurrent ? '<span class="badge bg-success">Você</span>' : ''}</div>
-                        ${selectBaseHTML}
-                    </div>
-                </div>`;
+                html += `<div class="col-md-4"><div class="base-dash-card"><div class="d-flex justify-content-between align-items-start mb-3"><div style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); word-break: break-all; padding-right: 10px;">${u.email}</div>${!isCurrent ? `<div class="dropdown"><button class="btn btn-sm text-muted border-0 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical fs-5"></i></button><ul class="dropdown-menu dropdown-menu-dark shadow"><li><h6 class="dropdown-header">Alterar Permissão</h6></li><li><a class="dropdown-item ${u.role === 'gestor' ? 'active' : ''}" href="#" onclick="window.toggleRole('${u.uid}', 'gestor')"><i class="fa-solid fa-user-tie me-2"></i> Gestor</a></li><li><a class="dropdown-item ${u.role === 'analista' ? 'active' : ''}" href="#" onclick="window.toggleRole('${u.uid}', 'analista')"><i class="fa-solid fa-user me-2"></i> Analista</a></li></ul></div>` : ''}</div><div>${badge} ${isCurrent ? '<span class="badge bg-success">Você</span>' : ''}</div>${selectBaseHTML}</div></div>`;
             });
             html += '</div>';
             document.getElementById('users-container').innerHTML = html;
@@ -941,7 +929,6 @@
             const filterSort = document.getElementById('filtroOrdem').value;
 
             if (filterBase !== 'all') dadosFiltrados = dadosFiltrados.filter(d => d.base_alocada === filterBase);
-           
             if (filterStatus !== 'all') {
                 const hojeStr = window.getHojeString();
                 if(filterStatus === 'falta') dadosFiltrados = dadosFiltrados.filter(d => d.status === 'agendado' && d.data < hojeStr);
@@ -968,36 +955,19 @@
                     let veicIcon = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
                     let msgWpp = encodeURIComponent(`Oi, tudo bem? Você confirma seu agendamento para a data do dia ${dataFormatada}?`);
 
-                    htmlRows += `
-                        <div class="report-row">
-                            <div class="row-col-perfil"><div class="row-avatar"><i class="fa-solid ${veicIcon}"></i></div><div><div class="row-nome">${d.nome}</div><div class="row-id">ID: ${d.driver_id}</div></div></div>
-                            <div class="row-col-base"><div class="row-label">Base / Cluster</div><div class="row-value">${d.base_alocada.replace(/LMG-\d+\s|UDI\s/, '')} <span class="text-muted">(${d.cluster})</span></div></div>
-                            <div class="row-col-data"><div class="row-label">Data Agendada</div><div class="row-value data-mono">${dataFormatada}</div></div>
-                            <div class="row-col-status">${statusBadge}</div>
-                            <div class="row-col-actions"><a href="https://wa.me/55${d.telefone}?text=${msgWpp}" target="_blank" class="btn-acao-lista btn-wpp" title="Contatar (Com Mensagem)"><i class="fa-brands fa-whatsapp"></i></a></div>
-                        </div>`;
+                    htmlRows += `<div class="report-row"><div class="row-col-perfil"><div class="row-avatar"><i class="fa-solid ${veicIcon}"></i></div><div><div class="row-nome">${d.nome}</div><div class="row-id">ID: ${d.driver_id}</div></div></div><div class="row-col-base"><div class="row-label">Base / Cluster</div><div class="row-value">${d.base_alocada.replace(/LMG-\d+\s|UDI\s/, '')} <span class="text-muted">(${d.cluster})</span></div></div><div class="row-col-data"><div class="row-label">Data Agendada</div><div class="row-value data-mono">${dataFormatada}</div></div><div class="row-col-status">${statusBadge}</div><div class="row-col-actions"><a href="https://wa.me/55${d.telefone}?text=${msgWpp}" target="_blank" class="btn-acao-lista btn-wpp" title="Contatar (Com Mensagem)"><i class="fa-brands fa-whatsapp"></i></a></div></div>`;
                 });
             }
             document.getElementById('reportRowsContainer').innerHTML = htmlRows;
         }
 
-        const bancosOperacionaisLMG = {
-            "LMG-48 Uberaba": ["1001", "8824"],
-            "UDI Uberlândia": ["2001"],        
-            "LMG-39 Patos de Minas": [],
-            "LMG-36 Divinópolis": [],
-            "LMG-27 Lagoa da Prata": [],
-            "LMG-44 Varginha": [],
-            "LMG-19 Extrema": []
-        };
+        const bancosOperacionaisLMG = { "LMG-48 Uberaba": ["1001", "8824"], "UDI Uberlândia": ["2001"], "LMG-39 Patos de Minas": [], "LMG-36 Divinópolis": [], "LMG-27 Lagoa da Prata": [], "LMG-44 Varginha": [], "LMG-19 Extrema": [] };
 
         window.simularCloudFunctionIntegracao = function() {
             window.baseAgendamentos.forEach(async ag => {
                 if (ag.status === 'agendado') {
                     const driversQueRodaramHoje = bancosOperacionaisLMG[ag.base_alocada] || [];
-                    if (driversQueRodaramHoje.includes(ag.driver_id)) {
-                        await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
-                    }
+                    if (driversQueRodaramHoje.includes(ag.driver_id)) { await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' }); }
                 }
             });
         }
@@ -1022,25 +992,35 @@
                     let msgWpp = encodeURIComponent(`Oi, tudo bem? Você confirma seu agendamento para a data do dia ${dataBr}?`);
                     let botoesHTML = `<a href="https://wa.me/55${d.telefone}?text=${msgWpp}" target="_blank" class="btn-acao-lista btn-wpp" title="Confirmar Start no WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>`;
                    
-                    if(configCor.id === 'agendado' || configCor.id === 'falta') {
-                        botoesHTML += `<button class="btn-acao-lista btn-ocorrencia" title="Registrar Ocorrência" onclick="window.abrirModalOcorrencia('${d.id}')"><i class="fa-solid fa-flag"></i></button>`;
-                    }
-                    if(window.sessaoAtual.role === 'gestor' && (configCor.id === 'ocorrencia' || configCor.id === 'falta')) {
-                        botoesHTML += `<button class="btn-acao-lista btn-reagendar" title="Reagendar Driver" onclick="window.abrirModalReagendamento('${d.id}')"><i class="fa-solid fa-calendar-day"></i></button>`;
-                    }
-
+                    if(configCor.id === 'agendado' || configCor.id === 'falta') { botoesHTML += `<button class="btn-acao-lista btn-ocorrencia" title="Registrar Ocorrência" onclick="window.abrirModalOcorrencia('${d.id}')"><i class="fa-solid fa-flag"></i></button>`; }
+                    if(window.sessaoAtual.role === 'gestor' && (configCor.id === 'ocorrencia' || configCor.id === 'falta')) { botoesHTML += `<button class="btn-acao-lista btn-reagendar" title="Reagendar Driver" onclick="window.abrirModalReagendamento('${d.id}')"><i class="fa-solid fa-calendar-day"></i></button>`; }
                     botoesHTML += `<button class="btn-acao-lista btn-excluir" title="Excluir Agendamento" onclick="window.excluirAgendamento('${d.id}')"><i class="fa-solid fa-trash"></i></button>`;
 
                     let htmlJustificativa = configCor.id === 'ocorrencia' ? `<div class="painel-ocorrencia"><i class="fa-solid fa-circle-info me-1"></i> <strong>OCORRÊNCIA:</strong> ${d.justificativa}</div>` : '';
 
-                    htmlLista += `<div class="driver-item" style="border-left: 3px solid ${configCor.cor}; background: ${configCor.bg}; border-color: ${configCor.cor}; opacity: 0.9;">
-                                    <div class="icon-status"><i class="fa-solid ${iconClass}" style="color: ${configCor.cor};"></i></div>
-                                    <div class="d-info">
-                                        <div class="d-nome" title="${d.nome}" style="color: ${configCor.cor};">${d.nome}</div>
-                                        <div class="data-mono" style="color: var(--text-muted); font-weight: 600; font-size: 0.7rem; margin-top: 2px;">ID: ${d.driver_id} | ${d.cluster.toUpperCase()}</div>
+                    // 2) TAGS DE TURNO (AM / PM)
+                    let tagTurnoHtml = '';
+                    if (d.turno === 'AM') tagTurnoHtml = `<span style="color:#ccff00; border: 1px solid #ccff00; border-radius: 3px; padding: 0 4px; font-size: 0.5rem; font-weight: bold;">AM</span>`;
+                    if (d.turno === 'PM') tagTurnoHtml = `<span style="color:#ff6a00; border: 1px solid #ff6a00; border-radius: 3px; padding: 0 4px; font-size: 0.5rem; font-weight: bold;">PM</span>`;
+
+                    // 3) NOVO LAYOUT DO CARD (AÇÕES EMBAIXO DO NOME, COMPACTO E LIMPO)
+                    htmlLista += `
+                        <div class="driver-item" style="border-left: 3px solid ${configCor.cor}; background: ${configCor.bg}; border-color: ${configCor.cor}; opacity: 0.9; align-items: flex-start;">
+                            <div class="d-flex w-100 align-items-center gap-2">
+                                <div class="icon-status"><i class="fa-solid ${iconClass}" style="color: ${configCor.cor};"></i></div>
+                                <div class="d-info w-100">
+                                    <div class="d-nome" title="${d.nome}" style="color: ${configCor.cor};">${d.nome}</div>
+                                    <div class="data-mono d-flex align-items-center gap-1" style="color: rgba(255, 255, 255, 0.85); font-weight: 500; font-size: 0.7rem; margin-top: 2px;">
+                                        ID: ${d.driver_id} | ${d.cluster.toUpperCase()}
+                                        ${tagTurnoHtml}
                                     </div>
-                                    <div class="acoes-driver">${botoesHTML}</div>${htmlJustificativa}
-                                  </div>`;
+                                </div>
+                            </div>
+                            <div class="d-flex w-100 gap-2 mt-1 pt-2" style="border-top: 1px solid var(--border-dark);">
+                                ${botoesHTML}
+                            </div>
+                            ${htmlJustificativa}
+                        </div>`;
                 });
             }
             document.getElementById('listaDrivers').innerHTML = htmlLista;
@@ -1071,6 +1051,10 @@
             document.getElementById('inputModoEdicao').value = driver.id; document.getElementById('boxNovaData').style.display = 'block'; document.getElementById('inputNovaData').setAttribute('required', 'true');
             document.getElementById('inputId').value = driver.driver_id; document.getElementById('inputId').readOnly = true;
             document.getElementById('inputCluster').value = driver.cluster; document.getElementById('inputNome').value = driver.nome;
+           
+            // Carrega o turno salvo para a edição
+            document.getElementById('inputTurno').value = driver.turno || 'AM';
+           
             document.getElementById('inputTelefone').value = driver.telefone; document.getElementById('inputVeiculo').value = driver.veiculo;
             modalPadrao.classList.add('active');
         }
@@ -1103,6 +1087,8 @@
             const payload = {
                 driver_id: document.getElementById('inputId').value, nome: document.getElementById('inputNome').value,
                 cluster: document.getElementById('inputCluster').value, veiculo: document.getElementById('inputVeiculo').value,
+                // O TURNO É SALVO AQUI NO BANCO:
+                turno: document.getElementById('inputTurno').value,
                 telefone: document.getElementById('inputTelefone').value.replace(/\D/g, ''), status: 'agendado', justificativa: ''
             };
 
