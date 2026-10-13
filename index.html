@@ -62,12 +62,10 @@
 
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; transition: background-color 0.3s ease, color 0.3s ease; }
        
-        /* CORREÇÕES GERAIS DE TEXTO (SOBRESCRITA DO BOOTSTRAP PARA CONTRASTE) */
         .text-muted { color: var(--text-muted) !important; }
         .table { color: var(--text-main) !important; --bs-table-bg: transparent; }
         .table-hover > tbody > tr:hover > * { color: var(--text-main) !important; background-color: var(--input-bg) !important; }
        
-        /* Ajuste Dropdown de Gestão */
         .dropdown-menu { background-color: var(--bg-panel); border: 1px solid var(--border-dark); }
         .dropdown-item { color: var(--text-main); transition: 0.2s; }
         .dropdown-item:hover { background-color: var(--input-bg); color: var(--spx-orange); }
@@ -160,7 +158,6 @@
         #calendar { min-height: 650px; }
         .fc-theme-standard td, .fc-theme-standard th, .fc-theme-standard .fc-scrollgrid { border-color: var(--border-dark) !important; }
        
-        /* CORREÇÃO DO CÚBICO DOS DIAS DO CALENDÁRIO (Evitar Links Azuis Nativos) */
         .fc-col-header-cell-cushion { color: var(--text-main) !important; text-decoration: none; text-transform: uppercase; font-size: 0.75rem; }
         .fc-daygrid-day-number { color: var(--text-muted) !important; text-decoration: none; font-size: 0.75rem; padding: 4px; }
        
@@ -173,8 +170,6 @@
 
         .fc-event { border: none !important; background: transparent !important; margin: 2px !important; }
         .fc-daygrid-event-harness { margin: 2px 0 !important; }
-        .c-nome { font-size: 0.65rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px; }
-        .c-cluster { font-size: 0.5rem; color: #fff; background: rgba(255,255,255,0.15); padding: 1px 5px; border-radius: 4px; font-weight: 700; }
        
         .day-inspector { width: 350px; background: var(--bg-panel); border-left: 1px solid var(--border-dark); display: flex; flex-direction: column; transition: 0.3s; flex-shrink: 0; }
         .inspector-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); flex-shrink: 0; }
@@ -272,7 +267,7 @@
             <main class="app-view active" id="view-calendar">
                 <div class="view-header">
                     <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center;">
-                        <i class="fa-solid fa-calendar-week text-muted me-2"></i> GRADE DE STARTS
+                        <i class="fa-solid fa-calendar-week text-muted me-2"></i> AGENDAMENTO DE NOVATOS
                         <span id="dynamicBaseHeader" style="margin-left: 15px; color: var(--spx-orange); font-size: 0.8rem; background: rgba(238, 77, 45, 0.1); padding: 3px 10px; border-radius: 4px; border: 1px solid rgba(238, 77, 45, 0.3); text-transform: uppercase;"></span>
                     </div>
                     <div class="d-flex gap-3" style="font-size: 0.65rem; font-weight: 600; text-transform: uppercase; align-items: center;">
@@ -460,6 +455,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE OCORRÊNCIA INTELIGENTE -->
     <div id="modalOcorrencia" class="modal-overlay">
         <div class="modal-box form-dark" style="width: 400px; border-color: var(--st-ocorrencia);">
             <div class="modal-box-header" style="border-bottom-color: rgba(239, 68, 68, 0.2);">
@@ -516,6 +512,7 @@
         window.dataVisualizadaNoInspetor = '';
         window.baseAgendamentos = [];
         window.listaUsuarios = [];
+       
         window.chartMotivosDashObj = null;
 
         window.toggleTheme = function() {
@@ -705,39 +702,13 @@
                         window.meuCalendario = new FullCalendar.Calendar(calendarEl, {
                             locale: 'pt-br', initialView: 'dayGridMonth', headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
                             dayMaxEvents: 4, contentHeight: 'auto',
-                            dayCellContent: function(arg) {
-                                let d = arg.date;
-                                let dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-                                const total = window.baseAgendamentos.filter(a => a.data === dateStr && a.base_alocada === window.sessaoAtual.baseAtiva).length;
-                               
-                                let html = `<div style="display:flex; justify-content:space-between; width:100%; padding:2px 4px;">`;
-                                if (total > 0) {
-                                    html += `<span style="font-size:0.6rem; color:var(--text-muted); background:var(--input-bg); padding:1px 5px; border-radius:10px;">${total}</span>`;
-                                } else { html += `<span></span>`; }
-                                html += `<span>${arg.dayNumberText}</span></div>`;
-                                return { html: html };
-                            },
+                           
+                            // LÓGICA DO NÚMERO CENTRALIZADO NA GRADE DO CALENDÁRIO
                             eventContent: function(arg) {
-                                const dados = arg.event.extendedProps;
-                                let icon = dados.veiculo === 'moto' ? '<i class="fa-solid fa-motorcycle"></i>' : dados.veiculo === 'passeio' ? '<i class="fa-solid fa-car"></i>' : '<i class="fa-solid fa-van-shuttle"></i>';
-                               
-                                const configCor = window.getStatusInfo(dados.status, arg.event.startStr);
-                                let justificativaHtml = (dados.status === 'ocorrencia' && dados.justificativa) ? `<div style="font-size: 0.5rem; color: #fca5a5; margin-top: 3px; padding-top: 3px; border-top: 1px dashed rgba(239, 68, 68, 0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">Obs: ${dados.justificativa}</div>` : '';
-
-                                let tagTurno = '';
-                                if (dados.turno === 'AM') tagTurno = '<span style="color:#ccff00; font-size: 0.45rem; font-weight: 800; margin-left: 3px;">AM</span>';
-                                if (dados.turno === 'PM') tagTurno = '<span style="color:#ff6a00; font-size: 0.45rem; font-weight: 800; margin-left: 3px;">PM</span>';
-
+                                const total = arg.event.extendedProps.total;
                                 return { html: `
-                                    <div class="card-start" style="display: flex; flex-direction: column; background: ${configCor.bg}; border-left: 3px solid ${configCor.cor}; padding: 4px 6px; border-radius: 4px; margin-bottom: 2px;">
-                                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                                            <div class="d-flex align-items-center gap-1">
-                                                <span style="font-size: 0.55rem; color: var(--text-muted);">${icon}</span>
-                                                <span class="c-nome" style="color: ${configCor.cor}; font-weight: 700;">${arg.event.title}</span>
-                                            </div>
-                                            <span class="c-cluster" style="font-size: 0.5rem; color: var(--text-main); background: var(--border-dark); padding: 1px 4px; border-radius: 2px; font-weight: 700;">${dados.cluster}${tagTurno}</span>
-                                        </div>
-                                        ${justificativaHtml}
+                                    <div style="display: flex; justify-content: center; align-items: center; background: rgba(238, 77, 45, 0.15); border: 1px solid rgba(238, 77, 45, 0.4); color: var(--spx-orange); border-radius: 6px; padding: 8px 4px; margin: 5px; font-weight: 700; font-size: 0.85rem; pointer-events: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                        <i class="fa-solid fa-users me-2"></i> ${total}
                                     </div>`
                                 };
                             },
@@ -758,6 +729,27 @@
                     window.renderizarUsuarios();
                 }
             }, 500);
+        }
+
+        window.recarregarEventosNoCalendario = function() {
+            if(!window.meuCalendario) return;
+            window.meuCalendario.removeAllEvents();
+           
+            // O algoritmo agrupa as contagens por dia antes de desenhar na grade
+            let contagemPorData = {};
+            window.baseAgendamentos.filter(ag => ag.base_alocada === window.sessaoAtual.baseAtiva).forEach(ag => {
+                if (!contagemPorData[ag.data]) { contagemPorData[ag.data] = 0; }
+                contagemPorData[ag.data]++;
+            });
+
+            Object.keys(contagemPorData).forEach(data => {
+                window.meuCalendario.addEvent({
+                    title: contagemPorData[data].toString(),
+                    start: data,
+                    allDay: true,
+                    extendedProps: { total: contagemPorData[data] }
+                });
+            });
         }
 
         window.trocarBaseAtiva = function(novaBase) {
@@ -853,19 +845,24 @@
             } else {
                 novatosParaExibir.forEach(n => {
                     let perc = Math.min((n.lifetime_rodou / 15) * 100, 100);
-                    let motivosHtml = n.motivos.length > 0 ? `<div class="mt-3 pt-2" style="border-top: 1px solid var(--border-dark); font-size:0.65rem; color: var(--st-ocorrencia);"><i class="fa-solid fa-triangle-exclamation"></i> <strong>Causas:</strong> ${n.motivos.join(', ')}</div>` : '';
+                    let motivosHtml = n.motivos.length > 0 ? `<div class="mt-2 pt-2" style="border-top: 1px solid var(--border-dark); font-size:0.55rem; color: var(--st-ocorrencia);"><i class="fa-solid fa-triangle-exclamation"></i> <strong>Causas:</strong> ${n.motivos.join(', ')}</div>` : '';
                     let baseHtml = filtroBase === 'all' ? `<span class="badge" style="background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border-dark); font-size:0.5rem; margin-left: 5px;">${n.base_recente.replace(/LMG-\d+\s|UDI\s/, '')}</span>` : '';
                    
                     htmlNovatos += `
-                    <div class="col-md-4">
-                        <div class="base-dash-card p-3" style="min-height: auto;">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div><div style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">${n.nome}</div><div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 2px;">ID: ${n.id} ${baseHtml}</div></div>
-                                <div class="text-end"><span class="badge" style="background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3);"><i class="fa-solid fa-ban"></i> ${n.lifetime_recusas} Recusa(s)</span></div>
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="base-dash-card p-2" style="min-height: auto;">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <div class="w-100 pr-1" style="overflow: hidden;">
+                                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${n.nome}">${n.nome}</div>
+                                    <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 1px;">ID: ${n.id} ${baseHtml}</div>
+                                </div>
+                                <div class="text-end flex-shrink-0">
+                                    <span class="badge px-1" style="background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.55rem;"><i class="fa-solid fa-ban"></i> ${n.lifetime_recusas}x</span>
+                                </div>
                             </div>
-                            <div class="mt-3">
-                                <div class="d-flex justify-content-between mb-1" style="font-size: 0.65rem; font-weight: 600; color: var(--text-muted);"><span>Progresso de Adaptação</span><span>${n.lifetime_rodou} / 15 Dias</span></div>
-                                <div class="progress" style="height: 6px; background-color: var(--input-bg); border: 1px solid var(--border-dark);"><div class="progress-bar" role="progressbar" style="width: ${perc}%; background-color: var(--st-rodou);" aria-valuenow="${n.lifetime_rodou}" aria-valuemin="0" aria-valuemax="15"></div></div>
+                            <div class="mt-2">
+                                <div class="d-flex justify-content-between mb-1" style="font-size: 0.55rem; font-weight: 600; color: var(--text-muted);"><span>Adaptação</span><span>${n.lifetime_rodou}/15 D</span></div>
+                                <div class="progress" style="height: 4px; background-color: var(--input-bg); border: 1px solid var(--border-dark);"><div class="progress-bar" role="progressbar" style="width: ${perc}%; background-color: var(--st-rodou);" aria-valuenow="${n.lifetime_rodou}" aria-valuemin="0" aria-valuemax="15"></div></div>
                             </div>
                             ${motivosHtml}
                         </div>
@@ -891,10 +888,11 @@
             });
 
             let dobrasMap = {};
-            dadosFiltrados.filter(d => d.status === 'em_rota').forEach(d => {
+            dadosFiltrados.forEach(d => {
                 let key = `${d.data}|${d.driver_id}`;
-                if(!dobrasMap[key]) { dobrasMap[key] = { data: d.data, driver_id: d.driver_id, nome: d.nome, base: d.base_alocada, count: 0 }; }
+                if(!dobrasMap[key]) { dobrasMap[key] = { data: d.data, driver_id: d.driver_id, nome: d.nome, base: d.base_alocada, count: 0, turnos: new Set() }; }
                 dobrasMap[key].count++;
+                if (d.turno) dobrasMap[key].turnos.add(d.turno);
             });
 
             let dobrasList = Object.values(dobrasMap).filter(x => x.count >= 2);
