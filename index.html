@@ -16,21 +16,58 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+        /* ========================================================
+           VARIÁVEIS DE TEMA DINÂMICO (DARK/LIGHT MODE)
+           ======================================================== */
         :root {
             --spx-orange: #ee4d2d;
             --spx-orange-gradient: linear-gradient(135deg, #ff6a00 0%, #ee4d2d 100%);
-            --bg-dark: #0b0f19; --bg-panel: #151a23;
-            --border-dark: #2a313e; --text-main: #e2e8f0; --text-muted: #8b949e;
-            --veic-moto: #0ea5e9; --veic-passeio: #f59e0b; --veic-fiorino: #10b981;
-            --whatsapp: #25D366; --ocorrencia: #ef4444; --sucesso: #10b981;
+           
+            /* Status Cores (Mantém nos dois modos) */
+            --st-agendado: #3b82f6;
+            --st-rodou: #10b981;    
+            --st-ocorrencia: #ef4444;
+            --st-falta: #f59e0b;    
+            --whatsapp: #25D366;
+           
+            /* DARK MODE (Padrão) */
+            --bg-dark: #0b0f19;
+            --bg-panel: #151a23;
+            --bg-header: #06080d;
+            --border-dark: #2a313e;
+            --text-main: #e2e8f0;
+            --text-muted: #8b949e;
+            --card-bg: linear-gradient(145deg, #161c26, #11151d);
+            --input-bg: rgba(255,255,255,0.03);
+            --shadow-color: rgba(0,0,0,0.2);
+        }
+
+        /* LIGHT MODE (Ativado via JS) */
+        body.light-mode {
+            --bg-dark: #f1f5f9;
+            --bg-panel: #ffffff;
+            --bg-header: #ffffff;
+            --border-dark: #cbd5e1;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --input-bg: #f8fafc;
+            --shadow-color: rgba(0,0,0,0.05);
         }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-dark); }
-        ::-webkit-scrollbar-thumb { background: #333d4d; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--spx-orange); }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; margin: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh; overflow: hidden; margin: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+       
         .data-mono { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; letter-spacing: -0.5px; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
@@ -40,7 +77,7 @@
            ======================================================== */
         #login-screen {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: var(--bg-dark);
+            background-color: #0b0f19;
             background-image: url('login.jpg');
             background-size: cover;
             background-position: center;
@@ -49,109 +86,89 @@
             z-index: 9999; transition: opacity 0.5s ease;
         }
 
-        .fallback-text {
-            position: absolute;
-            color: rgba(255,255,255,0.2);
-            font-size: 1.5rem;
-            font-weight: 800;
-            z-index: 1;
-            text-align: center;
-            pointer-events: none;
-        }
-
-        .invisible-btn {
-            position: absolute;
-            top: 65%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50vw;
-            max-width: 600px;
-            height: 15vh;
-            min-height: 100px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            z-index: 10;
-            border-radius: 50px;
-        }
+        .fallback-text { position: absolute; color: rgba(255,255,255,0.2); font-size: 1.5rem; font-weight: 800; z-index: 1; text-align: center; pointer-events: none; }
+        .invisible-btn { position: absolute; top: 65%; left: 50%; transform: translate(-50%, -50%); width: 50vw; max-width: 600px; height: 15vh; min-height: 100px; background: transparent; border: none; cursor: pointer; z-index: 10; border-radius: 50px; }
 
         .login-error {
-            position: absolute;
-            top: 75%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(239, 68, 68, 0.95);
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: none;
-            text-align: center;
-            width: auto;
-            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
-            z-index: 11;
+            position: absolute; top: 75%; left: 50%; transform: translateX(-50%);
+            background: rgba(239, 68, 68, 0.95); color: #fff; padding: 12px 24px;
+            border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: none; text-align: center; width: auto; z-index: 11;
         }
+
+        .btn-action { background: var(--spx-orange-gradient); color: white; font-weight: 700; padding: 14px; width: 100%; border-radius: 12px; border: none; transition: all 0.25s ease; text-transform: uppercase; font-size: 0.9rem; }
+        .btn-action:hover { filter: brightness(1.1); transform: translateY(-1px); }
 
         /* ========================================================
            APLICAÇÃO PRINCIPAL: TOPBAR E MENUS
            ======================================================== */
         #app-screen { display: none; height: 100vh; flex-direction: column; }
-        .topbar { background: #06080d; border-bottom: 1px solid var(--border-dark); height: 45px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-        .logo-sys { font-weight: 700; color: var(--text-main); font-size: 0.85rem; letter-spacing: 1px; }
-        .logo-sys span { color: var(--spx-orange); font-size: 0.75rem; }
+        .topbar { background: var(--bg-header); border-bottom: 1px solid var(--border-dark); height: 45px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; transition: 0.3s ease; }
+       
+        .logo-sys { font-weight: 700; color: var(--text-main); font-size: 0.85rem; letter-spacing: 1px; display: flex; align-items: center; }
+        .logo-sys span { color: var(--spx-orange); font-size: 0.75rem; margin-right: 15px; }
+       
+        /* BOTÃO DE TEMA (DARK/LIGHT) */
+        .theme-toggle-btn { background: transparent; border: 1px solid var(--border-dark); color: var(--text-muted); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .theme-toggle-btn:hover { background: var(--input-bg); color: var(--spx-orange); }
+
         .header-controls { display: flex; align-items: center; gap: 15px; transition: 0.3s; }
-        .lbl-base-logada { background: rgba(255,255,255,0.05); border: 1px solid var(--border-dark); padding: 4px 12px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; color: var(--spx-orange); display: none; }
-        .base-selector-top { background: transparent; border: 1px solid var(--border-dark); color: var(--text-main); font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; outline: none; cursor: pointer; display: none; }
-        .base-selector-top option { background-color: var(--bg-panel); color: #fff; }
+        .lbl-base-logada { background: var(--input-bg); border: 1px solid var(--border-dark); padding: 4px 12px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; color: var(--spx-orange); display: none; }
+        .base-selector-top { background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-main); font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; outline: none; cursor: pointer; display: none; }
+        .base-selector-top option { background-color: var(--bg-panel); color: var(--text-main); }
         .base-selector-top:focus { border-color: var(--spx-orange); }
        
         .role-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 12px; font-weight: 700; text-transform: uppercase; }
-        .role-gestor { background: rgba(238, 77, 45, 0.2); color: var(--spx-orange); border: 1px solid rgba(238, 77, 45, 0.3); }
-        .role-analista { background: rgba(14, 165, 233, 0.2); color: var(--veic-moto); border: 1px solid rgba(14, 165, 233, 0.3); }
+        .role-gestor { background: rgba(238, 77, 45, 0.15); color: var(--spx-orange); border: 1px solid rgba(238, 77, 45, 0.3); }
+        .role-analista { background: rgba(59, 130, 246, 0.15); color: var(--st-agendado); border: 1px solid rgba(59, 130, 246, 0.3); }
 
         .workspace { display: flex; height: calc(100vh - 45px); width: 100vw; }
-        .sidebar-slim { width: 60px; background: #06080d; border-right: 1px solid var(--border-dark); display: flex; flex-direction: column; align-items: center; padding-top: 15px; z-index: 10; transition: 0.3s ease; }
+        .sidebar-slim { width: 60px; background: var(--bg-header); border-right: 1px solid var(--border-dark); display: flex; flex-direction: column; align-items: center; padding-top: 15px; z-index: 10; transition: 0.3s ease; }
         .nav-icon { width: 40px; height: 40px; border-radius: 6px; display: flex; justify-content: center; align-items: center; color: var(--text-muted); text-decoration: none; margin-bottom: 10px; transition: 0.2s; font-size: 1rem; cursor: pointer; }
-        .nav-icon:hover, .nav-icon.active { background: var(--border-dark); color: var(--spx-orange); }
-        .app-view { display: none; flex-grow: 1; flex-direction: column; background: var(--bg-dark); overflow: hidden; width: 100%; }
+        .nav-icon:hover, .nav-icon.active { background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--spx-orange); }
+        .app-view { display: none; flex-grow: 1; flex-direction: column; background: var(--bg-dark); overflow: hidden; width: 100%; transition: 0.3s ease;}
         .app-view.active { display: flex; }
-        .view-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .view-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; transition: 0.3s ease;}
 
-        /* COMPONENTES COMPARTILHADOS */
-        .filter-bar { display: flex; gap: 15px; padding: 15px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border-dark); align-items: center; flex-wrap: wrap; }
+        /* DASHBOARD GERENCIAL */
+        .filter-bar { display: flex; gap: 15px; padding: 15px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border-dark); align-items: center; flex-wrap: wrap; transition: 0.3s ease;}
         .filter-group { display: flex; align-items: center; gap: 8px; }
         .filter-group label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin: 0; }
-        .filter-select { background: #0b0f19; border: 1px solid var(--border-dark); color: #fff; font-size: 0.8rem; border-radius: 4px; padding: 6px 12px; outline: none; }
+        .filter-select { background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-main); font-size: 0.8rem; border-radius: 4px; padding: 6px 12px; outline: none; }
         .filter-select:focus { border-color: var(--spx-orange); }
 
-        .dashboard-container { padding: 20px; overflow-y: auto; flex-grow: 1; align-content: flex-start; }
-        .base-dash-card { background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 8px; padding: 15px; height: 100%; display: flex; flex-direction: column; }
-        .base-dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 10px; margin-bottom: 15px; font-weight: 700; color: #fff; font-size: 0.85rem; text-transform: uppercase; }
+        .dashboard-container { padding: 25px; overflow-y: auto; flex-grow: 1; align-content: flex-start; }
        
-        .metric-box { background: rgba(255,255,255,0.02); border-radius: 6px; padding: 15px; flex: 1; border: 1px solid var(--border-dark); display: flex; flex-direction: column; justify-content: center; }
-        .metric-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 5px; }
-        .metric-val { font-size: 2rem; font-weight: 800; color: #fff; line-height: 1; }
+        .kpi-card { background: var(--card-bg); border: 1px solid var(--border-dark); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: 0 10px 20px var(--shadow-color); transition: 0.3s ease; }
+        .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 15px 30px var(--shadow-color); }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+        .kpi-blue::before { background: var(--st-agendado); }
+        .kpi-green::before { background: var(--st-rodou); }
+        .kpi-red::before { background: var(--st-ocorrencia); }
+        .kpi-orange::before { background: var(--st-falta); }
+       
+        .kpi-title { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .kpi-value { font-size: 2.2rem; font-weight: 800; color: var(--text-main); line-height: 1; }
 
+        .base-dash-card { background: var(--card-bg); border: 1px solid var(--border-dark); border-radius: 12px; padding: 20px; height: 100%; display: flex; flex-direction: column; box-shadow: 0 10px 20px var(--shadow-color); transition: 0.3s ease; }
+        .base-dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 15px; margin-bottom: 20px; font-weight: 700; color: var(--text-main); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* RELATÓRIO GERAL (GRID DE LINHAS) */
         .report-list-container { padding: 20px; overflow-y: auto; flex-grow: 1; }
         .report-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg-panel); border: 1px solid var(--border-dark); padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; transition: 0.2s; }
-        .report-row:hover { border-color: #475569; background: #1a2233; }
+        .report-row:hover { border-color: var(--spx-orange); }
        
         .row-col-perfil { display: flex; align-items: center; gap: 15px; width: 250px; }
-        .row-avatar { width: 35px; height: 35px; background: var(--bg-dark); border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 1rem; color: #fff; border: 1px solid var(--border-dark); }
-        .row-nome { font-size: 0.85rem; font-weight: 600; color: #fff; margin-bottom: 2px; }
+        .row-avatar { width: 35px; height: 35px; background: var(--input-bg); border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 1rem; color: var(--text-muted); border: 1px solid var(--border-dark); }
+        .row-nome { font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 2px; }
         .row-id { font-size: 0.7rem; color: var(--text-muted); }
         .row-col-base { width: 200px; display: flex; flex-direction: column; }
         .row-col-data { width: 120px; display: flex; flex-direction: column; }
         .row-col-status { width: 150px; display: flex; align-items: center; justify-content: flex-end; }
         .row-col-actions { width: 50px; display: flex; justify-content: flex-end; }
         .row-label { font-size: 0.6rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 2px; }
-        .row-value { font-size: 0.8rem; font-weight: 500; color: #cbd5e1; }
+        .row-value { font-size: 0.8rem; font-weight: 500; color: var(--text-main); }
        
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
-        .status-agendado { background: rgba(245, 158, 11, 0.1); color: var(--veic-passeio); border: 1px solid rgba(245, 158, 11, 0.3); }
-        .status-rota { background: rgba(16, 185, 129, 0.1); color: var(--sucesso); border: 1px solid rgba(16, 185, 129, 0.3); }
-        .status-ocorrencia { background: rgba(239, 68, 68, 0.1); color: var(--ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
 
         /* CALENDÁRIO E INSPETOR */
         .calendar-wrapper { display: flex; flex-grow: 1; overflow: hidden; width: 100%; }
@@ -160,52 +177,34 @@
         .fc-theme-standard td, .fc-theme-standard th, .fc-theme-standard .fc-scrollgrid { border-color: var(--border-dark) !important; }
         .fc .fc-toolbar-title { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
         .fc .fc-button-primary { background: var(--bg-panel); border-color: var(--border-dark); color: var(--text-main); font-size: 0.75rem; padding: 4px 8px; }
-        .fc .fc-button-primary:hover { background: var(--border-dark); color: white; border-color: var(--border-dark); }
-        .fc-day-today { background-color: rgba(238, 77, 45, 0.05) !important; }
+        .fc .fc-button-primary:hover { background: var(--border-dark); color: var(--spx-orange); border-color: var(--border-dark); }
+        .fc-day-today { background-color: var(--input-bg) !important; }
         .fc-daygrid-day-number { color: var(--text-muted); font-size: 0.75rem; padding: 4px; }
-        .fc-daygrid-day:hover { background-color: #121721; cursor: pointer; }
-        .fc-day-active { background-color: rgba(255,255,255,0.03) !important; box-shadow: inset 0 0 0 1px var(--spx-orange); }
+        .fc-daygrid-day:hover { background-color: var(--input-bg); cursor: pointer; }
+        .fc-day-active { background-color: var(--input-bg) !important; box-shadow: inset 0 0 0 1px var(--spx-orange); }
 
         .fc-event { border: none !important; background: transparent !important; margin: 2px !important; }
         .fc-daygrid-event-harness { margin: 2px 0 !important; }
-        .card-start { padding: 4px 6px; border-radius: 4px; background: #1a2233; border-left: 3px solid; margin-bottom: 2px; color: #fff; }
-        .card-start.veic-moto { border-color: var(--veic-moto); }
-        .card-start.veic-passeio { border-color: var(--veic-passeio); }
-        .card-start.veic-fiorino { border-color: var(--veic-fiorino); }
-        .c-nome { font-size: 0.6rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60px; }
-        .c-cluster { font-size: 0.5rem; color: #000; background: #94a3b8; padding: 0 4px; border-radius: 2px; font-weight: 700; }
-       
-        .card-start.ocorrencia { background: rgba(239, 68, 68, 0.15); border-left: 3px solid var(--ocorrencia); border-right: 1px solid var(--ocorrencia); border-top: 1px solid var(--ocorrencia); border-bottom: 1px solid var(--ocorrencia); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
-        .card-start.ocorrencia .c-nome { color: var(--ocorrencia); font-weight: 700; }
-        .card-start.ocorrencia .c-cluster { background: var(--ocorrencia); color: #fff; }
-        .card-start.em-rota { background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--sucesso); }
-        .card-start.em-rota .c-nome { color: var(--sucesso); font-weight: 700; }
        
         .day-inspector { width: 350px; background: var(--bg-panel); border-left: 1px solid var(--border-dark); display: flex; flex-direction: column; transition: 0.3s; flex-shrink: 0; }
         .inspector-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); flex-shrink: 0; }
         .inspector-body { flex-grow: 1; padding: 15px 20px; overflow-y: auto; }
        
-        .driver-item { background: #0b0f19; border: 1px solid var(--border-dark); border-radius: 6px; padding: 8px; margin-bottom: 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-        .driver-item.has-ocorrencia { border-color: var(--ocorrencia); background: rgba(239, 68, 68, 0.05); }
-        .driver-item.has-sucesso { border-color: rgba(16, 185, 129, 0.4); border-left: 3px solid var(--sucesso); }
-        .icon-veiculo { width: 28px; height: 28px; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; color: #fff; flex-shrink: 0; }
-        .bg-moto { background: rgba(14, 165, 233, 0.2); color: var(--veic-moto); border: 1px solid rgba(14, 165, 233, 0.3); }
-        .bg-passeio { background: rgba(245, 158, 11, 0.2); color: var(--veic-passeio); border: 1px solid rgba(245, 158, 11, 0.3); }
-        .bg-fiorino { background: rgba(16, 185, 129, 0.2); color: var(--veic-fiorino); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .driver-item { background: var(--input-bg); border: 1px solid var(--border-dark); border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; box-shadow: 0 4px 6px var(--shadow-color); transition: 0.3s ease; }
+        .icon-status { width: 32px; height: 32px; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 0.85rem; flex-shrink: 0; }
        
         .d-info { flex-grow: 1; overflow: hidden; }
-        .d-nome { font-size: 0.75rem; font-weight: 600; color: #fff; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .btn-acao-lista { width: 26px; height: 26px; border-radius: 4px; border: 1px solid transparent; display: flex; justify-content: center; align-items: center; font-size: 0.75rem; cursor: pointer; text-decoration: none; transition: 0.2s; }
+        .d-nome { font-size: 0.75rem; font-weight: 700; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); }
+        .btn-acao-lista { width: 28px; height: 28px; border-radius: 6px; border: 1px solid transparent; display: flex; justify-content: center; align-items: center; font-size: 0.8rem; cursor: pointer; text-decoration: none; transition: 0.2s; }
        
         .btn-wpp { background: rgba(37, 211, 102, 0.1); color: var(--whatsapp); border-color: rgba(37, 211, 102, 0.2); }
         .btn-wpp:hover { background: var(--whatsapp); color: #fff; }
-        .btn-ocorrencia { background: rgba(239, 68, 68, 0.05); color: var(--ocorrencia); border: 1px solid rgba(239, 68, 68, 0.2); }
-        .btn-ocorrencia:hover { background: var(--ocorrencia); color: #fff; }
-        .btn-reagendar { background: rgba(245, 158, 11, 0.1); color: var(--veic-passeio); border-color: rgba(245, 158, 11, 0.3); width: auto; padding: 0 10px; font-weight: 600; }
-        .btn-reagendar:hover { background: var(--veic-passeio); color: #fff; }
-        .btn-excluir { background: rgba(239, 68, 68, 0.1); color: var(--ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); }
-        .btn-excluir:hover { background: var(--ocorrencia); color: #fff; }
-        .badge-em-rota { background: rgba(16, 185, 129, 0.1); color: var(--sucesso); border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; display: inline-block; }
+        .btn-ocorrencia { background: rgba(239, 68, 68, 0.05); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .btn-ocorrencia:hover { background: var(--st-ocorrencia); color: #fff; }
+        .btn-reagendar { background: rgba(245, 158, 11, 0.1); color: var(--st-falta); border-color: rgba(245, 158, 11, 0.3); width: auto; padding: 0 10px; font-weight: 600; }
+        .btn-reagendar:hover { background: var(--st-falta); color: #fff; }
+        .btn-excluir { background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-excluir:hover { background: var(--st-ocorrencia); color: #fff; }
 
         .painel-ocorrencia { width: 100%; margin-top: 5px; padding: 8px; background: rgba(239, 68, 68, 0.1); border: 1px dashed rgba(239, 68, 68, 0.3); border-radius: 4px; font-size: 0.65rem; color: #fca5a5; }
 
@@ -215,19 +214,19 @@
         .modal-box { background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 12px; width: 450px; padding: 25px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: translateY(-20px); transition: 0.3s ease; }
         .modal-overlay.active .modal-box { transform: translateY(0); }
         .modal-box-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 15px; margin-bottom: 15px; }
-        .modal-title { font-size: 0.9rem; font-weight: 700; color: #fff; text-transform: uppercase; }
+        .modal-title { font-size: 0.9rem; font-weight: 700; color: var(--text-main); text-transform: uppercase; }
         .btn-close-modal { background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
         .btn-close-modal:hover { color: var(--spx-orange); }
 
         .form-dark .form-label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
-        .form-dark .form-control, .form-dark .form-select { background: #0b0f19; border: 1px solid var(--border-dark); color: #fff; font-size: 0.85rem; border-radius: 6px; padding: 8px 12px; }
-        .form-dark .form-select option { background: var(--bg-panel); color: #fff; }
+        .form-dark .form-control, .form-dark .form-select { background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-main); font-size: 0.85rem; border-radius: 6px; padding: 8px 12px; transition: 0.3s ease; }
+        .form-dark .form-select option { background: var(--bg-panel); color: var(--text-main); }
         .form-dark .form-control:focus, .form-dark .form-select:focus { border-color: var(--spx-orange); box-shadow: none; outline: none; }
         .modal-footer-actions { display: flex; gap: 10px; margin-top: 20px; }
         .btn-cancel { background: transparent; color: var(--text-muted); border: 1px solid var(--border-dark); font-weight: 600; padding: 10px; border-radius: 4px; flex: 1; transition: 0.2s; font-size: 0.8rem; text-transform: uppercase; }
-        .btn-cancel:hover { background: var(--bg-dark); color: #fff; }
+        .btn-cancel:hover { background: var(--input-bg); color: var(--text-main); }
         .btn-danger-action { background: var(--ocorrencia); color: white; font-weight: 600; padding: 10px; width: 100%; border-radius: 4px; border: none; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; flex: 2;}
-        .btn-danger-action:hover { background: #b91c1c; }
+        .btn-danger-action:hover { filter: brightness(0.9); }
     </style>
 </head>
 <body>
@@ -238,12 +237,18 @@
             <button class="invisible-btn" onclick="window.simularGoogleLogin()" title="Fazer login com o Google"></button>
             <div id="ui-error" class="login-error"></div>
         </div>
-        <!-- Selector removido do Login: Analistas agora dependem do Gestor alocar a base por dentro do sistema -->
     </div>
 
     <div id="app-screen">
         <header class="topbar">
-            <div class="logo-sys">DRIVERS DAY 360 <span>// AGENDAS</span></div>
+            <!-- LOGO E NOVO BOTÃO THEME TOGGLE -->
+            <div class="logo-sys">
+                DRIVERS DAY 360 <span>// AGENDAS</span>
+                <button id="themeToggleBtn" class="theme-toggle-btn" onclick="window.toggleTheme()" title="Alternar Tema (Dark/Light)">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+           
             <div class="header-controls">
                 <select class="base-selector-top" id="adminBaseSelector" onchange="window.trocarBaseAtiva(this.value)">
                     <option value="LMG-48 Uberaba">📍 LMG-48 - Uberaba</option>
@@ -271,25 +276,24 @@
                 <a class="nav-icon" id="nav-users" title="Gestão de Acessos" onclick="window.switchView('users', this)"><i class="fa-solid fa-users-gear"></i></a>
             </nav>
 
-            <!-- TELA DE ESPERA PARA ANALISTAS SEM BASE -->
             <main class="app-view" id="view-waiting" style="justify-content: center; align-items: center; text-align: center; flex-direction: column;">
                 <i class="fa-solid fa-satellite-dish text-muted" style="font-size: 5rem; margin-bottom: 25px; color: var(--spx-orange) !important; opacity: 0.8;"></i>
-                <h3 style="color: #fff; font-weight: 700; margin-bottom: 10px;">Aguardando Gestão do Hub</h3>
-                <p class="text-muted" style="max-width: 450px; font-size: 0.9rem; line-height: 1.5;">Seu login foi autenticado com sucesso. Aguarde um Gestor acessar o painel e atribuir a sua Base Operacional.<br><br><span style="color: var(--veic-passeio);"><i class="fa-solid fa-spinner fa-spin me-1"></i> Esta tela será atualizada automaticamente.</span></p>
+                <h3 style="color: var(--text-main); font-weight: 700; margin-bottom: 10px;">Aguardando Gestão do Hub</h3>
+                <p class="text-muted" style="max-width: 450px; font-size: 0.9rem; line-height: 1.5;">Seu login foi autenticado com sucesso. Aguarde um Gestor acessar o painel e atribuir a sua Base Operacional.<br><br><span style="color: var(--st-agendado);"><i class="fa-solid fa-spinner fa-spin me-1"></i> Esta tela será atualizada automaticamente.</span></p>
             </main>
 
             <main class="app-view active" id="view-calendar">
                 <div class="view-header">
-                    <div style="font-size: 0.75rem; font-weight: 600; color: #fff; display: flex; align-items: center;">
+                    <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center;">
                         <i class="fa-solid fa-calendar-week text-muted me-2"></i> GRADE DE STARTS
                         <span id="dynamicBaseHeader" style="margin-left: 15px; color: var(--spx-orange); font-size: 0.8rem; background: rgba(238, 77, 45, 0.1); padding: 3px 10px; border-radius: 4px; border: 1px solid rgba(238, 77, 45, 0.3); text-transform: uppercase;"></span>
                     </div>
-                    <div class="d-flex gap-3" style="font-size: 0.65rem; font-weight: 600; text-transform: uppercase;">
-                        <span style="color: var(--veic-moto);"><i class="fa-solid fa-motorcycle"></i> Moto</span>
-                        <span style="color: var(--veic-passeio);"><i class="fa-solid fa-car"></i> Passeio</span>
-                        <span style="color: var(--veic-fiorino);"><i class="fa-solid fa-van-shuttle"></i> Fiorino</span>
-                        <span style="color: var(--ocorrencia); border-left: 1px solid var(--border-dark); padding-left: 10px;"><i class="fa-solid fa-triangle-exclamation"></i> Ocorrência</span>
-                        <span style="color: var(--sucesso); border-left: 1px solid var(--border-dark); padding-left: 10px;"><i class="fa-solid fa-circle-check"></i> Em Rota</span>
+                    <div class="d-flex gap-3" style="font-size: 0.65rem; font-weight: 600; text-transform: uppercase; align-items: center;">
+                        <span style="color: var(--text-muted);" title="Moto, Carro ou Fiorino"><i class="fa-solid fa-car"></i> Ícones representam o veículo</span>
+                        <span style="color: var(--st-agendado); border-left: 1px solid var(--border-dark); padding-left: 10px;"><i class="fa-solid fa-circle"></i> Agendado</span>
+                        <span style="color: var(--st-rodou);"><i class="fa-solid fa-circle"></i> Rodou</span>
+                        <span style="color: var(--st-ocorrencia);"><i class="fa-solid fa-circle"></i> Ocorrência</span>
+                        <span style="color: var(--st-falta);"><i class="fa-solid fa-circle"></i> Não Rodou</span>
                     </div>
                 </div>
                 <div class="calendar-wrapper">
@@ -299,7 +303,7 @@
                     <aside class="day-inspector" id="dayInspector">
                         <div class="inspector-header">
                             <div class="text-muted" style="font-size: 0.6rem; font-weight: 700; text-transform: uppercase;">Dia Selecionado</div>
-                            <div id="lblDiaSelecionado" style="font-size: 1rem; font-weight: 700; color: #fff;">Nenhum dia selecionado</div>
+                            <div id="lblDiaSelecionado" style="font-size: 1rem; font-weight: 700; color: var(--text-main);">Nenhum dia selecionado</div>
                             <div class="data-mono mt-1 text-muted" id="lblCountStarts">Selecione uma data na grade.</div>
                         </div>
                         <div class="inspector-body" id="listaDrivers">
@@ -311,7 +315,7 @@
 
             <main class="app-view" id="view-dashboard">
                 <div class="view-header">
-                    <div style="font-size: 0.8rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-chart-pie text-muted me-2"></i> INTELIGÊNCIA OPERACIONAL (DASHBOARD)</div>
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);"><i class="fa-solid fa-chart-pie text-muted me-2"></i> INTELIGÊNCIA OPERACIONAL (DASHBOARD)</div>
                 </div>
                
                 <div class="filter-bar">
@@ -340,44 +344,44 @@
 
                 <div class="dashboard-container">
                     <div class="row g-3 mb-4">
-                        <div class="col-md-3">
-                            <div class="metric-box border-top border-primary border-3 shadow-sm">
-                                <div class="metric-label">Total Schedulings</div>
-                                <div class="metric-val text-primary" id="kpiTotalDash">0</div>
+                        <div class="col">
+                            <div class="kpi-card kpi-blue">
+                                <div class="kpi-title">Agendamentos Totais</div>
+                                <div class="kpi-value text-primary" id="kpiAgendadoDash">0</div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="metric-box border-top border-warning border-3 shadow-sm">
-                                <div class="metric-label">Aguardando Start</div>
-                                <div class="metric-val text-warning" id="kpiAgendadoDash">0</div>
+                        <div class="col">
+                            <div class="kpi-card kpi-green">
+                                <div class="kpi-title">Starts Realizados (Rodou)</div>
+                                <div class="kpi-value" style="color: var(--st-rodou);" id="kpiRotaDash">0</div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="metric-box border-top border-success border-3 shadow-sm" style="border-color: var(--sucesso) !important;">
-                                <div class="metric-label">Em Rota (Sucesso)</div>
-                                <div class="metric-val" style="color: var(--sucesso);" id="kpiRotaDash">0</div>
+                        <div class="col">
+                            <div class="kpi-card kpi-red">
+                                <div class="kpi-title">Ocorrências (Falhas)</div>
+                                <div class="kpi-value" style="color: var(--st-ocorrencia);" id="kpiOcorrenciaDash">0</div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <div class="metric-box border-top border-danger border-3 shadow-sm" style="border-color: var(--ocorrencia) !important;">
-                                <div class="metric-label">Ocorrências (Recusas)</div>
-                                <div class="metric-val text-danger" id="kpiOcorrenciaDash">0</div>
+                        <div class="col">
+                            <div class="kpi-card kpi-orange">
+                                <div class="kpi-title">Faltas (Não Rodou)</div>
+                                <div class="kpi-value" style="color: var(--st-falta);" id="kpiFaltaDash">0</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="row g-3">
                         <div class="col-md-8">
-                            <div class="base-dash-card shadow-sm">
-                                <div class="base-dash-header">Evolução de Volume <span id="lblDashBase"></span></div>
+                            <div class="base-dash-card">
+                                <div class="base-dash-header">Volume de Agendamentos por Hub <span id="lblDashBase" class="text-muted text-lowercase" style="font-size: 0.65rem;"></span></div>
                                 <div style="position: relative; height: 300px; width: 100%;">
                                     <canvas id="chartBasesDash"></canvas>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="base-dash-card shadow-sm">
-                                <div class="base-dash-header text-danger"><i class="fa-solid fa-chart-pie me-1"></i> Top Motivos (Recusas)</div>
+                            <div class="base-dash-card">
+                                <div class="base-dash-header" style="color: var(--st-ocorrencia);"><i class="fa-solid fa-chart-pie me-1"></i> Principais Gargalos (Recusas)</div>
                                 <div style="position: relative; height: 300px; width: 100%;">
                                     <canvas id="chartMotivosDash"></canvas>
                                 </div>
@@ -389,7 +393,7 @@
 
             <main class="app-view" id="view-report">
                 <div class="view-header">
-                    <div style="font-size: 0.8rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-list-check text-muted me-2"></i> RELATÓRIO GLOBAL DE DRIVERS</div>
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);"><i class="fa-solid fa-list-check text-muted me-2"></i> RELATÓRIO GLOBAL DE DRIVERS</div>
                     <span class="badge bg-primary" id="lblTotalReport">0 Registros</span>
                 </div>
                
@@ -411,9 +415,10 @@
                         <label>Status:</label>
                         <select class="filter-select" id="filtroStatus" onchange="window.renderizarRelatorioEmLinhas()">
                             <option value="all">Todos</option>
-                            <option value="em_rota">Em Rota (Confirmados)</option>
-                            <option value="agendado">Aguardando Start</option>
-                            <option value="ocorrencia">Com Ocorrência</option>
+                            <option value="agendado">Agendado (Futuro/Hoje)</option>
+                            <option value="em_rota">Rodou</option>
+                            <option value="ocorrencia">Ocorrência</option>
+                            <option value="falta">Não Rodou (Falta)</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -431,7 +436,7 @@
 
             <main class="app-view" id="view-users">
                 <div class="view-header">
-                    <div style="font-size: 0.8rem; font-weight: 600; color: #fff;"><i class="fa-solid fa-users-gear text-muted me-2"></i> GESTÃO DE ACESSOS E PERFIS</div>
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);"><i class="fa-solid fa-users-gear text-muted me-2"></i> GESTÃO DE ACESSOS E PERFIS</div>
                     <span class="badge bg-dark">Apenas Gestores</span>
                 </div>
                 <div class="dashboard-container" id="users-container"></div>
@@ -439,7 +444,7 @@
         </div>
     </div>
 
-    <!-- MODAIS DE CADASTRO -->
+    <!-- MODAIS -->
     <div id="modalCadastro" class="modal-overlay">
         <div class="modal-box form-dark">
             <div class="modal-box-header">
@@ -471,11 +476,10 @@
         </div>
     </div>
 
-    <!-- MODAL DE OCORRÊNCIA INTELIGENTE -->
     <div id="modalOcorrencia" class="modal-overlay">
-        <div class="modal-box form-dark" style="width: 400px; border-color: var(--ocorrencia);">
+        <div class="modal-box form-dark" style="width: 400px; border-color: var(--st-ocorrencia);">
             <div class="modal-box-header" style="border-bottom-color: rgba(239, 68, 68, 0.2);">
-                <div class="modal-title" style="color: var(--ocorrencia);"><i class="fa-solid fa-triangle-exclamation me-2"></i> Registrar Ocorrência</div>
+                <div class="modal-title" style="color: var(--st-ocorrencia);"><i class="fa-solid fa-triangle-exclamation me-2"></i> Registrar Ocorrência</div>
                 <button class="btn-close-modal" onclick="window.fecharModalOcorrencia()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form id="formOcorrencia">
@@ -501,7 +505,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE -->
+    <!-- SCRIPT FIREBASE E LÓGICA -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
         import { getDatabase, ref, onValue, push, update, set, get, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
@@ -532,6 +536,57 @@
         window.chartBasesObj = null;
         window.chartMotivosObj = null;
 
+        // INICIALIZADOR DE TEMA (DARK/LIGHT)
+        window.toggleTheme = function() {
+            const body = document.body;
+            const btnIcon = document.querySelector('#themeToggleBtn i');
+            body.classList.toggle('light-mode');
+           
+            if (body.classList.contains('light-mode')) {
+                btnIcon.classList.remove('fa-moon');
+                btnIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'light');
+                Chart.defaults.color = '#64748b';
+                Chart.defaults.borderColor = '#cbd5e1';
+            } else {
+                btnIcon.classList.remove('fa-sun');
+                btnIcon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'dark');
+                Chart.defaults.color = '#8b949e';
+                Chart.defaults.borderColor = '#2a313e';
+            }
+            if (document.getElementById('view-dashboard').classList.contains('active')) {
+                window.renderDashboardCompleto();
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                const btnIcon = document.querySelector('#themeToggleBtn i');
+                if(btnIcon) {
+                    btnIcon.classList.remove('fa-moon');
+                    btnIcon.classList.add('fa-sun');
+                }
+                Chart.defaults.color = '#64748b';
+                Chart.defaults.borderColor = '#cbd5e1';
+            }
+        });
+
+        window.getHojeString = function() {
+            const h = new Date();
+            return `${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}-${String(h.getDate()).padStart(2,'0')}`;
+        }
+
+        window.getStatusInfo = function(statusBanco, dataAgendamento) {
+            const hojeStr = window.getHojeString();
+            if (statusBanco === 'em_rota') return { cor: 'var(--st-rodou)', bg: 'rgba(16, 185, 129, 0.1)', texto: 'Rodou', id: 'em_rota' };
+            if (statusBanco === 'ocorrencia') return { cor: 'var(--st-ocorrencia)', bg: 'rgba(239, 68, 68, 0.1)', texto: 'Ocorrência', id: 'ocorrencia' };
+            if (statusBanco === 'agendado' && dataAgendamento < hojeStr) return { cor: 'var(--st-falta)', bg: 'rgba(245, 158, 11, 0.1)', texto: 'Não Rodou', id: 'falta' };
+            return { cor: 'var(--st-agendado)', bg: 'rgba(59, 130, 246, 0.1)', texto: 'Agendado', id: 'agendado' };
+        }
+
         onValue(agendamentosRef, (snapshot) => {
             window.baseAgendamentos = [];
             snapshot.forEach((child) => {
@@ -544,7 +599,7 @@
                 window.recarregarEventosNoCalendario();
                 if(window.sessaoAtual.role === 'gestor') {
                     if(document.getElementById('view-dashboard').classList.contains('active')) {
-                        window.renderizarDashboardCompleto();
+                        window.renderDashboardCompleto();
                     }
                     window.renderizarRelatorioEmLinhas();
                 }
@@ -552,11 +607,9 @@
             }
         });
 
-        // REATIVIDADE DE USUÁRIOS E AUTO-LIBERAÇÃO DE SALA DE ESPERA
         onValue(usuariosRef, (snapshot) => {
             window.listaUsuarios = [];
             let myUserData = null;
-           
             snapshot.forEach(child => {
                 const data = child.val();
                 window.listaUsuarios.push({ uid: child.key, ...data });
@@ -564,23 +617,16 @@
             });
            
             if(document.getElementById('app-screen').style.display === 'flex') {
-                if(window.sessaoAtual.role === 'gestor') {
-                    window.renderizarUsuarios();
-                }
-               
-                // Se um Analista estiver logado (talvez na sala de espera) e o Gestor acabou de dar uma base pra ele:
+                if(window.sessaoAtual.role === 'gestor') { window.renderizarUsuarios(); }
                 if(window.sessaoAtual.role === 'analista' && myUserData) {
                     if (myUserData.base_alocada && window.sessaoAtual.baseAtiva !== myUserData.base_alocada) {
                         window.sessaoAtual.baseAtiva = myUserData.base_alocada;
-                        window.iniciarSessao(false); // Atualiza a tela pra ele na mesma hora
+                        window.iniciarSessao(false);
                     }
                 }
             }
         });
 
-        // ========================================================
-        // 2. SISTEMA DE LOGIN SSO: GESTÃO INTELIGENTE DE BASES E SALA DE ESPERA
-        // ========================================================
         onAuthStateChanged(auth, (user) => {
             if (user) { window.processarAcesso(user); }
         });
@@ -594,7 +640,6 @@
                     let role = 'analista';
                     let base_alocada = '';
 
-                    // Gestores Supremes
                     if (email === 'roberta.liz@shopee.com' || email === 'roberta.lis@shopee.com' || email === 'david.amaral@shopee.com') {
                         role = 'gestor';
                         set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'gestor', base_alocada: 'Todas' });
@@ -602,7 +647,6 @@
                         role = snapshot.val().role;
                         base_alocada = snapshot.val().base_alocada || '';
                     } else {
-                        // Novo Analista entra "zerado", aguardando atribuição
                         set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'analista', base_alocada: '' });
                     }
 
@@ -615,7 +659,7 @@
                         window.iniciarSessao(true);
                     } else {
                         window.sessaoAtual.baseAtiva = base_alocada;
-                        window.iniciarSessao(false); // A sala de espera cuidará disso se a base for vazia
+                        window.iniciarSessao(false);
                     }
                 });
             } else {
@@ -630,7 +674,6 @@
         window.simularGoogleLogin = function() {
             const errorElement = document.getElementById('ui-error');
             errorElement.style.display = 'none';
-
             signInWithPopup(auth, provider).catch((error) => {
                 if(error.code !== 'auth/popup-closed-by-user') {
                     errorElement.style.display = 'block';
@@ -643,9 +686,6 @@
             signOut(auth).then(() => window.location.reload());
         }
 
-        // ========================================================
-        // 3. INICIAÇÃO DO SISTEMA (COM PROTEÇÃO DE SALA DE ESPERA)
-        // ========================================================
         window.iniciarSessao = function(isGestor) {
             document.getElementById('visorEmailLogado').innerText = window.sessaoAtual.email;
             const badge = document.getElementById('badgeRole');
@@ -672,12 +712,11 @@
                 document.getElementById('nav-report').style.display = 'none';
                 document.getElementById('nav-users').style.display = 'none';
                
-                // LÓGICA DA SALA DE ESPERA PARA ANALISTAS SEM BASE
                 if (!window.sessaoAtual.baseAtiva) {
-                    document.getElementById('main-sidebar').style.display = 'none'; // Esconde menu lateral todo
+                    document.getElementById('main-sidebar').style.display = 'none';
                     window.switchView('waiting', null);
                 } else {
-                    document.getElementById('main-sidebar').style.display = 'flex'; // Mostra menu
+                    document.getElementById('main-sidebar').style.display = 'flex';
                     window.switchView('calendar', document.getElementById('nav-calendar'));
                 }
             }
@@ -687,7 +726,6 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'flex';
                
-                // Só renderiza o calendário se tiver uma base, evitando bugs visuais na Sala de Espera
                 if (window.sessaoAtual.baseAtiva || isGestor) {
                     if(!window.meuCalendario) {
                         const calendarEl = document.getElementById('calendar');
@@ -697,18 +735,18 @@
                             eventContent: function(arg) {
                                 const dados = arg.event.extendedProps;
                                 let icon = dados.veiculo === 'moto' ? '<i class="fa-solid fa-motorcycle"></i>' : dados.veiculo === 'passeio' ? '<i class="fa-solid fa-car"></i>' : '<i class="fa-solid fa-van-shuttle"></i>';
-                                let classeAdicional = dados.status === 'ocorrencia' ? 'ocorrencia' : dados.status === 'em_rota' ? 'em-rota' : '';
-                                let iconeStatus = dados.status === 'ocorrencia' ? '<i class="fa-solid fa-triangle-exclamation ms-1"></i>' : dados.status === 'em_rota' ? '<i class="fa-solid fa-circle-check ms-1" style="color: var(--sucesso);"></i>' : '';
+                               
+                                const configCor = window.getStatusInfo(dados.status, arg.event.startStr);
                                 let justificativaHtml = (dados.status === 'ocorrencia' && dados.justificativa) ? `<div style="font-size: 0.5rem; color: #fca5a5; margin-top: 3px; padding-top: 3px; border-top: 1px dashed rgba(239, 68, 68, 0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">Obs: ${dados.justificativa}</div>` : '';
 
                                 return { html: `
-                                    <div class="card-start veic-${dados.veiculo} ${classeAdicional}" style="display: flex; flex-direction: column;">
+                                    <div class="card-start" style="display: flex; flex-direction: column; background: ${configCor.bg}; border-left: 3px solid ${configCor.cor}; padding: 4px 6px; border-radius: 4px; margin-bottom: 2px;">
                                         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                                             <div class="d-flex align-items-center gap-1">
-                                                <span style="font-size: 0.55rem; color: var(--veic-${dados.veiculo})">${icon}</span>
-                                                <span class="c-nome">${arg.event.title} ${iconeStatus}</span>
+                                                <span style="font-size: 0.55rem; color: var(--text-muted);">${icon}</span>
+                                                <span class="c-nome" style="color: ${configCor.cor}; font-weight: 700;">${arg.event.title}</span>
                                             </div>
-                                            <span class="c-cluster">${dados.cluster}</span>
+                                            <span class="c-cluster" style="font-size: 0.5rem; color: var(--text-main); background: var(--border-dark); padding: 1px 4px; border-radius: 2px; font-weight: 700;">${dados.cluster}</span>
                                         </div>
                                         ${justificativaHtml}
                                     </div>`
@@ -765,9 +803,6 @@
             if (viewId === 'dashboard') { setTimeout(() => window.renderizarDashboardCompleto(), 100); }
         }
 
-        // ========================================================
-        // 4. DASHBOARD GERENCIAL SÊNIOR
-        // ========================================================
         window.renderizarDashboardCompleto = function() {
             if(!document.getElementById('chartBasesDash')) return;
 
@@ -792,14 +827,16 @@
                 dadosFiltrados = dadosFiltrados.filter(d => new Date(d.data) >= trintaDiasAtras);
             }
 
-            const qtdAgendados = dadosFiltrados.filter(d => d.status === 'agendado').length;
+            const hojeStr = window.getHojeString();
+            const qtdAgendados = dadosFiltrados.filter(d => d.status === 'agendado' && d.data >= hojeStr).length;
             const qtdEmRota = dadosFiltrados.filter(d => d.status === 'em_rota').length;
             const qtdOcorrencias = dadosFiltrados.filter(d => d.status === 'ocorrencia').length;
+            const qtdFaltas = dadosFiltrados.filter(d => d.status === 'agendado' && d.data < hojeStr).length;
 
-            document.getElementById('kpiTotalDash').innerText = dadosFiltrados.length;
-            document.getElementById('kpiAgendadoDash').innerText = qtdAgendados;
+            document.getElementById('kpiAgendadoDash').innerText = dadosFiltrados.length;
             document.getElementById('kpiRotaDash').innerText = qtdEmRota;
             document.getElementById('kpiOcorrenciaDash').innerText = qtdOcorrencias;
+            document.getElementById('kpiFaltaDash').innerText = qtdFaltas;
 
             const mapBases = {};
             dadosFiltrados.forEach(d => {
@@ -808,8 +845,9 @@
             });
 
             if (window.chartBasesObj) window.chartBasesObj.destroy();
-            Chart.defaults.color = '#8b949e';
-            Chart.defaults.borderColor = '#2a313e';
+            const isLight = document.body.classList.contains('light-mode');
+            Chart.defaults.color = isLight ? '#64748b' : '#8b949e';
+            Chart.defaults.borderColor = isLight ? '#cbd5e1' : '#2a313e';
            
             window.chartBasesObj = new Chart(document.getElementById('chartBasesDash'), {
                 type: 'bar',
@@ -832,10 +870,7 @@
             });
 
             if (window.chartMotivosObj) window.chartMotivosObj.destroy();
-           
-            if (Object.keys(mapMotivos).length === 0) {
-                mapMotivos['Sem Ocorrências'] = 1;
-            }
+            if (Object.keys(mapMotivos).length === 0) { mapMotivos['Sem Ocorrências'] = 1; }
 
             window.chartMotivosObj = new Chart(document.getElementById('chartMotivosDash'), {
                 type: 'doughnut',
@@ -847,34 +882,23 @@
                         borderWidth: 0
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '70%',
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 10} } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: {size: 10} } } } }
             });
         }
 
-        // ========================================================
-        // 5. GESTÃO DE USUÁRIOS E ATRIBUIÇÃO DE BASES (O GESTOR NO COMANDO)
-        // ========================================================
         window.renderizarUsuarios = function() {
             let html = '<div class="row g-3">';
             window.listaUsuarios.forEach(u => {
                 let isCurrent = u.uid === window.sessaoAtual.uid;
                 let badge = u.role === 'gestor' ? '<span class="badge bg-danger">Gestor</span>' : '<span class="badge bg-secondary">Analista</span>';
                
-                // O Dropdown Novo: Gestor escolhe qual base o Analista vai olhar no sistema!
                 let selectBaseHTML = '';
                 if (u.role === 'analista') {
                     const basesOpts = ['LMG-48 Uberaba', 'UDI Uberlândia', 'LMG-39 Patos de Minas', 'LMG-36 Divinópolis', 'LMG-27 Lagoa da Prata', 'LMG-44 Varginha', 'LMG-19 Extrema'];
                     selectBaseHTML = `
                         <div class="mt-3" style="border-top: 1px solid var(--border-dark); padding-top: 10px;">
                             <label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">ATRIBUIR BASE AO ANALISTA:</label>
-                            <select class="form-select form-select-sm mt-1" style="background:#0b0f19; color:#fff; border-color:#2a313e; font-size:0.75rem;" onchange="window.alterarBaseUsuario('${u.uid}', this.value)">
+                            <select class="form-select form-select-sm mt-1" style="background: var(--input-bg); color: var(--text-main); border-color: var(--border-dark); font-size:0.75rem;" onchange="window.alterarBaseUsuario('${u.uid}', this.value)">
                                 <option value="" disabled ${!u.base_alocada ? 'selected' : ''}>-- Nenhuma Base (Acesso Pendente) --</option>
                                 ${basesOpts.map(b => `<option value="${b}" ${u.base_alocada === b ? 'selected' : ''}>${b}</option>`).join('')}
                             </select>
@@ -883,9 +907,9 @@
 
                 html += `
                 <div class="col-md-4">
-                    <div class="base-dash-card border-top border-dark shadow-sm p-3">
+                    <div class="base-dash-card">
                         <div class="d-flex justify-content-between align-items-start mb-3">
-                            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; word-break: break-all; padding-right: 10px;">${u.email}</div>
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); word-break: break-all; padding-right: 10px;">${u.email}</div>
                             ${!isCurrent ? `
                             <div class="dropdown">
                                 <button class="btn btn-sm text-muted border-0 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -907,18 +931,9 @@
             document.getElementById('users-container').innerHTML = html;
         }
 
-        window.toggleRole = async function(uid, newRole) {
-            await update(ref(db, `usuarios/${uid}`), { role: newRole });
-        }
-       
-        window.alterarBaseUsuario = async function(uid, novaBase) {
-            // Salva a base escolhida pelo Gestor em tempo real no banco para liberar a Sala de Espera do Analista!
-            await update(ref(db, `usuarios/${uid}`), { base_alocada: novaBase });
-        }
+        window.toggleRole = async function(uid, newRole) { await update(ref(db, `usuarios/${uid}`), { role: newRole }); }
+        window.alterarBaseUsuario = async function(uid, novaBase) { await update(ref(db, `usuarios/${uid}`), { base_alocada: novaBase }); }
 
-        // ========================================================
-        // 6. RELATÓRIOS E WPP AUTOMÁTICO
-        // ========================================================
         window.renderizarRelatorioEmLinhas = function() {
             let dadosFiltrados = [...window.baseAgendamentos];
             const filterBase = document.getElementById('filtroBase').value;
@@ -926,7 +941,13 @@
             const filterSort = document.getElementById('filtroOrdem').value;
 
             if (filterBase !== 'all') dadosFiltrados = dadosFiltrados.filter(d => d.base_alocada === filterBase);
-            if (filterStatus !== 'all') dadosFiltrados = dadosFiltrados.filter(d => d.status === filterStatus);
+           
+            if (filterStatus !== 'all') {
+                const hojeStr = window.getHojeString();
+                if(filterStatus === 'falta') dadosFiltrados = dadosFiltrados.filter(d => d.status === 'agendado' && d.data < hojeStr);
+                else if(filterStatus === 'agendado') dadosFiltrados = dadosFiltrados.filter(d => d.status === 'agendado' && d.data >= hojeStr);
+                else dadosFiltrados = dadosFiltrados.filter(d => d.status === filterStatus);
+            }
 
             if (filterSort === 'az') dadosFiltrados.sort((a, b) => a.nome.localeCompare(b.nome));
             else if (filterSort === 'za') dadosFiltrados.sort((a, b) => b.nome.localeCompare(a.nome));
@@ -941,12 +962,10 @@
             } else {
                 dadosFiltrados.forEach(d => {
                     const dataFormatada = d.data.split('-').reverse().join('/');
-                    let statusBadge = d.status === 'em_rota' ? `<span class="status-badge status-rota"><i class="fa-solid fa-circle-check"></i> Em Rota</span>` :
-                                      d.status === 'ocorrencia' ? `<span class="status-badge status-ocorrencia"><i class="fa-solid fa-triangle-exclamation"></i> Ocorrência</span>` :
-                                      `<span class="status-badge status-agendado"><i class="fa-solid fa-clock"></i> Agendado</span>`;
-                    let veicIcon = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
+                    const configCor = window.getStatusInfo(d.status, d.data);
                    
-                    // Texto do WPP Automático Injetado
+                    let statusBadge = `<span class="status-badge" style="background: ${configCor.bg}; color: ${configCor.cor}; border: 1px solid ${configCor.cor}; opacity: 0.8;"><i class="fa-solid fa-circle"></i> ${configCor.texto}</span>`;
+                    let veicIcon = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
                     let msgWpp = encodeURIComponent(`Oi, tudo bem? Você confirma seu agendamento para a data do dia ${dataFormatada}?`);
 
                     htmlRows += `
@@ -983,14 +1002,6 @@
             });
         }
 
-        window.recarregarEventosNoCalendario = function() {
-            if(!window.meuCalendario) return;
-            window.meuCalendario.removeAllEvents();
-            window.baseAgendamentos.filter(ag => ag.base_alocada === window.sessaoAtual.baseAtiva).forEach(ag => {
-                window.meuCalendario.addEvent({ title: ag.nome, start: ag.data, allDay: true, extendedProps: { driver_id: ag.driver_id, cluster: ag.cluster, veiculo: ag.veiculo, telefone: ag.telefone, status: ag.status, justificativa: ag.justificativa } });
-            });
-        }
-
         window.abrirInspetorDeDia = function(dataStr) {
             window.dataVisualizadaNoInspetor = dataStr;
             const dataBr = dataStr.split('-').reverse().join('/');
@@ -1005,26 +1016,31 @@
                 htmlLista += `<div class="text-center text-muted data-mono mt-4">Nenhum start programado na base.</div>`;
             } else {
                 driversDoDia.sort((a, b) => a.nome.localeCompare(b.nome)).forEach(d => {
-                    let isOcorrencia = d.status === 'ocorrencia'; let isEmRota = d.status === 'em_rota';
+                    const configCor = window.getStatusInfo(d.status, d.data);
                     let iconClass = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
                    
-                    // Texto do WPP Automático no botão do Menu Lateral
                     let msgWpp = encodeURIComponent(`Oi, tudo bem? Você confirma seu agendamento para a data do dia ${dataBr}?`);
                     let botoesHTML = `<a href="https://wa.me/55${d.telefone}?text=${msgWpp}" target="_blank" class="btn-acao-lista btn-wpp" title="Confirmar Start no WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>`;
                    
-                    if(!isOcorrencia && !isEmRota) {
+                    if(configCor.id === 'agendado' || configCor.id === 'falta') {
                         botoesHTML += `<button class="btn-acao-lista btn-ocorrencia" title="Registrar Ocorrência" onclick="window.abrirModalOcorrencia('${d.id}')"><i class="fa-solid fa-flag"></i></button>`;
                     }
-                    if(window.sessaoAtual.role === 'gestor' && isOcorrencia) {
+                    if(window.sessaoAtual.role === 'gestor' && (configCor.id === 'ocorrencia' || configCor.id === 'falta')) {
                         botoesHTML += `<button class="btn-acao-lista btn-reagendar" title="Reagendar Driver" onclick="window.abrirModalReagendamento('${d.id}')"><i class="fa-solid fa-calendar-day"></i></button>`;
                     }
 
                     botoesHTML += `<button class="btn-acao-lista btn-excluir" title="Excluir Agendamento" onclick="window.excluirAgendamento('${d.id}')"><i class="fa-solid fa-trash"></i></button>`;
 
-                    let htmlJustificativa = isOcorrencia ? `<div class="painel-ocorrencia"><i class="fa-solid fa-circle-info me-1"></i> <strong>OCORRÊNCIA:</strong> ${d.justificativa}</div>` : '';
-                    let htmlEmRota = isEmRota ? `<div class="mt-2"><span class="badge-em-rota"><i class="fa-solid fa-circle-check"></i> EM ROTA (VERIFICADO)</span></div>` : '';
+                    let htmlJustificativa = configCor.id === 'ocorrencia' ? `<div class="painel-ocorrencia"><i class="fa-solid fa-circle-info me-1"></i> <strong>OCORRÊNCIA:</strong> ${d.justificativa}</div>` : '';
 
-                    htmlLista += `<div class="driver-item ${isOcorrencia ? 'has-ocorrencia' : ''} ${isEmRota ? 'has-sucesso' : ''}"><div class="icon-veiculo bg-${d.veiculo}"><i class="fa-solid ${iconClass}"></i></div><div class="d-info"><div class="d-nome" title="${d.nome}">${d.nome}</div><div class="data-mono text-muted">ID:${d.driver_id} | ${d.cluster.toUpperCase()}</div>${htmlEmRota}</div><div class="acoes-driver">${botoesHTML}</div>${htmlJustificativa}</div>`;
+                    htmlLista += `<div class="driver-item" style="border-left: 3px solid ${configCor.cor}; background: ${configCor.bg}; border-color: ${configCor.cor}; opacity: 0.9;">
+                                    <div class="icon-status"><i class="fa-solid ${iconClass}" style="color: ${configCor.cor};"></i></div>
+                                    <div class="d-info">
+                                        <div class="d-nome" title="${d.nome}" style="color: ${configCor.cor};">${d.nome}</div>
+                                        <div class="data-mono" style="color: var(--text-muted); font-weight: 600; font-size: 0.7rem; margin-top: 2px;">ID: ${d.driver_id} | ${d.cluster.toUpperCase()}</div>
+                                    </div>
+                                    <div class="acoes-driver">${botoesHTML}</div>${htmlJustificativa}
+                                  </div>`;
                 });
             }
             document.getElementById('listaDrivers').innerHTML = htmlLista;
@@ -1036,9 +1052,6 @@
             }
         }
 
-        // ========================================================
-        // 7. MODAIS
-        // ========================================================
         const modalPadrao = document.getElementById('modalCadastro');
         const modalOcorrencia = document.getElementById('modalOcorrencia');
 
@@ -1084,9 +1097,6 @@
 
         document.addEventListener('keydown', function(event) { if (event.key === "Escape") { window.fecharModal(); window.fecharModalOcorrencia(); } });
 
-        // ========================================================
-        // 8. SUBMISSÕES FIREBASE (SET/PUSH)
-        // ========================================================
         document.getElementById('formStart').addEventListener('submit', async function(e) {
             e.preventDefault();
             const idEdicao = document.getElementById('inputModoEdicao').value;
