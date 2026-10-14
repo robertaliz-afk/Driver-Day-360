@@ -152,14 +152,11 @@
         .row-value { font-size: 0.8rem; font-weight: 500; color: var(--text-main); }
         .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
 
-        /* ========================================================
-           CALENDÁRIO E INSPETOR (QA APROVADO)
-           ======================================================== */
+        /* CALENDÁRIO E INSPETOR */
         .calendar-wrapper { display: flex; flex-grow: 1; overflow: hidden; width: 100%; }
         .calendar-container { flex-grow: 1; padding: 15px; overflow-y: auto; }
         #calendar { min-height: 650px; }
         .fc-theme-standard td, .fc-theme-standard th, .fc-theme-standard .fc-scrollgrid { border-color: var(--border-dark) !important; }
-       
         .fc-col-header-cell-cushion { color: var(--text-main) !important; text-decoration: none; text-transform: uppercase; font-size: 0.75rem; }
         .fc-daygrid-day-number { color: var(--text-muted) !important; text-decoration: none; font-size: 0.75rem; padding: 4px; }
         .fc .fc-toolbar-title { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
@@ -169,7 +166,6 @@
         .fc-daygrid-day:hover { background-color: var(--input-bg); cursor: pointer; }
         .fc-day-active { background-color: var(--input-bg) !important; box-shadow: inset 0 0 0 1px var(--spx-orange); }
 
-        /* Badge Compacta e Limpa na Grade do Calendário */
         .fc-event { border: none !important; background: transparent !important; margin: 2px !important; }
         .fc-daygrid-event-harness { margin: 2px 0 !important; display: flex; justify-content: center; }
        
@@ -177,7 +173,6 @@
         .inspector-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); flex-shrink: 0; }
         .inspector-body { flex-grow: 1; padding: 15px 20px; overflow-y: auto; }
        
-        /* CARD DO INSPETOR COMPACTO */
         .driver-item { background: var(--input-bg); border: 1px solid var(--border-dark); border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 6px var(--shadow-color); transition: 0.3s ease; }
         .icon-status { width: 32px; height: 32px; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 0.85rem; flex-shrink: 0; }
         .d-info { flex-grow: 1; overflow: hidden; }
@@ -494,14 +489,26 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
         // ==========================================
-        // CONSTANTES DOS BANCOS DE DADOS FORNECIDOS
-        // (Preparadas no motor de memória para amanhã)
+        // MOTOR DE MÚLTIPLOS BANCOS (READ-ONLY)
         // ==========================================
-        const DB_LMG44 = { databaseURL: "https://lmg---44-default-rtdb.firebaseio.com" };
-        const DB_LMG36 = { databaseURL: "https://filadriver-default-rtdb.firebaseio.com" };
-        const DB_LMG19 = { databaseURL: "https://lmg-19-extrema-default-rtdb.firebaseio.com" };
+        const configsExternas = {
+            "LMG-44 Varginha": { apiKey: "AIzaSyCa-2vyQgzxxU1kzWruvWsKZ0X8ZRTRfO4", databaseURL: "https://lmg---44-default-rtdb.firebaseio.com", projectId: "lmg---44" },
+            "LMG-36 Divinópolis": { apiKey: "AIzaSyD5x5FCQj3CsNGOjAs-RfgA4ZHzFbUcrA0", databaseURL: "https://filadriver-default-rtdb.firebaseio.com", projectId: "filadriver" },
+            "LMG-19 Extrema": { apiKey: "AIzaSyAmSrxRdWJuZGtulk00BNK6IiXZMX8H1Pk", databaseURL: "https://lmg-19-extrema-default-rtdb.firebaseio.com", projectId: "lmg-19-extrema" },
+            "LMG-27 Lagoa da Prata": { apiKey: "AIzaSyBS3Yby3VRHECT54y3MMdLZoE-L_rMEAEA", databaseURL: "https://lmg-27-default-rtdb.firebaseio.com", projectId: "lmg-27" },
+            "LMG-39 Patos de Minas": { apiKey: "AIzaSyDitF1wjGzzifPVecVh81nI_KBPmKLTZOE", databaseURL: "https://fiorino-lmg-39-default-rtdb.firebaseio.com", projectId: "fiorino-lmg-39" },
+            "LMG-48 Uberaba": { apiKey: "AIzaSyBxzyFdum86noYdpQnldyjX4wiPB7IJEMY", databaseURL: "https://spx-logistica-online-default-rtdb.firebaseio.com", projectId: "spx-logistica-online" }
+        };
+       
+        window.dbsExternos = {};
+        Object.keys(configsExternas).forEach(base => {
+            try {
+                const extApp = initializeApp(configsExternas[base], base);
+                window.dbsExternos[base] = getDatabase(extApp);
+            } catch (error) { console.warn(`Firebase externo da base ${base} já iniciado.`); }
+        });
 
-        const firebaseConfig = {
+        const firebaseConfigMain = {
             apiKey: "AIzaSyAWoaxC02mZNqeFgDQZBVRxAavVReDJ74M",
             authDomain: "driverday27-edd8c.firebaseapp.com",
             databaseURL: "https://driverday27-edd8c-default-rtdb.firebaseio.com",
@@ -511,7 +518,7 @@
             appId: "1:534903138386:web:13932c768a9bd4bc1f178b"
         };
 
-        const app = initializeApp(firebaseConfig);
+        const app = initializeApp(firebaseConfigMain);
         const db = getDatabase(app);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
@@ -522,7 +529,6 @@
         window.dataVisualizadaNoInspetor = '';
         window.baseAgendamentos = [];
         window.listaUsuarios = [];
-       
         window.chartMotivosDashObj = null;
 
         window.toggleTheme = function() {
@@ -712,8 +718,6 @@
                         window.meuCalendario = new FullCalendar.Calendar(calendarEl, {
                             locale: 'pt-br', initialView: 'dayGridMonth', headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
                             dayMaxEvents: 4, contentHeight: 'auto',
-                           
-                            // PÍLULA DE CONTAGEM HARMONIZADA (ÚNICA)
                             eventContent: function(arg) {
                                 const total = arg.event.extendedProps.total;
                                 return { html: `
@@ -731,7 +735,7 @@
                     }
                    
                     window.meuCalendario.render(); window.recarregarEventosNoCalendario();
-                    window.simularCloudFunctionIntegracao();
+                    window.sincronizarStatusBasesExternas();
                 }
 
                 if(isGestor) {
@@ -988,16 +992,20 @@
             document.getElementById('reportRowsContainer').innerHTML = htmlRows;
         }
 
-        const bancosOperacionaisLMG = { "LMG-48 Uberaba": ["1001", "8824"], "UDI Uberlândia": ["2001"], "LMG-39 Patos de Minas": [], "LMG-36 Divinópolis": [], "LMG-27 Lagoa da Prata": [], "LMG-44 Varginha": [], "LMG-19 Extrema": [] };
-
-        window.simularCloudFunctionIntegracao = function() {
-            window.baseAgendamentos.forEach(async ag => {
+        window.simularCloudFunctionIntegracao = async function() {
+            for (let i = 0; i < window.baseAgendamentos.length; i++) {
+                let ag = window.baseAgendamentos[i];
                 if (ag.status === 'agendado') {
-                    const driversQueRodaramHoje = bancosOperacionaisLMG[ag.base_alocada] || [];
-                    if (driversQueRodaramHoje.includes(ag.driver_id)) { await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' }); }
+                    let dbExterna = window.dbsExternos[ag.base_alocada];
+                    if (dbExterna) {
+                        try {
+                            // TODO: INSIRA O CAMINHO DO SEU BANCO AQUI!
+                            // Exemplo: get(ref(dbExterna, `registros_diarios/${ag.data}/${ag.driver_id}`))
+                        } catch(e) { console.error("Falha ao ler o banco externo da base: " + ag.base_alocada, e); }
+                    }
                 }
-            });
-        }
+            }
+        };
 
         window.abrirInspetorDeDia = function(dataStr) {
             window.dataVisualizadaNoInspetor = dataStr;
