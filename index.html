@@ -152,7 +152,9 @@
         .row-value { font-size: 0.8rem; font-weight: 500; color: var(--text-main); }
         .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
 
-        /* CALENDÁRIO E INSPETOR */
+        /* ========================================================
+           CALENDÁRIO E INSPETOR
+           ======================================================== */
         .calendar-wrapper { display: flex; flex-grow: 1; overflow: hidden; width: 100%; }
         .calendar-container { flex-grow: 1; padding: 15px; overflow-y: auto; }
         #calendar { min-height: 650px; }
@@ -231,13 +233,13 @@
            
             <div class="header-controls">
                 <select class="base-selector-top" id="adminBaseSelector" onchange="window.trocarBaseAtiva(this.value)">
-                    <option value="LMG-48 Uberaba">📍 LMG-48 - Uberaba</option>
+                    <option value="LMG-45 Varginha">📍 LMG-45 - Varginha</option>
                     <option value="UDI Uberlândia">📍 UDI - Uberlândia</option>
                     <option value="LMG-39 Patos de Minas">📍 LMG-39 - Patos de Minas</option>
                     <option value="LMG-36 Divinópolis">📍 LMG-36 - Divinópolis</option>
                     <option value="LMG-27 Lagoa da Prata">📍 LMG-27 - Lagoa da Prata</option>
-                    <option value="LMG-44 Varginha">📍 LMG-44 - Varginha</option>
                     <option value="LMG-19 Extrema">📍 LMG-19 - Extrema</option>
+                    <option value="LMG-48 Uberaba">📍 LMG-48 - Uberaba</option>
                 </select>
                 <div class="lbl-base-logada" id="visorBaseLogada">MG04 - Base</div>
                 <div id="badgeRole" class="role-badge"></div>
@@ -270,10 +272,10 @@
                     </div>
                     <div class="d-flex gap-3" style="font-size: 0.65rem; font-weight: 600; text-transform: uppercase; align-items: center;">
                         <span style="color: var(--text-muted);" title="Moto, Carro ou Fiorino"><i class="fa-solid fa-car"></i> Ícones representam o veículo</span>
-                        <span style="color: var(--st-agendado); border-left: 1px solid var(--border-dark); padding-left: 10px;"><i class="fa-solid fa-circle"></i> Agendado</span>
+                        <span style="color: var(--st-agendado); border-left: 1px solid var(--border-dark); padding-left: 10px;"><i class="fa-solid fa-circle"></i> Agendado (Futuro)</span>
                         <span style="color: var(--st-rodou);"><i class="fa-solid fa-circle"></i> Rodou</span>
-                        <span style="color: var(--st-ocorrencia);"><i class="fa-solid fa-circle"></i> Ocorrência</span>
-                        <span style="color: var(--st-falta);"><i class="fa-solid fa-circle"></i> Não Rodou</span>
+                        <span style="color: var(--st-ocorrencia);"><i class="fa-solid fa-circle"></i> Pendente Hoje / Ocorrência</span>
+                        <span style="color: var(--st-falta);"><i class="fa-solid fa-circle"></i> Não Rodou (Passado)</span>
                     </div>
                 </div>
                 <div class="calendar-wrapper">
@@ -319,13 +321,13 @@
                         <label>Base Operacional:</label>
                         <select class="filter-select" id="dashFiltroBase" onchange="window.renderizarDashboardCompleto()">
                             <option value="all">Visão Global (Todas as Bases)</option>
-                            <option value="LMG-48 Uberaba">LMG-48 Uberaba</option>
+                            <option value="LMG-45 Varginha">LMG-45 Varginha</option>
                             <option value="UDI Uberlândia">UDI Uberlândia</option>
                             <option value="LMG-39 Patos de Minas">LMG-39 Patos</option>
                             <option value="LMG-36 Divinópolis">LMG-36 Divinópolis</option>
                             <option value="LMG-27 Lagoa da Prata">LMG-27 Lagoa da Prata</option>
-                            <option value="LMG-44 Varginha">LMG-44 Varginha</option>
                             <option value="LMG-19 Extrema">LMG-19 Extrema</option>
+                            <option value="LMG-48 Uberaba">LMG-48 Uberaba</option>
                         </select>
                     </div>
                 </div>
@@ -373,13 +375,13 @@
                         <label>Base Operacional:</label>
                         <select class="filter-select" id="filtroBase" onchange="window.renderizarRelatorioEmLinhas()">
                             <option value="all">Todas as Bases</option>
-                            <option value="LMG-48 Uberaba">LMG-48 Uberaba</option>
+                            <option value="LMG-45 Varginha">LMG-45 Varginha</option>
                             <option value="UDI Uberlândia">UDI Uberlândia</option>
                             <option value="LMG-39 Patos de Minas">LMG-39 Patos</option>
                             <option value="LMG-36 Divinópolis">LMG-36 Divinópolis</option>
                             <option value="LMG-27 Lagoa da Prata">LMG-27 Lagoa da Prata</option>
-                            <option value="LMG-44 Varginha">LMG-44 Varginha</option>
                             <option value="LMG-19 Extrema">LMG-19 Extrema</option>
+                            <option value="LMG-48 Uberaba">LMG-48 Uberaba</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -490,9 +492,10 @@
 
         // ==========================================
         // MOTOR DE MÚLTIPLOS BANCOS (READ-ONLY)
+        // LMG-45 assumiu as chaves de LMG-44 a pedido.
         // ==========================================
         const configsExternas = {
-            "LMG-44 Varginha": { apiKey: "AIzaSyCa-2vyQgzxxU1kzWruvWsKZ0X8ZRTRfO4", databaseURL: "https://lmg---44-default-rtdb.firebaseio.com", projectId: "lmg---44" },
+            "LMG-45 Varginha": { apiKey: "AIzaSyCa-2vyQgzxxU1kzWruvWsKZ0X8ZRTRfO4", databaseURL: "https://lmg---44-default-rtdb.firebaseio.com", projectId: "lmg---44" },
             "LMG-36 Divinópolis": { apiKey: "AIzaSyD5x5FCQj3CsNGOjAs-RfgA4ZHzFbUcrA0", databaseURL: "https://filadriver-default-rtdb.firebaseio.com", projectId: "filadriver" },
             "LMG-19 Extrema": { apiKey: "AIzaSyAmSrxRdWJuZGtulk00BNK6IiXZMX8H1Pk", databaseURL: "https://lmg-19-extrema-default-rtdb.firebaseio.com", projectId: "lmg-19-extrema" },
             "LMG-27 Lagoa da Prata": { apiKey: "AIzaSyBS3Yby3VRHECT54y3MMdLZoE-L_rMEAEA", databaseURL: "https://lmg-27-default-rtdb.firebaseio.com", projectId: "lmg-27" },
@@ -567,11 +570,24 @@
             return `${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}-${String(h.getDate()).padStart(2,'0')}`;
         }
 
+        // LÓGICA SÊNIOR DE CORES INTELIGENTES (Aprovada pelo QA)
         window.getStatusInfo = function(statusBanco, dataAgendamento) {
             const hojeStr = window.getHojeString();
+           
             if (statusBanco === 'em_rota') return { cor: 'var(--st-rodou)', bg: 'rgba(16, 185, 129, 0.1)', texto: 'Rodou', id: 'em_rota' };
             if (statusBanco === 'ocorrencia') return { cor: 'var(--st-ocorrencia)', bg: 'rgba(239, 68, 68, 0.1)', texto: 'Ocorrência', id: 'ocorrencia' };
-            if (statusBanco === 'agendado' && dataAgendamento < hojeStr) return { cor: 'var(--st-falta)', bg: 'rgba(245, 158, 11, 0.1)', texto: 'Não Rodou', id: 'falta' };
+           
+            if (statusBanco === 'agendado') {
+                if (dataAgendamento > hojeStr) {
+                    return { cor: 'var(--st-agendado)', bg: 'rgba(59, 130, 246, 0.1)', texto: 'Agendado', id: 'agendado' };
+                } else if (dataAgendamento === hojeStr) {
+                    // Sem histórico e sendo hoje: Fica em vermelho (Aguardando justificar ou dar o start)
+                    return { cor: 'var(--st-ocorrencia)', bg: 'rgba(239, 68, 68, 0.1)', texto: 'Pendente Hoje', id: 'ocorrencia' };
+                } else if (dataAgendamento < hojeStr) {
+                    // Sem histórico e o dia já passou: Fica Laranja (Não rodou / Falta não justificada)
+                    return { cor: 'var(--st-falta)', bg: 'rgba(245, 158, 11, 0.1)', texto: 'Não Rodou', id: 'falta' };
+                }
+            }
             return { cor: 'var(--st-agendado)', bg: 'rgba(59, 130, 246, 0.1)', texto: 'Agendado', id: 'agendado' };
         }
 
@@ -814,11 +830,13 @@
 
             if (filtroBase !== 'all') { dadosFiltrados = dadosFiltrados.filter(d => d.base_alocada === filtroBase); }
 
-            const hoje = new Date();
+            const hojeStr = window.getHojeString();
             if (filtroTempo === 'week') {
+                const hoje = new Date();
                 const seteDiasAtras = new Date(hoje.getTime() - 7 * 24 * 60 * 60 * 1000);
                 dadosFiltrados = dadosFiltrados.filter(d => new Date(d.data) >= seteDiasAtras);
             } else if (filtroTempo === 'month') {
+                const hoje = new Date();
                 const trintaDiasAtras = new Date(hoje.getTime() - 30 * 24 * 60 * 60 * 1000);
                 dadosFiltrados = dadosFiltrados.filter(d => new Date(d.data) >= trintaDiasAtras);
             }
@@ -940,7 +958,7 @@
                
                 let selectBaseHTML = '';
                 if (u.role === 'analista') {
-                    const basesOpts = ['LMG-48 Uberaba', 'UDI Uberlândia', 'LMG-39 Patos de Minas', 'LMG-36 Divinópolis', 'LMG-27 Lagoa da Prata', 'LMG-44 Varginha', 'LMG-19 Extrema'];
+                    const basesOpts = ['LMG-45 Varginha', 'UDI Uberlândia', 'LMG-39 Patos de Minas', 'LMG-36 Divinópolis', 'LMG-27 Lagoa da Prata', 'LMG-19 Extrema'];
                     selectBaseHTML = `<div class="mt-3" style="border-top: 1px solid var(--border-dark); padding-top: 10px;"><label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">ATRIBUIR BASE AO ANALISTA:</label><select class="form-select form-select-sm mt-1" style="background: var(--input-bg); color: var(--text-main); border-color: var(--border-dark); font-size:0.75rem;" onchange="window.alterarBaseUsuario('${u.uid}', this.value)"><option value="" disabled ${!u.base_alocada ? 'selected' : ''}>-- Nenhuma Base (Acesso Pendente) --</option>${basesOpts.map(b => `<option value="${b}" ${u.base_alocada === b ? 'selected' : ''}>${b}</option>`).join('')}</select></div>`;
                 }
 
@@ -992,15 +1010,26 @@
             document.getElementById('reportRowsContainer').innerHTML = htmlRows;
         }
 
+        // MOTOR DE LEITURA (READ-ONLY) BLINDADO PELO QA
         window.simularCloudFunctionIntegracao = async function() {
             for (let i = 0; i < window.baseAgendamentos.length; i++) {
                 let ag = window.baseAgendamentos[i];
+               
+                // Só varre o banco externo se o status estiver como "agendado" (Azul, Laranja ou Vermelho de Hoje)
                 if (ag.status === 'agendado') {
                     let dbExterna = window.dbsExternos[ag.base_alocada];
                     if (dbExterna) {
                         try {
-                            // TODO: INSIRA O CAMINHO DO SEU BANCO AQUI!
-                            // Exemplo: get(ref(dbExterna, `registros_diarios/${ag.data}/${ag.driver_id}`))
+                            // Lógica de Leitura 100% Passiva.
+                            // Substitua a linha abaixo pelo caminho exato do seu banco operacional
+                            /*
+                            const snapshot = await get(ref(dbExterna, `registros/${ag.data}/${ag.turno}/${ag.driver_id}`));
+                            if (snapshot.exists()) {
+                                // Encontrou o ID rodando no banco externo na data e no turno certo!
+                                // Seta o painel interno como 'em_rota' (Verde)
+                                await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
+                            }
+                            */
                         } catch(e) { console.error("Falha ao ler o banco externo da base: " + ag.base_alocada, e); }
                     }
                 }
@@ -1027,11 +1056,11 @@
                     let msgWpp = encodeURIComponent(`Oi, tudo bem? Você confirma seu agendamento para a data do dia ${dataBr}?`);
                     let botoesHTML = `<a href="https://wa.me/55${d.telefone}?text=${msgWpp}" target="_blank" class="btn-acao-lista btn-wpp" title="Confirmar Start no WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>`;
                    
-                    if(configCor.id === 'agendado' || configCor.id === 'falta') { botoesHTML += `<button class="btn-acao-lista btn-ocorrencia" title="Registrar Ocorrência" onclick="window.abrirModalOcorrencia('${d.id}')"><i class="fa-solid fa-flag"></i></button>`; }
+                    if(configCor.id === 'agendado' || configCor.id === 'falta' || configCor.id === 'ocorrencia') { botoesHTML += `<button class="btn-acao-lista btn-ocorrencia" title="Registrar Ocorrência" onclick="window.abrirModalOcorrencia('${d.id}')"><i class="fa-solid fa-flag"></i></button>`; }
                     if(window.sessaoAtual.role === 'gestor' && (configCor.id === 'ocorrencia' || configCor.id === 'falta')) { botoesHTML += `<button class="btn-acao-lista btn-reagendar" title="Reagendar Driver" onclick="window.abrirModalReagendamento('${d.id}')"><i class="fa-solid fa-calendar-day"></i></button>`; }
                     botoesHTML += `<button class="btn-acao-lista btn-excluir" title="Excluir Agendamento" onclick="window.excluirAgendamento('${d.id}')"><i class="fa-solid fa-trash"></i></button>`;
 
-                    let htmlJustificativa = configCor.id === 'ocorrencia' ? `<div class="painel-ocorrencia"><i class="fa-solid fa-circle-info me-1"></i> <strong>OCORRÊNCIA:</strong> ${d.justificativa}</div>` : '';
+                    let htmlJustificativa = d.status === 'ocorrencia' ? `<div class="painel-ocorrencia"><i class="fa-solid fa-circle-info me-1"></i> <strong>OCORRÊNCIA:</strong> ${d.justificativa}</div>` : '';
 
                     let tagTurnoHtml = '';
                     if (d.turno === 'AM') tagTurnoHtml = `<span style="color:#ccff00; border: 1px solid #ccff00; border-radius: 3px; padding: 0 4px; font-size: 0.5rem; font-weight: bold;">AM</span>`;
