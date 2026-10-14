@@ -152,7 +152,9 @@
         .row-value { font-size: 0.8rem; font-weight: 500; color: var(--text-main); }
         .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
 
-        /* CALENDÁRIO E INSPETOR */
+        /* ========================================================
+           CALENDÁRIO E INSPETOR (QA APROVADO)
+           ======================================================== */
         .calendar-wrapper { display: flex; flex-grow: 1; overflow: hidden; width: 100%; }
         .calendar-container { flex-grow: 1; padding: 15px; overflow-y: auto; }
         #calendar { min-height: 650px; }
@@ -160,7 +162,6 @@
        
         .fc-col-header-cell-cushion { color: var(--text-main) !important; text-decoration: none; text-transform: uppercase; font-size: 0.75rem; }
         .fc-daygrid-day-number { color: var(--text-muted) !important; text-decoration: none; font-size: 0.75rem; padding: 4px; }
-       
         .fc .fc-toolbar-title { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
         .fc .fc-button-primary { background: var(--bg-panel); border-color: var(--border-dark); color: var(--text-main); font-size: 0.75rem; padding: 4px 8px; }
         .fc .fc-button-primary:hover { background: var(--border-dark); color: var(--spx-orange); border-color: var(--border-dark); }
@@ -168,13 +169,15 @@
         .fc-daygrid-day:hover { background-color: var(--input-bg); cursor: pointer; }
         .fc-day-active { background-color: var(--input-bg) !important; box-shadow: inset 0 0 0 1px var(--spx-orange); }
 
+        /* Badge Compacta e Limpa na Grade do Calendário */
         .fc-event { border: none !important; background: transparent !important; margin: 2px !important; }
-        .fc-daygrid-event-harness { margin: 2px 0 !important; }
+        .fc-daygrid-event-harness { margin: 2px 0 !important; display: flex; justify-content: center; }
        
         .day-inspector { width: 350px; background: var(--bg-panel); border-left: 1px solid var(--border-dark); display: flex; flex-direction: column; transition: 0.3s; flex-shrink: 0; }
         .inspector-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); flex-shrink: 0; }
         .inspector-body { flex-grow: 1; padding: 15px 20px; overflow-y: auto; }
        
+        /* CARD DO INSPETOR COMPACTO */
         .driver-item { background: var(--input-bg); border: 1px solid var(--border-dark); border-radius: 8px; padding: 12px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 4px 6px var(--shadow-color); transition: 0.3s ease; }
         .icon-status { width: 32px; height: 32px; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 0.85rem; flex-shrink: 0; }
         .d-info { flex-grow: 1; overflow: hidden; }
@@ -455,7 +458,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE OCORRÊNCIA INTELIGENTE -->
     <div id="modalOcorrencia" class="modal-overlay">
         <div class="modal-box form-dark" style="width: 400px; border-color: var(--st-ocorrencia);">
             <div class="modal-box-header" style="border-bottom-color: rgba(239, 68, 68, 0.2);">
@@ -490,6 +492,14 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
         import { getDatabase, ref, onValue, push, update, set, get, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+
+        // ==========================================
+        // CONSTANTES DOS BANCOS DE DADOS FORNECIDOS
+        // (Preparadas no motor de memória para amanhã)
+        // ==========================================
+        const DB_LMG44 = { databaseURL: "https://lmg---44-default-rtdb.firebaseio.com" };
+        const DB_LMG36 = { databaseURL: "https://filadriver-default-rtdb.firebaseio.com" };
+        const DB_LMG19 = { databaseURL: "https://lmg-19-extrema-default-rtdb.firebaseio.com" };
 
         const firebaseConfig = {
             apiKey: "AIzaSyAWoaxC02mZNqeFgDQZBVRxAavVReDJ74M",
@@ -703,12 +713,12 @@
                             locale: 'pt-br', initialView: 'dayGridMonth', headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
                             dayMaxEvents: 4, contentHeight: 'auto',
                            
-                            // LÓGICA DO NÚMERO CENTRALIZADO NA GRADE DO CALENDÁRIO
+                            // PÍLULA DE CONTAGEM HARMONIZADA (ÚNICA)
                             eventContent: function(arg) {
                                 const total = arg.event.extendedProps.total;
                                 return { html: `
-                                    <div style="display: flex; justify-content: center; align-items: center; background: rgba(238, 77, 45, 0.15); border: 1px solid rgba(238, 77, 45, 0.4); color: var(--spx-orange); border-radius: 6px; padding: 8px 4px; margin: 5px; font-weight: 700; font-size: 0.85rem; pointer-events: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                                        <i class="fa-solid fa-users me-2"></i> ${total}
+                                    <div style="display: inline-flex; align-items: center; background: rgba(238, 77, 45, 0.15); border: 1px solid rgba(238, 77, 45, 0.3); color: var(--spx-orange); border-radius: 12px; padding: 2px 8px; margin: 2px auto; font-weight: 700; font-size: 0.65rem; pointer-events: none;">
+                                        <i class="fa-solid fa-users me-1"></i> ${total} Agendado(s)
                                     </div>`
                                 };
                             },
@@ -735,7 +745,6 @@
             if(!window.meuCalendario) return;
             window.meuCalendario.removeAllEvents();
            
-            // O algoritmo agrupa as contagens por dia antes de desenhar na grade
             let contagemPorData = {};
             window.baseAgendamentos.filter(ag => ag.base_alocada === window.sessaoAtual.baseAtiva).forEach(ag => {
                 if (!contagemPorData[ag.data]) { contagemPorData[ag.data] = 0; }
@@ -812,11 +821,14 @@
 
             let statsDriver = {};
             window.baseAgendamentos.forEach(d => {
-                if(!statsDriver[d.driver_id]) { statsDriver[d.driver_id] = { id: d.driver_id, nome: d.nome, rodou: 0, recusas: 0, motivos: new Set() }; }
+                if(!statsDriver[d.driver_id]) { statsDriver[d.driver_id] = { id: d.driver_id, nome: d.nome, rodou: 0, recusas: 0, reagendamentos: 0, motivos: new Set() }; }
                 if(d.status === 'em_rota') statsDriver[d.driver_id].rodou++;
                 if(d.status === 'ocorrencia') {
                     statsDriver[d.driver_id].recusas++;
                     if(d.justificativa) statsDriver[d.driver_id].motivos.add(d.justificativa);
+                }
+                if(d.reagendamentos) {
+                    statsDriver[d.driver_id].reagendamentos += d.reagendamentos;
                 }
             });
 
@@ -830,6 +842,7 @@
                             id: d.driver_id, nome: d.nome, base_recente: d.base_alocada,
                             lifetime_rodou: statsDriver[d.driver_id].rodou,
                             lifetime_recusas: statsDriver[d.driver_id].recusas,
+                            lifetime_reagendamentos: statsDriver[d.driver_id].reagendamentos,
                             motivos: Array.from(statsDriver[d.driver_id].motivos)
                         };
                     }
@@ -848,6 +861,8 @@
                     let motivosHtml = n.motivos.length > 0 ? `<div class="mt-2 pt-2" style="border-top: 1px solid var(--border-dark); font-size:0.55rem; color: var(--st-ocorrencia);"><i class="fa-solid fa-triangle-exclamation"></i> <strong>Causas:</strong> ${n.motivos.join(', ')}</div>` : '';
                     let baseHtml = filtroBase === 'all' ? `<span class="badge" style="background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border-dark); font-size:0.5rem; margin-left: 5px;">${n.base_recente.replace(/LMG-\d+\s|UDI\s/, '')}</span>` : '';
                    
+                    let badgeReagendamento = n.lifetime_reagendamentos > 0 ? `<span class="badge px-1" style="background: rgba(245, 158, 11, 0.1); color: var(--st-falta); border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.55rem; margin-top: 3px;"><i class="fa-solid fa-calendar-day"></i> ${n.lifetime_reagendamentos}x Reagend.</span>` : '';
+                   
                     htmlNovatos += `
                     <div class="col-xl-3 col-lg-4 col-md-6">
                         <div class="base-dash-card p-2" style="min-height: auto;">
@@ -856,8 +871,9 @@
                                     <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${n.nome}">${n.nome}</div>
                                     <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 1px;">ID: ${n.id} ${baseHtml}</div>
                                 </div>
-                                <div class="text-end flex-shrink-0">
-                                    <span class="badge px-1" style="background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.55rem;"><i class="fa-solid fa-ban"></i> ${n.lifetime_recusas}x</span>
+                                <div class="text-end flex-shrink-0 d-flex flex-column align-items-end">
+                                    <span class="badge px-1" style="background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.55rem;"><i class="fa-solid fa-ban"></i> ${n.lifetime_recusas}x Recusa(s)</span>
+                                    ${badgeReagendamento}
                                 </div>
                             </div>
                             <div class="mt-2">
