@@ -115,7 +115,7 @@
         .view-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; transition: 0.3s ease;}
 
         /* ========================================================
-           DASHBOARD: NOVATOS E DOBRAS
+           DASHBOARD E TABS
            ======================================================== */
         .dash-tab-btn { background: transparent; border: none; color: var(--text-muted); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; padding: 6px 14px; border-radius: 4px; transition: 0.2s; cursor: pointer; }
         .dash-tab-btn.active { background: var(--spx-orange-gradient); color: #fff; box-shadow: 0 4px 10px rgba(238, 77, 45, 0.3); }
@@ -133,13 +133,16 @@
         .base-dash-card { background: var(--card-bg); border: 1px solid var(--border-dark); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; box-shadow: 0 10px 20px var(--shadow-color); transition: 0.3s ease; }
         .base-dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 15px; margin-bottom: 15px; font-weight: 700; color: var(--text-main); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
+        /* Status Indicadores de Dobras */
+        .dobras-card-count { font-size: 2.5rem; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 5px; }
+        .dobras-card-title { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+
         /* ========================================================
            RELATÓRIOS GERAIS
            ======================================================== */
         .report-list-container { padding: 20px; overflow-y: auto; flex-grow: 1; }
         .report-row { display: flex; align-items: center; justify-content: space-between; background: var(--bg-panel); border: 1px solid var(--border-dark); padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; transition: 0.2s; }
         .report-row:hover { border-color: var(--spx-orange); }
-       
         .row-col-perfil { display: flex; align-items: center; gap: 15px; width: 250px; }
         .row-avatar { width: 35px; height: 35px; background: var(--input-bg); border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 1rem; color: var(--text-muted); border: 1px solid var(--border-dark); }
         .row-nome { font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 2px; }
@@ -152,9 +155,7 @@
         .row-value { font-size: 0.8rem; font-weight: 500; color: var(--text-main); }
         .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
 
-        /* ========================================================
-           CALENDÁRIO E INSPETOR
-           ======================================================== */
+        /* CALENDÁRIO E INSPETOR */
         .calendar-wrapper { display: flex; flex-grow: 1; overflow: hidden; width: 100%; }
         .calendar-container { flex-grow: 1; padding: 15px; overflow-y: auto; }
         #calendar { min-height: 650px; }
@@ -210,6 +211,8 @@
         .btn-cancel:hover { background: var(--input-bg); color: var(--text-main); }
         .btn-danger-action { background: var(--ocorrencia); color: white; font-weight: 600; padding: 10px; width: 100%; border-radius: 4px; border: none; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; flex: 2;}
         .btn-danger-action:hover { filter: brightness(0.9); }
+       
+        .robo-status-icon { position: absolute; bottom: 10px; right: 15px; font-size: 0.6rem; color: var(--st-rodou); display: flex; align-items: center; gap: 5px; opacity: 0.7; }
     </style>
 </head>
 <body>
@@ -275,7 +278,7 @@
                         <span style="color: var(--st-agendado); border-left: 1px solid var(--border-dark); padding-left: 10px;"><i class="fa-solid fa-circle"></i> Agendado (Futuro)</span>
                         <span style="color: var(--st-rodou);"><i class="fa-solid fa-circle"></i> Rodou</span>
                         <span style="color: var(--st-ocorrencia);"><i class="fa-solid fa-circle"></i> Pendente Hoje / Ocorrência</span>
-                        <span style="color: var(--st-falta);"><i class="fa-solid fa-circle"></i> Não Rodou (Passado)</span>
+                        <span style="color: var(--st-falta);"><i class="fa-solid fa-circle"></i> Não Rodou (Falta)</span>
                     </div>
                 </div>
                 <div class="calendar-wrapper">
@@ -332,8 +335,12 @@
                     </div>
                 </div>
 
-                <div class="dashboard-container">
-                   
+                <div class="dashboard-container" style="position: relative;">
+                    <!-- INDICADOR DO ROBÔ RODANDO NO BACKEND -->
+                    <div class="robo-status-icon" id="roboStatusInfo">
+                        <i class="fa-solid fa-robot fa-bounce"></i> Robô Monitorando Bases Externas...
+                    </div>
+
                     <div id="content-novatos" class="dash-content active">
                         <div class="row mb-4">
                             <div class="col-12">
@@ -354,10 +361,11 @@
                         <div id="container-novatos-list"></div>
                     </div>
 
+                    <!-- NOVO LAYOUT DO CONTROLE DE DOBRAS (RESUMO POR BASE) -->
                     <div id="content-dobras" class="dash-content">
-                        <div class="base-dash-card">
-                            <div class="base-dash-header mb-3"><i class="fa-solid fa-bolt text-warning me-2"></i> Histórico de Dobras Operacionais (AM/PM)</div>
-                            <div id="container-dobras-list"></div>
+                        <div class="base-dash-header mb-3"><i class="fa-solid fa-bolt text-warning me-2"></i> Sumário de Dobras Operacionais (AM/PM)</div>
+                        <div id="container-dobras-list" class="row g-3">
+                            <!-- Injetado pelo JS como Cards de Resumo -->
                         </div>
                     </div>
 
@@ -455,6 +463,7 @@
         </div>
     </div>
 
+    <!-- MODAL DE OCORRÊNCIA INTELIGENTE -->
     <div id="modalOcorrencia" class="modal-overlay">
         <div class="modal-box form-dark" style="width: 400px; border-color: var(--st-ocorrencia);">
             <div class="modal-box-header" style="border-bottom-color: rgba(239, 68, 68, 0.2);">
@@ -533,6 +542,9 @@
         window.baseAgendamentos = [];
         window.listaUsuarios = [];
         window.chartMotivosDashObj = null;
+       
+        // CONTROLE DO ROBÔ (Watchdog) DE DOBRAS EXTERNADAS
+        window.dobrasGlobaisCalculadas = {};
 
         window.toggleTheme = function() {
             const body = document.body;
@@ -570,21 +582,19 @@
             return `${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}-${String(h.getDate()).padStart(2,'0')}`;
         }
 
-        // LÓGICA SÊNIOR DE CORES INTELIGENTES (Aprovada pelo QA)
         window.getStatusInfo = function(statusBanco, dataAgendamento) {
             const hojeStr = window.getHojeString();
            
             if (statusBanco === 'em_rota') return { cor: 'var(--st-rodou)', bg: 'rgba(16, 185, 129, 0.1)', texto: 'Rodou', id: 'em_rota' };
             if (statusBanco === 'ocorrencia') return { cor: 'var(--st-ocorrencia)', bg: 'rgba(239, 68, 68, 0.1)', texto: 'Ocorrência', id: 'ocorrencia' };
            
+            // INTEGÊNCIA TEMPORAL DE CORES (Lógica Sênior)
             if (statusBanco === 'agendado') {
                 if (dataAgendamento > hojeStr) {
                     return { cor: 'var(--st-agendado)', bg: 'rgba(59, 130, 246, 0.1)', texto: 'Agendado', id: 'agendado' };
                 } else if (dataAgendamento === hojeStr) {
-                    // Sem histórico e sendo hoje: Fica em vermelho (Aguardando justificar ou dar o start)
                     return { cor: 'var(--st-ocorrencia)', bg: 'rgba(239, 68, 68, 0.1)', texto: 'Pendente Hoje', id: 'ocorrencia' };
                 } else if (dataAgendamento < hojeStr) {
-                    // Sem histórico e o dia já passou: Fica Laranja (Não rodou / Falta não justificada)
                     return { cor: 'var(--st-falta)', bg: 'rgba(245, 158, 11, 0.1)', texto: 'Não Rodou', id: 'falta' };
                 }
             }
@@ -751,7 +761,10 @@
                     }
                    
                     window.meuCalendario.render(); window.recarregarEventosNoCalendario();
+                   
+                    // ACIONA O ROBÔ INICIAL E CONFIGURA O LOOP A CADA 40 MINUTOS
                     window.sincronizarStatusBasesExternas();
+                    setInterval(window.sincronizarStatusBasesExternas, 40 * 60 * 1000);
                 }
 
                 if(isGestor) {
@@ -925,30 +938,106 @@
                 options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: {size: 11} } } } }
             });
 
-            let dobrasMap = {};
-            dadosFiltrados.forEach(d => {
-                let key = `${d.data}|${d.driver_id}`;
-                if(!dobrasMap[key]) { dobrasMap[key] = { data: d.data, driver_id: d.driver_id, nome: d.nome, base: d.base_alocada, count: 0, turnos: new Set() }; }
-                dobrasMap[key].count++;
-                if (d.turno) dobrasMap[key].turnos.add(d.turno);
-            });
-
-            let dobrasList = Object.values(dobrasMap).filter(x => x.count >= 2);
-            dobrasList.sort((a,b) => new Date(b.data) - new Date(a.data));
-
+            // ABA 2: RESUMO DE DOBRAS BASEADO NA LEITURA EXTERNA DO ROBÔ
+            // O Robô atualiza window.dobrasGlobaisCalculadas. O Dashboard apenas lê esse objeto.
+           
             let htmlDobras = '';
-            if(dobrasList.length === 0) {
-                htmlDobras = `<div class="text-center text-muted p-5"><i class="fa-solid fa-bolt fs-2 mb-3"></i><br>Nenhum registro de dobra operacional encontrado neste filtro.</div>`;
+            let chavesBases = Object.keys(window.dobrasGlobaisCalculadas);
+           
+            if (filtroBase !== 'all') {
+                chavesBases = chavesBases.filter(b => b === filtroBase);
+            }
+
+            if(chavesBases.length === 0 || chavesBases.every(b => window.dobrasGlobaisCalculadas[b] === 0)) {
+                htmlDobras = `<div class="col-12 text-center text-muted p-5"><i class="fa-solid fa-bolt fs-2 mb-3"></i><br>Nenhum registro de dobra operacional no período. O Robô continua verificando.</div>`;
             } else {
-                htmlDobras += `<div class="table-responsive"><table class="table table-borderless table-hover" style="margin: 0;"><thead style="border-bottom: 1px solid var(--border-dark); color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;"><tr><th>Data</th><th>Motorista</th><th>ID</th><th>Base</th><th class="text-center">Qtd. Starts</th></tr></thead><tbody>`;
-                dobrasList.forEach(dob => {
-                    const dataFormatada = dob.data.split('-').reverse().join('/');
-                    htmlDobras += `<tr style="border-bottom: 1px solid var(--border-dark);"><td class="align-middle data-mono text-warning">${dataFormatada}</td><td class="align-middle fw-bold">${dob.nome}</td><td class="align-middle data-mono text-muted">${dob.driver_id}</td><td class="align-middle"><span class="badge" style="background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-main);">${dob.base.replace(/LMG-\d+\s|UDI\s/, '')}</span></td><td class="align-middle text-center"><span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--st-rodou); border: 1px solid rgba(16, 185, 129, 0.3);"><i class="fa-solid fa-bolt me-1"></i> ${dob.count}x Starts</span></td></tr>`;
+                chavesBases.forEach(baseName => {
+                    let totalDobras = window.dobrasGlobaisCalculadas[baseName] || 0;
+                    if (totalDobras > 0) {
+                        htmlDobras += `
+                        <div class="col-md-3">
+                            <div class="base-dash-card text-center" style="border-top: 3px solid var(--spx-orange);">
+                                <div class="dobras-card-count">${totalDobras}</div>
+                                <div class="dobras-card-title">${baseName.replace(/LMG-\d+\s|UDI\s/, '')}</div>
+                            </div>
+                        </div>`;
+                    }
                 });
-                htmlDobras += `</tbody></table></div>`;
             }
             document.getElementById('container-dobras-list').innerHTML = htmlDobras;
         }
+
+        // ==========================================
+        // O ROBÔ SÊNIOR (Watchdog Firebase Read-Only)
+        // ==========================================
+        window.sincronizarStatusBasesExternas = async function() {
+            console.log("[ROBÔ] Iniciando varredura nas 6 bases operacionais externas...");
+            const hojeStr = window.getHojeString();
+           
+            // 1) Lógica de Status: Verde se rodou. (Não mexe se falhar, o CSS já pinta de laranja/vermelho).
+            for (let i = 0; i < window.baseAgendamentos.length; i++) {
+                let ag = window.baseAgendamentos[i];
+               
+                if (ag.status === 'agendado') {
+                    let dbExterna = window.dbsExternos[ag.base_alocada];
+                    if (dbExterna) {
+                        try {
+                            // AQUI É ONDE VOCÊ DEVE COLOCAR O CAMINHO EXATO DA PASTA DENTRO DOS OUTROS FIREBASES
+                            const CAMINHO_DO_SEU_BANCO = `historico/${ag.data}/${ag.turno}/${ag.driver_id}`;
+                           
+                            const snapshot = await get(ref(dbExterna, CAMINHO_DO_SEU_BANCO));
+                            if (snapshot.exists()) {
+                                // O Robô achou o motorista! Ele muda para Verde no nosso banco principal.
+                                await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
+                            }
+                        } catch(e) { console.error("Falha ao ler o banco externo da base: " + ag.base_alocada, e); }
+                    }
+                }
+            }
+
+            // 2) Lógica de Dobras: Rastreia viagens AM e PM no mesmo dia para cada base.
+            let contagemDobras = {
+                "LMG-45 Varginha": 0, "UDI Uberlândia": 0, "LMG-39 Patos de Minas": 0,
+                "LMG-36 Divinópolis": 0, "LMG-27 Lagoa da Prata": 0, "LMG-19 Extrema": 0, "LMG-48 Uberaba": 0
+            };
+
+            for (let baseKey in window.dbsExternos) {
+                let dbExterna = window.dbsExternos[baseKey];
+                try {
+                    // O Robô vai olhar todo o histórico dessa base para achar dobras
+                    const CAMINHO_DO_HISTORICO_COMPLETO = `historico`; // <-- Ajuste o nome da pasta de histórico da base externa aqui!
+                   
+                    const snapshot = await get(ref(dbExterna, CAMINHO_DO_HISTORICO_COMPLETO));
+                    if (snapshot.exists()) {
+                        let historicoData = snapshot.val();
+                        // Lógica genérica baseada em datas: historico -> '2026-10-14' -> 'AM' e 'PM'
+                        Object.keys(historicoData).forEach(dataDia => {
+                            let turnos = historicoData[dataDia];
+                            if (turnos.AM && turnos.PM) {
+                                // Se tiver AM e PM nesse dia, confere se o mesmo motorista rodou nos dois
+                                let idsAM = Object.keys(turnos.AM);
+                                let idsPM = Object.keys(turnos.PM);
+                               
+                                idsAM.forEach(id => {
+                                    if (idsPM.includes(id)) {
+                                        contagemDobras[baseKey]++; // Achou uma dobra!
+                                    }
+                                });
+                            }
+                        });
+                    }
+                } catch (e) { console.error("Falha ao calcular dobras na base: " + baseKey, e); }
+            }
+
+            // Salva na memória global para o Dashboard renderizar
+            window.dobrasGlobaisCalculadas = contagemDobras;
+           
+            // Se o usuário estiver na tela de Dashboard, atualiza ela ao vivo
+            if (document.getElementById('view-dashboard').classList.contains('active')) {
+                window.renderizarDashboardCompleto();
+            }
+            console.log("[ROBÔ] Varredura finalizada.");
+        };
 
         window.renderizarUsuarios = function() {
             let html = '<div class="row g-3">';
@@ -958,7 +1047,7 @@
                
                 let selectBaseHTML = '';
                 if (u.role === 'analista') {
-                    const basesOpts = ['LMG-45 Varginha', 'UDI Uberlândia', 'LMG-39 Patos de Minas', 'LMG-36 Divinópolis', 'LMG-27 Lagoa da Prata', 'LMG-19 Extrema'];
+                    const basesOpts = ['LMG-45 Varginha', 'UDI Uberlândia', 'LMG-39 Patos de Minas', 'LMG-36 Divinópolis', 'LMG-27 Lagoa da Prata', 'LMG-19 Extrema', 'LMG-48 Uberaba'];
                     selectBaseHTML = `<div class="mt-3" style="border-top: 1px solid var(--border-dark); padding-top: 10px;"><label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">ATRIBUIR BASE AO ANALISTA:</label><select class="form-select form-select-sm mt-1" style="background: var(--input-bg); color: var(--text-main); border-color: var(--border-dark); font-size:0.75rem;" onchange="window.alterarBaseUsuario('${u.uid}', this.value)"><option value="" disabled ${!u.base_alocada ? 'selected' : ''}>-- Nenhuma Base (Acesso Pendente) --</option>${basesOpts.map(b => `<option value="${b}" ${u.base_alocada === b ? 'selected' : ''}>${b}</option>`).join('')}</select></div>`;
                 }
 
@@ -1009,32 +1098,6 @@
             }
             document.getElementById('reportRowsContainer').innerHTML = htmlRows;
         }
-
-        // MOTOR DE LEITURA (READ-ONLY) BLINDADO PELO QA
-        window.simularCloudFunctionIntegracao = async function() {
-            for (let i = 0; i < window.baseAgendamentos.length; i++) {
-                let ag = window.baseAgendamentos[i];
-               
-                // Só varre o banco externo se o status estiver como "agendado" (Azul, Laranja ou Vermelho de Hoje)
-                if (ag.status === 'agendado') {
-                    let dbExterna = window.dbsExternos[ag.base_alocada];
-                    if (dbExterna) {
-                        try {
-                            // Lógica de Leitura 100% Passiva.
-                            // Substitua a linha abaixo pelo caminho exato do seu banco operacional
-                            /*
-                            const snapshot = await get(ref(dbExterna, `registros/${ag.data}/${ag.turno}/${ag.driver_id}`));
-                            if (snapshot.exists()) {
-                                // Encontrou o ID rodando no banco externo na data e no turno certo!
-                                // Seta o painel interno como 'em_rota' (Verde)
-                                await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
-                            }
-                            */
-                        } catch(e) { console.error("Falha ao ler o banco externo da base: " + ag.base_alocada, e); }
-                    }
-                }
-            }
-        };
 
         window.abrirInspetorDeDia = function(dataStr) {
             window.dataVisualizadaNoInspetor = dataStr;
