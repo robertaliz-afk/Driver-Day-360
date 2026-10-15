@@ -278,7 +278,7 @@
                         <span style="color: var(--st-agendado); border-left: 1px solid var(--border-dark); padding-left: 10px;"><i class="fa-solid fa-circle"></i> Agendado (Futuro)</span>
                         <span style="color: var(--st-rodou);"><i class="fa-solid fa-circle"></i> Rodou</span>
                         <span style="color: var(--st-ocorrencia);"><i class="fa-solid fa-circle"></i> Pendente Hoje / Ocorrência</span>
-                        <span style="color: var(--st-falta);"><i class="fa-solid fa-circle"></i> Não Rodou (Falta)</span>
+                        <span style="color: var(--st-falta);"><i class="fa-solid fa-circle"></i> Não Rodou (Passado)</span>
                     </div>
                 </div>
                 <div class="calendar-wrapper">
@@ -463,7 +463,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE OCORRÊNCIA INTELIGENTE -->
     <div id="modalOcorrencia" class="modal-overlay">
         <div class="modal-box form-dark" style="width: 400px; border-color: var(--st-ocorrencia);">
             <div class="modal-box-header" style="border-bottom-color: rgba(239, 68, 68, 0.2);">
@@ -969,12 +968,13 @@
 
         // ==========================================
         // O ROBÔ SÊNIOR (Watchdog Firebase Read-Only)
+        // COM NÓ DE BUSCA CORRIGIDO: historico_alocacao
         // ==========================================
         window.sincronizarStatusBasesExternas = async function() {
             console.log("[ROBÔ] Iniciando varredura nas 6 bases operacionais externas...");
             const hojeStr = window.getHojeString();
            
-            // 1) Lógica de Status: Verde se rodou. (Não mexe se falhar, o CSS já pinta de laranja/vermelho).
+            // 1) Lógica de Status: Verde se rodou.
             for (let i = 0; i < window.baseAgendamentos.length; i++) {
                 let ag = window.baseAgendamentos[i];
                
@@ -982,8 +982,8 @@
                     let dbExterna = window.dbsExternos[ag.base_alocada];
                     if (dbExterna) {
                         try {
-                            // AQUI É ONDE VOCÊ DEVE COLOCAR O CAMINHO EXATO DA PASTA DENTRO DOS OUTROS FIREBASES
-                            const CAMINHO_DO_SEU_BANCO = `historico/${ag.data}/${ag.turno}/${ag.driver_id}`;
+                            // A CHAVE MESTRA: O Caminho Exato no banco fornecido por você
+                            const CAMINHO_DO_SEU_BANCO = `historico_alocacao/${ag.data}/${ag.turno}/${ag.driver_id}`;
                            
                             const snapshot = await get(ref(dbExterna, CAMINHO_DO_SEU_BANCO));
                             if (snapshot.exists()) {
@@ -1004,20 +1004,21 @@
             for (let baseKey in window.dbsExternos) {
                 let dbExterna = window.dbsExternos[baseKey];
                 try {
-                    // O Robô vai olhar todo o histórico dessa base para achar dobras
-                    const CAMINHO_DO_HISTORICO_COMPLETO = `historico`; // <-- Ajuste o nome da pasta de histórico da base externa aqui!
+                    // A CHAVE MESTRA P/ O ROBÔ DE DOBRAS
+                    const CAMINHO_DO_HISTORICO_COMPLETO = `historico_alocacao`;
                    
                     const snapshot = await get(ref(dbExterna, CAMINHO_DO_HISTORICO_COMPLETO));
                     if (snapshot.exists()) {
                         let historicoData = snapshot.val();
-                        // Lógica genérica baseada em datas: historico -> '2026-10-14' -> 'AM' e 'PM'
+                        // Lê cada data salva no banco
                         Object.keys(historicoData).forEach(dataDia => {
                             let turnos = historicoData[dataDia];
+                            // Se tiver registros AM e PM salvos no dia...
                             if (turnos.AM && turnos.PM) {
-                                // Se tiver AM e PM nesse dia, confere se o mesmo motorista rodou nos dois
                                 let idsAM = Object.keys(turnos.AM);
                                 let idsPM = Object.keys(turnos.PM);
                                
+                                // Cruza os IDs da manhã com os IDs da tarde
                                 idsAM.forEach(id => {
                                     if (idsPM.includes(id)) {
                                         contagemDobras[baseKey]++; // Achou uma dobra!
