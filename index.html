@@ -500,7 +500,6 @@
 
         // ==========================================
         // MOTOR DE MÚLTIPLOS BANCOS (READ-ONLY)
-        // LMG-45 assumiu as chaves de LMG-44 a pedido.
         // ==========================================
         const configsExternas = {
             "LMG-45 Varginha": { apiKey: "AIzaSyCa-2vyQgzxxU1kzWruvWsKZ0X8ZRTRfO4", databaseURL: "https://lmg---44-default-rtdb.firebaseio.com", projectId: "lmg---44" },
@@ -587,7 +586,6 @@
             if (statusBanco === 'em_rota') return { cor: 'var(--st-rodou)', bg: 'rgba(16, 185, 129, 0.1)', texto: 'Rodou', id: 'em_rota' };
             if (statusBanco === 'ocorrencia') return { cor: 'var(--st-ocorrencia)', bg: 'rgba(239, 68, 68, 0.1)', texto: 'Ocorrência', id: 'ocorrencia' };
            
-            // INTEGÊNCIA TEMPORAL DE CORES (Lógica Sênior)
             if (statusBanco === 'agendado') {
                 if (dataAgendamento > hojeStr) {
                     return { cor: 'var(--st-agendado)', bg: 'rgba(59, 130, 246, 0.1)', texto: 'Agendado', id: 'agendado' };
@@ -937,9 +935,7 @@
                 options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: {size: 11} } } } }
             });
 
-            // ABA 2: RESUMO DE DOBRAS BASEADO NA LEITURA EXTERNA DO ROBÔ
-            // O Robô atualiza window.dobrasGlobaisCalculadas. O Dashboard apenas lê esse objeto.
-           
+            // ABA 2: RESUMO DE DOBRAS (Exibe a contagem puxada pelo Robô)
             let htmlDobras = '';
             let chavesBases = Object.keys(window.dobrasGlobaisCalculadas);
            
@@ -967,77 +963,115 @@
         }
 
         // ==========================================
-        // O ROBÔ SÊNIOR (Watchdog Firebase Read-Only)
-        // COM NÓ DE BUSCA CORRIGIDO: historico_alocacao
+        // O ROBÔ SÊNIOR "SCANNER UNIVERSAL"
         // ==========================================
         window.sincronizarStatusBasesExternas = async function() {
-            console.log("[ROBÔ] Iniciando varredura nas 6 bases operacionais externas...");
+            console.log("[ROBÔ] Iniciando Scanner Universal nas bases externas...");
             const hojeStr = window.getHojeString();
-           
-            // 1) Lógica de Status: Verde se rodou.
+
+            // Passo 1: Fazer download preventivo dos nós de histórico das bases externas
+            let externalData = {};
+            const caminhosTentativas = ['historico_alocacao', 'rodizio', 'historico', 'alocacao', 'historico_de_alocacao', 'Rodízio'];
+
+            for (let baseKey in window.dbsExternos) {
+                let dbExterna = window.dbsExternos[baseKey];
+                try {
+                    let snap = null;
+                    // O robô tenta achar em qual aba a planilha foi importada
+                    for (let path of caminhosTentativas) {
+                        snap = await get(ref(dbExterna, path));
+                        if (snap.exists()) break;
+                    }
+                    if (snap && snap.exists()) {
+                        externalData[baseKey] = snap.val();
+                    } else {
+                        externalData[baseKey] = null;
+                    }
+                } catch(e) { console.warn("Erro ao acessar base: " + baseKey); }
+            }
+
+            // Passo 2: Lógica de Status (Pintar de Verde se rodou)
             for (let i = 0; i < window.baseAgendamentos.length; i++) {
                 let ag = window.baseAgendamentos[i];
-               
+
                 if (ag.status === 'agendado') {
-                    let dbExterna = window.dbsExternos[ag.base_alocada];
-                    if (dbExterna) {
-                        try {
-                            // A CHAVE MESTRA: O Caminho Exato no banco fornecido por você
-                            const CAMINHO_DO_SEU_BANCO = `historico_alocacao/${ag.data}/${ag.turno}/${ag.driver_id}`;
-                           
-                            const snapshot = await get(ref(dbExterna, CAMINHO_DO_SEU_BANCO));
-                            if (snapshot.exists()) {
-                                // O Robô achou o motorista! Ele muda para Verde no nosso banco principal.
-                                await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
+                    let baseData = externalData[ag.base_alocada];
+                    if (baseData) {
+                        let dataISO = ag.data; // Ex: 2026-10-15
+                        let dataBR = ag.data.split('-').reverse().join('/'); // Ex: 15/10/2026
+                        let found = false;
+
+                        let records = Object.values(baseData);
+                        for(let r of records) {
+                            // Transforma a linha da planilha em texto puro e escaneia as 3 informações
+                            let strRecord = JSON.stringify(r);
+                            if (strRecord.includes(ag.driver_id) &&
+                               (strRecord.includes(dataISO) || strRecord.includes(dataBR)) &&
+                               strRecord.includes(ag.turno)) {
+                                   found = true;
+                                   break;
                             }
-                        } catch(e) { console.error("Falha ao ler o banco externo da base: " + ag.base_alocada, e); }
+                        }
+
+                        if (found) {
+                            // Achou o motorista! Pinta de verde.
+                            await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
+                        }
                     }
                 }
             }
 
-            // 2) Lógica de Dobras: Rastreia viagens AM e PM no mesmo dia para cada base.
+            // Passo 3: Lógica de Dobras Automáticas
             let contagemDobras = {
                 "LMG-45 Varginha": 0, "UDI Uberlândia": 0, "LMG-39 Patos de Minas": 0,
                 "LMG-36 Divinópolis": 0, "LMG-27 Lagoa da Prata": 0, "LMG-19 Extrema": 0, "LMG-48 Uberaba": 0
             };
 
-            for (let baseKey in window.dbsExternos) {
-                let dbExterna = window.dbsExternos[baseKey];
-                try {
-                    // A CHAVE MESTRA P/ O ROBÔ DE DOBRAS
-                    const CAMINHO_DO_HISTORICO_COMPLETO = `historico_alocacao`;
+            for (let baseKey in externalData) {
+                let baseData = externalData[baseKey];
+                if (!baseData) continue;
+
+                let records = Object.values(baseData);
+                let mapDobras = {};
+
+                records.forEach(r => {
+                    let strRecord = JSON.stringify(r);
                    
-                    const snapshot = await get(ref(dbExterna, CAMINHO_DO_HISTORICO_COMPLETO));
-                    if (snapshot.exists()) {
-                        let historicoData = snapshot.val();
-                        // Lê cada data salva no banco
-                        Object.keys(historicoData).forEach(dataDia => {
-                            let turnos = historicoData[dataDia];
-                            // Se tiver registros AM e PM salvos no dia...
-                            if (turnos.AM && turnos.PM) {
-                                let idsAM = Object.keys(turnos.AM);
-                                let idsPM = Object.keys(turnos.PM);
-                               
-                                // Cruza os IDs da manhã com os IDs da tarde
-                                idsAM.forEach(id => {
-                                    if (idsPM.includes(id)) {
-                                        contagemDobras[baseKey]++; // Achou uma dobra!
-                                    }
-                                });
-                            }
-                        });
+                    // Escaneia a linha tentando achar um ID, uma Data e o Turno
+                    let id = r.driver_id || r.id || r.ID || r.motorista || r.Motorista || null;
+                    let data = r.data || r.Data || r.date || r.Date || null;
+                    let turno = r.turno || r.Turno || r.TURNO || null;
+
+                    if (!id) { let m = strRecord.match(/"(\d{4,8})"/); if(m) id = m[1]; }
+                    if (!data) { let md = strRecord.match(/(\d{4}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4})/); if(md) data = md[1]; }
+                    if (!turno) {
+                        if(strRecord.includes("AM")) turno = "AM";
+                        else if(strRecord.includes("PM")) turno = "PM";
                     }
-                } catch (e) { console.error("Falha ao calcular dobras na base: " + baseKey, e); }
+
+                    if (id && data && turno) {
+                        let key = `${id}_${data}`; // Agrupa por ID e Data
+                        if(!mapDobras[key]) mapDobras[key] = new Set();
+                        mapDobras[key].add(turno);
+                    }
+                });
+
+                // Se no mesmo dia e mesmo ID tiver "AM" e "PM", conta como 1 Dobra.
+                let count = 0;
+                for(let key in mapDobras) {
+                    if(mapDobras[key].has("AM") && mapDobras[key].has("PM")) {
+                        count++;
+                    }
+                }
+                contagemDobras[baseKey] = count;
             }
 
-            // Salva na memória global para o Dashboard renderizar
+            // Salva na memória global e manda o Dashboard atualizar o visual.
             window.dobrasGlobaisCalculadas = contagemDobras;
-           
-            // Se o usuário estiver na tela de Dashboard, atualiza ela ao vivo
             if (document.getElementById('view-dashboard').classList.contains('active')) {
                 window.renderizarDashboardCompleto();
             }
-            console.log("[ROBÔ] Varredura finalizada.");
+            console.log("[ROBÔ] Scanner Universal finalizado com sucesso.");
         };
 
         window.renderizarUsuarios = function() {
