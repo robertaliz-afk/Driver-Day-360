@@ -338,7 +338,7 @@
                 <div class="dashboard-container" style="position: relative;">
                     <!-- INDICADOR DO ROBÔ RODANDO NO BACKEND -->
                     <div class="robo-status-icon" id="roboStatusInfo">
-                        <i class="fa-solid fa-robot fa-bounce"></i> Robô Monitorando Bases Externas...
+                        <i class="fa-solid fa-robot fa-bounce"></i> Robô Escaneando shopee_history...
                     </div>
 
                     <div id="content-novatos" class="dash-content active">
@@ -361,7 +361,6 @@
                         <div id="container-novatos-list"></div>
                     </div>
 
-                    <!-- NOVO LAYOUT DO CONTROLE DE DOBRAS (RESUMO POR BASE) -->
                     <div id="content-dobras" class="dash-content">
                         <div class="base-dash-header mb-3"><i class="fa-solid fa-bolt text-warning me-2"></i> Sumário de Dobras Operacionais (AM/PM)</div>
                         <div id="container-dobras-list" class="row g-3">
@@ -966,23 +965,18 @@
         // O ROBÔ SÊNIOR "SCANNER UNIVERSAL"
         // ==========================================
         window.sincronizarStatusBasesExternas = async function() {
-            console.log("[ROBÔ] Iniciando Scanner Universal nas bases externas...");
+            console.log("[ROBÔ] Iniciando Scanner Universal no nó 'shopee_history' das bases externas...");
             const hojeStr = window.getHojeString();
 
-            // Passo 1: Fazer download preventivo dos nós de histórico das bases externas
+            // Passo 1: Fazer download preventivo do nó correto do histórico
             let externalData = {};
-            const caminhosTentativas = ['historico_alocacao', 'rodizio', 'historico', 'alocacao', 'historico_de_alocacao', 'Rodízio'];
+            const caminhoOficial = 'shopee_history';
 
             for (let baseKey in window.dbsExternos) {
                 let dbExterna = window.dbsExternos[baseKey];
                 try {
-                    let snap = null;
-                    // O robô tenta achar em qual aba a planilha foi importada
-                    for (let path of caminhosTentativas) {
-                        snap = await get(ref(dbExterna, path));
-                        if (snap.exists()) break;
-                    }
-                    if (snap && snap.exists()) {
+                    let snap = await get(ref(dbExterna, caminhoOficial));
+                    if (snap.exists()) {
                         externalData[baseKey] = snap.val();
                     } else {
                         externalData[baseKey] = null;
@@ -1003,7 +997,7 @@
 
                         let records = Object.values(baseData);
                         for(let r of records) {
-                            // Transforma a linha da planilha em texto puro e escaneia as 3 informações
+                            // Transforma a linha importada da planilha em texto e procura os detalhes do motorista
                             let strRecord = JSON.stringify(r);
                             if (strRecord.includes(ag.driver_id) &&
                                (strRecord.includes(dataISO) || strRecord.includes(dataBR)) &&
@@ -1014,14 +1008,14 @@
                         }
 
                         if (found) {
-                            // Achou o motorista! Pinta de verde.
+                            // O Robô confirmou a existência da linha. Pinta de verde.
                             await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
                         }
                     }
                 }
             }
 
-            // Passo 3: Lógica de Dobras Automáticas
+            // Passo 3: Lógica de Dobras Automáticas (Agnóstica a colunas)
             let contagemDobras = {
                 "LMG-45 Varginha": 0, "UDI Uberlândia": 0, "LMG-39 Patos de Minas": 0,
                 "LMG-36 Divinópolis": 0, "LMG-27 Lagoa da Prata": 0, "LMG-19 Extrema": 0, "LMG-48 Uberaba": 0
@@ -1037,7 +1031,7 @@
                 records.forEach(r => {
                     let strRecord = JSON.stringify(r);
                    
-                    // Escaneia a linha tentando achar um ID, uma Data e o Turno
+                    // Captura inteligente das colunas importadas
                     let id = r.driver_id || r.id || r.ID || r.motorista || r.Motorista || null;
                     let data = r.data || r.Data || r.date || r.Date || null;
                     let turno = r.turno || r.Turno || r.TURNO || null;
@@ -1050,13 +1044,12 @@
                     }
 
                     if (id && data && turno) {
-                        let key = `${id}_${data}`; // Agrupa por ID e Data
+                        let key = `${id}_${data}`; // Agrupa por motorista e data
                         if(!mapDobras[key]) mapDobras[key] = new Set();
-                        mapDobras[key].add(turno);
+                        mapDobras[key].add(turno); // Ex: adiciona "AM" e depois "PM"
                     }
                 });
 
-                // Se no mesmo dia e mesmo ID tiver "AM" e "PM", conta como 1 Dobra.
                 let count = 0;
                 for(let key in mapDobras) {
                     if(mapDobras[key].has("AM") && mapDobras[key].has("PM")) {
@@ -1066,12 +1059,12 @@
                 contagemDobras[baseKey] = count;
             }
 
-            // Salva na memória global e manda o Dashboard atualizar o visual.
+            // Salva na memória e manda o Dashboard atualizar visualmente
             window.dobrasGlobaisCalculadas = contagemDobras;
             if (document.getElementById('view-dashboard').classList.contains('active')) {
                 window.renderizarDashboardCompleto();
             }
-            console.log("[ROBÔ] Scanner Universal finalizado com sucesso.");
+            console.log("[ROBÔ] Scanner de shopee_history finalizado com sucesso.");
         };
 
         window.renderizarUsuarios = function() {
