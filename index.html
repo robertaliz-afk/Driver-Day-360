@@ -361,7 +361,6 @@
                         <div id="container-novatos-list"></div>
                     </div>
 
-                    <!-- NOVO LAYOUT DO CONTROLE DE DOBRAS (RESUMO POR BASE) -->
                     <div id="content-dobras" class="dash-content">
                         <div class="base-dash-header mb-3"><i class="fa-solid fa-bolt text-warning me-2"></i> Sumário de Dobras Operacionais (AM/PM)</div>
                         <div id="container-dobras-list" class="row g-3">
@@ -499,21 +498,24 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
         // ==========================================
-        // MOTOR DE MÚLTIPLOS BANCOS (READ-ONLY)
+        // MOTOR DE MÚLTIPLOS BANCOS (CORRIGIDO PELO QA)
+        // Usando nomes seguros (safeAppName) para evitar conflitos do Firebase
         // ==========================================
         const configsExternas = {
+            "LMG-48 Uberaba": { apiKey: "AIzaSyBxzyFdum86noYdpQnldyjX4wiPB7IJEMY", databaseURL: "https://spx-logistica-online-default-rtdb.firebaseio.com", projectId: "spx-logistica-online" },
             "LMG-45 Varginha": { apiKey: "AIzaSyCa-2vyQgzxxU1kzWruvWsKZ0X8ZRTRfO4", databaseURL: "https://lmg---44-default-rtdb.firebaseio.com", projectId: "lmg---44" },
             "LMG-36 Divinópolis": { apiKey: "AIzaSyD5x5FCQj3CsNGOjAs-RfgA4ZHzFbUcrA0", databaseURL: "https://filadriver-default-rtdb.firebaseio.com", projectId: "filadriver" },
             "LMG-19 Extrema": { apiKey: "AIzaSyAmSrxRdWJuZGtulk00BNK6IiXZMX8H1Pk", databaseURL: "https://lmg-19-extrema-default-rtdb.firebaseio.com", projectId: "lmg-19-extrema" },
             "LMG-27 Lagoa da Prata": { apiKey: "AIzaSyBS3Yby3VRHECT54y3MMdLZoE-L_rMEAEA", databaseURL: "https://lmg-27-default-rtdb.firebaseio.com", projectId: "lmg-27" },
-            "LMG-39 Patos de Minas": { apiKey: "AIzaSyDitF1wjGzzifPVecVh81nI_KBPmKLTZOE", databaseURL: "https://fiorino-lmg-39-default-rtdb.firebaseio.com", projectId: "fiorino-lmg-39" },
-            "LMG-48 Uberaba": { apiKey: "AIzaSyBxzyFdum86noYdpQnldyjX4wiPB7IJEMY", databaseURL: "https://spx-logistica-online-default-rtdb.firebaseio.com", projectId: "spx-logistica-online" }
+            "LMG-39 Patos de Minas": { apiKey: "AIzaSyDitF1wjGzzifPVecVh81nI_KBPmKLTZOE", databaseURL: "https://fiorino-lmg-39-default-rtdb.firebaseio.com", projectId: "fiorino-lmg-39" }
         };
        
         window.dbsExternos = {};
         Object.keys(configsExternas).forEach(base => {
             try {
-                const extApp = initializeApp(configsExternas[base], base);
+                // Remove espaços e hifens para garantir que o Firebase não trave ao iniciar múltiplos apps simultaneamente
+                const safeAppName = base.replace(/[^a-zA-Z0-9]/g, '');
+                const extApp = initializeApp(configsExternas[base], safeAppName);
                 window.dbsExternos[base] = getDatabase(extApp);
             } catch (error) { console.warn(`Firebase externo da base ${base} já iniciado.`); }
         });
@@ -541,7 +543,6 @@
         window.listaUsuarios = [];
         window.chartMotivosDashObj = null;
        
-        // CONTROLE DO ROBÔ (Watchdog) DE DOBRAS EXTERNADAS
         window.dobrasGlobaisCalculadas = {};
 
         window.toggleTheme = function() {
@@ -964,60 +965,71 @@
 
         // ==========================================
         // O ROBÔ SÊNIOR "SCANNER UNIVERSAL"
-        // Formata datas para YYYYMMDD e Escaneia por Nomes e Turnos.
+        // Corrigido: Tenta várias pastas (com foco em shopee_history) e extrai os dados como texto para fugir de erros de colunas.
         // ==========================================
         window.sincronizarStatusBasesExternas = async function() {
-            console.log("[ROBÔ SÊNIOR] Iniciando varredura profunda no nó 'shopee_history'...");
+            console.log("[ROBÔ SÊNIOR] Iniciando Scanner Universal nas bases externas...");
             const formatarDataFirebase = (dataInput) => dataInput.replace(/-/g, ''); // "2026-10-15" -> "20261015"
 
-            // Passo 1: Download completo do nó shopee_history para processamento rápido na memória
             let externalData = {};
+            // O Robô vai tentar achar em qual gaveta as planilhas estão caindo.
+            const caminhosTentativas = ['shopee_history', 'historico_alocacao', 'rodizio', 'historico', 'alocacao'];
+
+            // 1. Download de Dados Inteligente
             for (let baseKey in window.dbsExternos) {
                 let dbExterna = window.dbsExternos[baseKey];
-                try {
-                    let snap = await get(ref(dbExterna, 'shopee_history'));
-                    if (snap.exists()) {
-                        externalData[baseKey] = snap.val();
-                    } else {
-                        externalData[baseKey] = null;
-                    }
-                } catch(e) { console.warn("Erro ao acessar base: " + baseKey); }
+                externalData[baseKey] = null;
+                for (let caminho of caminhosTentativas) {
+                    try {
+                        let snap = await get(ref(dbExterna, caminho));
+                        if (snap.exists()) {
+                            externalData[baseKey] = snap.val();
+                            console.log(`[ROBÔ] Achei os dados da base ${baseKey} na pasta: ${caminho}`);
+                            break; // Achou os dados, não precisa tentar as outras pastas
+                        }
+                    } catch(e) { /* Ignora se a pasta não existir e tenta a próxima */ }
+                }
             }
 
-            // Passo 2: Validar Starts (Pintar de Verde) buscando por Nome e Data (YYYYMMDD)
+            // 2. Validar Starts (Pintar de Verde) usando a Busca Agnóstica (Scanner de Texto)
             for (let i = 0; i < window.baseAgendamentos.length; i++) {
                 let ag = window.baseAgendamentos[i];
 
                 if (ag.status === 'agendado') {
                     let baseData = externalData[ag.base_alocada];
                     if (baseData) {
-                        let dataBusca = formatarDataFirebase(ag.data); // Acessa direto a pasta do dia
+                        let dataISO = ag.data; // Ex: 2026-10-15
+                        let dataBR = ag.data.split('-').reverse().join('/'); // Ex: 15/10/2026
+                        let dataJunta = formatarDataFirebase(ag.data); // Ex: 20261015
+                       
                         let nomeBusca = ag.nome.trim().toLowerCase();
                         let turnoBusca = ag.turno.toLowerCase();
                         let found = false;
 
-                        let dadosDoDia = baseData[dataBusca];
-                        if (dadosDoDia) {
-                            let records = Object.values(dadosDoDia);
-                            for(let r of records) {
-                                // Transforma a linha toda em texto e procura o Nome e o Turno
-                                let strRecord = JSON.stringify(r).toLowerCase();
-                                if (strRecord.includes(nomeBusca) && strRecord.includes(turnoBusca)) {
-                                    found = true;
-                                    break;
-                                }
+                        // Se o banco for organizado por datas (ex: shopee_history/20261015), tenta ler direto
+                        let dadosDireto = baseData[dataJunta] || baseData[dataISO];
+                       
+                        let recordsToScan = dadosDireto ? Object.values(dadosDireto) : Object.values(baseData);
+
+                        for(let r of recordsToScan) {
+                            let strRecord = JSON.stringify(r).toLowerCase();
+                            // Se a linha tiver o ID (ou o Nome), a Data e o Turno (AM/PM), é Match garantido.
+                            if ((strRecord.includes(ag.driver_id) || strRecord.includes(nomeBusca)) &&
+                               (strRecord.includes(dataISO) || strRecord.includes(dataBR) || strRecord.includes(dataJunta)) &&
+                               strRecord.includes(turnoBusca)) {
+                                   found = true;
+                                   break;
                             }
                         }
 
                         if (found) {
-                            // Achou o motorista na base externa na data e no turno!
                             await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
                         }
                     }
                 }
             }
 
-            // Passo 3: Cálculo de Dobras (AM e PM no mesmo dia) - Busca Agnóstica e à prova de falhas
+            // 3. Cálculo de Dobras (Abre tudo, busca quem rodou AM e PM e cruza os dados)
             let contagemDobras = {
                 "LMG-45 Varginha": 0, "UDI Uberlândia": 0, "LMG-39 Patos de Minas": 0,
                 "LMG-36 Divinópolis": 0, "LMG-27 Lagoa da Prata": 0, "LMG-19 Extrema": 0, "LMG-48 Uberaba": 0
@@ -1027,56 +1039,61 @@
                 let baseData = externalData[baseKey];
                 if (!baseData) continue;
 
-                let count = 0;
-               
-                // baseData é { "20260601": {...}, "20260602": {...} }
-                Object.keys(baseData).forEach(dataDia => {
-                    let dadosDoDia = baseData[dataDia];
-                    let mapTurnosMotorista = {}; // Guarda quais turnos cada motorista rodou no dia
+                // Tenta extrair todas as linhas de histórico
+                let recordsToScan = [];
+                // Se o banco for aninhado por data (key = 20261015)
+                if (typeof Object.values(baseData)[0] === 'object') {
+                     Object.values(baseData).forEach(dia => {
+                         if (typeof dia === 'object') recordsToScan.push(...Object.values(dia));
+                     });
+                } else {
+                     recordsToScan = Object.values(baseData);
+                }
+
+                let mapDobras = {};
+
+                recordsToScan.forEach(r => {
+                    let strRecord = JSON.stringify(r).toLowerCase();
                    
-                    Object.values(dadosDoDia).forEach(r => {
-                        let strRecord = JSON.stringify(r).toLowerCase();
-                       
-                        // Extração agressiva de nome: procura por propriedades comuns de nome na planilha importada
-                        let nomeStr = r.nome || r.Nome || r.motorista || r.Motorista || r["Nome do Motorista"] || r.driver || r.Driver || null;
-                       
-                        // Se não achar chave de nome, procura no objeto inteiro por alguma string grande que pareça um nome completo
-                        if (!nomeStr) {
-                            let values = Object.values(r);
-                            let possibleName = values.find(v => typeof v === 'string' && v.trim().includes(' ') && v.length > 5 && !v.toLowerCase().includes('am') && !v.toLowerCase().includes('pm'));
-                            if (possibleName) nomeStr = possibleName;
-                        }
+                    // Extração flexível (Scanner)
+                    let id = r.driver_id || r.id || r.ID || r.motorista || null;
+                    let data = r.data || r.Data || r.date || null;
+                    let turno = r.turno || r.Turno || r.TURNO || null;
 
-                        if (nomeStr) {
-                            let cleanName = nomeStr.trim().toLowerCase();
-                            let turno = null;
-                            if (strRecord.includes("am") || strRecord.includes("manhã")) turno = "am";
-                            else if (strRecord.includes("pm") || strRecord.includes("tarde")) turno = "pm";
+                    if (!id) { let m = strRecord.match(/"(\d{4,8})"/); if(m) id = m[1]; }
+                    if (!id) {
+                        // Se não tem ID numérico, tenta pegar pelo nome
+                        let nomeStr = r.nome || r.Nome || r["Nome do Motorista"] || r.driver || null;
+                        if(nomeStr) id = nomeStr.trim().toLowerCase();
+                    }
+                   
+                    if (!data) { let md = strRecord.match(/(\d{4}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4})/); if(md) data = md[1]; }
+                    if (!turno) {
+                        if(strRecord.includes("am") || strRecord.includes("manhã")) turno = "am";
+                        else if(strRecord.includes("pm") || strRecord.includes("tarde")) turno = "pm";
+                    }
 
-                            if (turno) {
-                                if (!mapTurnosMotorista[cleanName]) mapTurnosMotorista[cleanName] = new Set();
-                                mapTurnosMotorista[cleanName].add(turno);
-                            }
-                        }
-                    });
-
-                    // Verifica se o mesmo motorista rodou AM e PM no dia atual do loop
-                    for(let nome in mapTurnosMotorista) {
-                        if(mapTurnosMotorista[nome].has("am") && mapTurnosMotorista[nome].has("pm")) {
-                            count++;
-                        }
+                    if (id && data && turno) {
+                        let key = `${id}_${data}`;
+                        if(!mapDobras[key]) mapDobras[key] = new Set();
+                        mapDobras[key].add(turno);
                     }
                 });
-               
+
+                let count = 0;
+                for(let key in mapDobras) {
+                    if(mapDobras[key].has("am") && mapDobras[key].has("pm")) {
+                        count++;
+                    }
+                }
                 contagemDobras[baseKey] = count;
             }
 
-            // Atualiza os painéis visuais com a memória nova do Robô
             window.dobrasGlobaisCalculadas = contagemDobras;
             if (document.getElementById('view-dashboard').classList.contains('active')) {
                 window.renderizarDashboardCompleto();
             }
-            console.log("[ROBÔ SÊNIOR] Varredura inteligente de Dobras e Status concluída.");
+            console.log("[ROBÔ SÊNIOR] Varredura profunda finalizada. Todas as bases operacionais analisadas.");
         };
 
         window.renderizarUsuarios = function() {
