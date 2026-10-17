@@ -338,7 +338,7 @@
                 <div class="dashboard-container" style="position: relative;">
                     <!-- INDICADOR DO ROBÔ RODANDO NO BACKEND -->
                     <div class="robo-status-icon" id="roboStatusInfo">
-                        <i class="fa-solid fa-robot fa-bounce"></i> Robô Escaneando shopee_history...
+                        <i class="fa-solid fa-robot fa-bounce"></i> Scanner Universal Ativado...
                     </div>
 
                     <div id="content-novatos" class="dash-content active">
@@ -361,6 +361,7 @@
                         <div id="container-novatos-list"></div>
                     </div>
 
+                    <!-- NOVO LAYOUT DO CONTROLE DE DOBRAS (RESUMO POR BASE) -->
                     <div id="content-dobras" class="dash-content">
                         <div class="base-dash-header mb-3"><i class="fa-solid fa-bolt text-warning me-2"></i> Sumário de Dobras Operacionais (AM/PM)</div>
                         <div id="container-dobras-list" class="row g-3">
@@ -934,7 +935,7 @@
                 options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: {size: 11} } } } }
             });
 
-            // ABA 2: RESUMO DE DOBRAS (Exibe a contagem puxada pelo Robô)
+            // ABA 2: RESUMO DE DOBRAS (Exibe a contagem puxada pelo Robô Sênior)
             let htmlDobras = '';
             let chavesBases = Object.keys(window.dobrasGlobaisCalculadas);
            
@@ -963,19 +964,18 @@
 
         // ==========================================
         // O ROBÔ SÊNIOR "SCANNER UNIVERSAL"
+        // Formata datas para YYYYMMDD e Escaneia por Nomes e Turnos.
         // ==========================================
         window.sincronizarStatusBasesExternas = async function() {
-            console.log("[ROBÔ] Iniciando Scanner Universal no nó 'shopee_history' das bases externas...");
-            const hojeStr = window.getHojeString();
+            console.log("[ROBÔ SÊNIOR] Iniciando varredura profunda no nó 'shopee_history'...");
+            const formatarDataFirebase = (dataInput) => dataInput.replace(/-/g, ''); // "2026-10-15" -> "20261015"
 
-            // Passo 1: Fazer download preventivo do nó correto do histórico
+            // Passo 1: Download completo do nó shopee_history para processamento rápido na memória
             let externalData = {};
-            const caminhoOficial = 'shopee_history';
-
             for (let baseKey in window.dbsExternos) {
                 let dbExterna = window.dbsExternos[baseKey];
                 try {
-                    let snap = await get(ref(dbExterna, caminhoOficial));
+                    let snap = await get(ref(dbExterna, 'shopee_history'));
                     if (snap.exists()) {
                         externalData[baseKey] = snap.val();
                     } else {
@@ -984,38 +984,40 @@
                 } catch(e) { console.warn("Erro ao acessar base: " + baseKey); }
             }
 
-            // Passo 2: Lógica de Status (Pintar de Verde se rodou)
+            // Passo 2: Validar Starts (Pintar de Verde) buscando por Nome e Data (YYYYMMDD)
             for (let i = 0; i < window.baseAgendamentos.length; i++) {
                 let ag = window.baseAgendamentos[i];
 
                 if (ag.status === 'agendado') {
                     let baseData = externalData[ag.base_alocada];
                     if (baseData) {
-                        let dataISO = ag.data; // Ex: 2026-10-15
-                        let dataBR = ag.data.split('-').reverse().join('/'); // Ex: 15/10/2026
+                        let dataBusca = formatarDataFirebase(ag.data); // Acessa direto a pasta do dia
+                        let nomeBusca = ag.nome.trim().toLowerCase();
+                        let turnoBusca = ag.turno.toLowerCase();
                         let found = false;
 
-                        let records = Object.values(baseData);
-                        for(let r of records) {
-                            // Transforma a linha importada da planilha em texto e procura os detalhes do motorista
-                            let strRecord = JSON.stringify(r);
-                            if (strRecord.includes(ag.driver_id) &&
-                               (strRecord.includes(dataISO) || strRecord.includes(dataBR)) &&
-                               strRecord.includes(ag.turno)) {
-                                   found = true;
-                                   break;
+                        let dadosDoDia = baseData[dataBusca];
+                        if (dadosDoDia) {
+                            let records = Object.values(dadosDoDia);
+                            for(let r of records) {
+                                // Transforma a linha toda em texto e procura o Nome e o Turno
+                                let strRecord = JSON.stringify(r).toLowerCase();
+                                if (strRecord.includes(nomeBusca) && strRecord.includes(turnoBusca)) {
+                                    found = true;
+                                    break;
+                                }
                             }
                         }
 
                         if (found) {
-                            // O Robô confirmou a existência da linha. Pinta de verde.
+                            // Achou o motorista na base externa na data e no turno!
                             await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
                         }
                     }
                 }
             }
 
-            // Passo 3: Lógica de Dobras Automáticas (Agnóstica a colunas)
+            // Passo 3: Cálculo de Dobras (AM e PM no mesmo dia) - Busca Agnóstica e à prova de falhas
             let contagemDobras = {
                 "LMG-45 Varginha": 0, "UDI Uberlândia": 0, "LMG-39 Patos de Minas": 0,
                 "LMG-36 Divinópolis": 0, "LMG-27 Lagoa da Prata": 0, "LMG-19 Extrema": 0, "LMG-48 Uberaba": 0
@@ -1025,46 +1027,56 @@
                 let baseData = externalData[baseKey];
                 if (!baseData) continue;
 
-                let records = Object.values(baseData);
-                let mapDobras = {};
-
-                records.forEach(r => {
-                    let strRecord = JSON.stringify(r);
+                let count = 0;
+               
+                // baseData é { "20260601": {...}, "20260602": {...} }
+                Object.keys(baseData).forEach(dataDia => {
+                    let dadosDoDia = baseData[dataDia];
+                    let mapTurnosMotorista = {}; // Guarda quais turnos cada motorista rodou no dia
                    
-                    // Captura inteligente das colunas importadas
-                    let id = r.driver_id || r.id || r.ID || r.motorista || r.Motorista || null;
-                    let data = r.data || r.Data || r.date || r.Date || null;
-                    let turno = r.turno || r.Turno || r.TURNO || null;
+                    Object.values(dadosDoDia).forEach(r => {
+                        let strRecord = JSON.stringify(r).toLowerCase();
+                       
+                        // Extração agressiva de nome: procura por propriedades comuns de nome na planilha importada
+                        let nomeStr = r.nome || r.Nome || r.motorista || r.Motorista || r["Nome do Motorista"] || r.driver || r.Driver || null;
+                       
+                        // Se não achar chave de nome, procura no objeto inteiro por alguma string grande que pareça um nome completo
+                        if (!nomeStr) {
+                            let values = Object.values(r);
+                            let possibleName = values.find(v => typeof v === 'string' && v.trim().includes(' ') && v.length > 5 && !v.toLowerCase().includes('am') && !v.toLowerCase().includes('pm'));
+                            if (possibleName) nomeStr = possibleName;
+                        }
 
-                    if (!id) { let m = strRecord.match(/"(\d{4,8})"/); if(m) id = m[1]; }
-                    if (!data) { let md = strRecord.match(/(\d{4}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4})/); if(md) data = md[1]; }
-                    if (!turno) {
-                        if(strRecord.includes("AM")) turno = "AM";
-                        else if(strRecord.includes("PM")) turno = "PM";
-                    }
+                        if (nomeStr) {
+                            let cleanName = nomeStr.trim().toLowerCase();
+                            let turno = null;
+                            if (strRecord.includes("am") || strRecord.includes("manhã")) turno = "am";
+                            else if (strRecord.includes("pm") || strRecord.includes("tarde")) turno = "pm";
 
-                    if (id && data && turno) {
-                        let key = `${id}_${data}`; // Agrupa por motorista e data
-                        if(!mapDobras[key]) mapDobras[key] = new Set();
-                        mapDobras[key].add(turno); // Ex: adiciona "AM" e depois "PM"
+                            if (turno) {
+                                if (!mapTurnosMotorista[cleanName]) mapTurnosMotorista[cleanName] = new Set();
+                                mapTurnosMotorista[cleanName].add(turno);
+                            }
+                        }
+                    });
+
+                    // Verifica se o mesmo motorista rodou AM e PM no dia atual do loop
+                    for(let nome in mapTurnosMotorista) {
+                        if(mapTurnosMotorista[nome].has("am") && mapTurnosMotorista[nome].has("pm")) {
+                            count++;
+                        }
                     }
                 });
-
-                let count = 0;
-                for(let key in mapDobras) {
-                    if(mapDobras[key].has("AM") && mapDobras[key].has("PM")) {
-                        count++;
-                    }
-                }
+               
                 contagemDobras[baseKey] = count;
             }
 
-            // Salva na memória e manda o Dashboard atualizar visualmente
+            // Atualiza os painéis visuais com a memória nova do Robô
             window.dobrasGlobaisCalculadas = contagemDobras;
             if (document.getElementById('view-dashboard').classList.contains('active')) {
                 window.renderizarDashboardCompleto();
             }
-            console.log("[ROBÔ] Scanner de shopee_history finalizado com sucesso.");
+            console.log("[ROBÔ SÊNIOR] Varredura inteligente de Dobras e Status concluída.");
         };
 
         window.renderizarUsuarios = function() {
