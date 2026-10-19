@@ -361,6 +361,7 @@
                         <div id="container-novatos-list"></div>
                     </div>
 
+                    <!-- NOVO LAYOUT DO CONTROLE DE DOBRAS (RESUMO POR BASE) -->
                     <div id="content-dobras" class="dash-content">
                         <div class="base-dash-header mb-3"><i class="fa-solid fa-bolt text-warning me-2"></i> Sumário de Dobras Operacionais (AM/PM)</div>
                         <div id="container-dobras-list" class="row g-3">
@@ -498,8 +499,30 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
         // ==========================================
-        // MOTOR DE MÚLTIPLOS BANCOS (CORRIGIDO PELO QA)
-        // Usando nomes seguros (safeAppName) para evitar conflitos do Firebase
+        // 1. O BANCO DE DADOS PRINCIPAL E O SISTEMA DE LOGIN (AGORA SÃO INICIALIZADOS PRIMEIRO)
+        // Isso resolve o travamento na tela de login.
+        // ==========================================
+        const firebaseConfigMain = {
+            apiKey: "AIzaSyAWoaxC02mZNqeFgDQZBVRxAavVReDJ74M",
+            authDomain: "driverday27-edd8c.firebaseapp.com",
+            databaseURL: "https://driverday27-edd8c-default-rtdb.firebaseio.com",
+            projectId: "driverday27-edd8c",
+            storageBucket: "driverday27-edd8c.firebasestorage.app",
+            messagingSenderId: "534903138386",
+            appId: "1:534903138386:web:13932c768a9bd4bc1f178b"
+        };
+
+        // Ao inicializar o Main primeiro, o Firebase reconhece ele como "[DEFAULT]" e o Google Auth funciona perfeitamente.
+        const app = initializeApp(firebaseConfigMain);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+       
+        const agendamentosRef = ref(db, 'agendamentos');
+        const usuariosRef = ref(db, 'usuarios');
+
+        // ==========================================
+        // 2. OS BANCOS DE DADOS EXTERNOS (INICIALIZADOS POR ÚLTIMO)
         // ==========================================
         const configsExternas = {
             "LMG-48 Uberaba": { apiKey: "AIzaSyBxzyFdum86noYdpQnldyjX4wiPB7IJEMY", databaseURL: "https://spx-logistica-online-default-rtdb.firebaseio.com", projectId: "spx-logistica-online" },
@@ -513,36 +536,21 @@
         window.dbsExternos = {};
         Object.keys(configsExternas).forEach(base => {
             try {
-                // Remove espaços e hifens para garantir que o Firebase não trave ao iniciar múltiplos apps simultaneamente
+                // Tira hífens para evitar conflito de nomenclatura no firebase
                 const safeAppName = base.replace(/[^a-zA-Z0-9]/g, '');
                 const extApp = initializeApp(configsExternas[base], safeAppName);
                 window.dbsExternos[base] = getDatabase(extApp);
             } catch (error) { console.warn(`Firebase externo da base ${base} já iniciado.`); }
         });
 
-        const firebaseConfigMain = {
-            apiKey: "AIzaSyAWoaxC02mZNqeFgDQZBVRxAavVReDJ74M",
-            authDomain: "driverday27-edd8c.firebaseapp.com",
-            databaseURL: "https://driverday27-edd8c-default-rtdb.firebaseio.com",
-            projectId: "driverday27-edd8c",
-            storageBucket: "driverday27-edd8c.firebasestorage.app",
-            messagingSenderId: "534903138386",
-            appId: "1:534903138386:web:13932c768a9bd4bc1f178b"
-        };
-
-        const app = initializeApp(firebaseConfigMain);
-        const db = getDatabase(app);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-        const agendamentosRef = ref(db, 'agendamentos');
-        const usuariosRef = ref(db, 'usuarios');
-
+        // ==========================================
+        // LÓGICAS DE SISTEMA (SEM ALTERAÇÕES DE ESTRUTURA)
+        // ==========================================
         window.sessaoAtual = { uid: '', email: '', role: '', baseAtiva: '' };
         window.dataVisualizadaNoInspetor = '';
         window.baseAgendamentos = [];
         window.listaUsuarios = [];
         window.chartMotivosDashObj = null;
-       
         window.dobrasGlobaisCalculadas = {};
 
         window.toggleTheme = function() {
@@ -673,7 +681,7 @@
                         window.sessaoAtual.baseAtiva = base_alocada;
                         window.iniciarSessao(false);
                     }
-                });
+                }).catch(error => { console.error(error); });
             } else {
                 signOut(auth).then(() => {
                     document.getElementById('login-screen').style.display = 'flex';
@@ -760,7 +768,6 @@
                    
                     window.meuCalendario.render(); window.recarregarEventosNoCalendario();
                    
-                    // ACIONA O ROBÔ INICIAL E CONFIGURA O LOOP A CADA 40 MINUTOS
                     window.sincronizarStatusBasesExternas();
                     setInterval(window.sincronizarStatusBasesExternas, 40 * 60 * 1000);
                 }
@@ -936,7 +943,6 @@
                 options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: {size: 11} } } } }
             });
 
-            // ABA 2: RESUMO DE DOBRAS (Exibe a contagem puxada pelo Robô Sênior)
             let htmlDobras = '';
             let chavesBases = Object.keys(window.dobrasGlobaisCalculadas);
            
@@ -963,18 +969,13 @@
             document.getElementById('container-dobras-list').innerHTML = htmlDobras;
         }
 
-        // ==========================================
-        // O ROBÔ SÊNIOR "SCANNER UNIVERSAL" (V3 - À Prova de Falhas)
-        // Resolve problemas de pastas vazias e nomes de colunas diferentes
-        // ==========================================
         window.sincronizarStatusBasesExternas = async function() {
             console.log("[ROBÔ SÊNIOR] Iniciando Scanner Universal (V3)...");
-            const formatarDataFirebase = (dataInput) => dataInput.replace(/-/g, ''); // "2026-10-15" -> "20261015"
+            const formatarDataFirebase = (dataInput) => dataInput.replace(/-/g, '');
 
             let externalData = {};
             const caminhosTentativas = ['lagoa_prata_lmg27_history', 'shopee_history', 'historico_alocacao', 'rodizio', 'historico', 'alocacao'];
 
-            // 1. Download de Dados Blindado (Pula pastas vazias)
             for (let baseKey in window.dbsExternos) {
                 let dbExterna = window.dbsExternos[baseKey];
                 externalData[baseKey] = null;
@@ -983,7 +984,6 @@
                         let snap = await get(ref(dbExterna, caminho));
                         if (snap.exists() && snap.val()) {
                             let val = snap.val();
-                            // Só para de procurar se a pasta tiver alguma coisa dentro
                             if (typeof val === 'object' && Object.keys(val).length > 0) {
                                 externalData[baseKey] = val;
                                 console.log(`[ROBÔ] Achei dados da base ${baseKey} na pasta: ${caminho}`);
@@ -994,14 +994,12 @@
                 }
             }
 
-            // Função que amassa qualquer banco de dados transformando em uma lista reta
             function extrairRegistros(dbData) {
                 let list = [];
                 function traverse(node, contextDate, contextTurno) {
                     if (node === null || typeof node !== 'object') return;
                    
                     let keys = Object.keys(node).map(k => k.toLowerCase());
-                    // Se a linha tiver ID, nome ou motorista, achamos um registro!
                     if (keys.includes('driver_id') || keys.includes('motorista') || keys.includes('nome') || keys.includes('id') || keys.includes('telefone')) {
                         list.push({
                             raw: JSON.stringify(node).toLowerCase(),
@@ -1012,7 +1010,6 @@
                         return;
                     }
                    
-                    // Se não for registro, navega nas pastas (datas e turnos)
                     for (let key in node) {
                         let nextDate = contextDate;
                         let nextTurno = contextTurno;
@@ -1028,7 +1025,6 @@
                 return list;
             }
 
-            // Achata todas as bases uma única vez para não travar o PC
             let registrosPorBase = {};
             for (let baseKey in externalData) {
                 if (externalData[baseKey]) {
@@ -1038,7 +1034,6 @@
                 }
             }
 
-            // 2. Validar Starts (Pintar de Verde) usando a Busca Agnóstica
             for (let i = 0; i < window.baseAgendamentos.length; i++) {
                 let ag = window.baseAgendamentos[i];
 
@@ -1059,7 +1054,6 @@
                             let recTurno = r.inferredTurno || str;
                             let recDate = r.inferredDate || str;
 
-                            // Tem que achar ou o ID ou o Nome do motorista
                             let hasDriver = str.includes(idBusca) || str.includes(nomeBusca);
                             let hasTurno = recTurno.includes(turnoBusca);
                             let hasDate = recDate.includes(dataISO) || recDate.includes(dataBR) || recDate.includes(dataJunta);
@@ -1074,7 +1068,6 @@
                 }
             }
 
-            // 3. Cálculo de Dobras Automáticas (Agnóstico a formato)
             let contagemDobras = {
                 "LMG-45 Varginha": 0, "UDI Uberlândia": 0, "LMG-39 Patos de Minas": 0,
                 "LMG-36 Divinópolis": 0, "LMG-27 Lagoa da Prata": 0, "LMG-19 Extrema": 0, "LMG-48 Uberaba": 0
@@ -1090,13 +1083,12 @@
                     let str = r.raw;
                     let obj = r.nodeData;
                    
-                    // Caça ao ID em qualquer coluna possível
                     let id = obj.driver_id || obj.id || obj.ID || obj.motorista || obj.Motorista || obj.nome || obj.Nome || null;
                     if (!id) {
                         let m = str.match(/"(id|driver_id|motorista|nome)":"?([^"]+)"?/i);
                         if(m) id = m[2];
                     }
-                    if (!id) return; // Impossível cruzar se não souber quem é
+                    if (!id) return;
 
                     id = String(id).trim().toLowerCase();
                    
@@ -1128,7 +1120,6 @@
                 contagemDobras[baseKey] = count;
             }
 
-            // Atualiza o visual
             window.dobrasGlobaisCalculadas = contagemDobras;
             if (document.getElementById('view-dashboard').classList.contains('active')) {
                 window.renderizarDashboardCompleto();
