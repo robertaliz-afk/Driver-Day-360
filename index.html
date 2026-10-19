@@ -236,13 +236,13 @@
            
             <div class="header-controls">
                 <select class="base-selector-top" id="adminBaseSelector" onchange="window.trocarBaseAtiva(this.value)">
-                    <option value="LMG-48 Uberaba">📍 LMG-48 - Uberaba</option>
                     <option value="LMG-45 Varginha">📍 LMG-45 - Varginha</option>
                     <option value="UDI Uberlândia">📍 UDI - Uberlândia</option>
                     <option value="LMG-39 Patos de Minas">📍 LMG-39 - Patos de Minas</option>
                     <option value="LMG-36 Divinópolis">📍 LMG-36 - Divinópolis</option>
                     <option value="LMG-27 Lagoa da Prata">📍 LMG-27 - Lagoa da Prata</option>
                     <option value="LMG-19 Extrema">📍 LMG-19 - Extrema</option>
+                    <option value="LMG-48 Uberaba">📍 LMG-48 - Uberaba</option>
                 </select>
                 <div class="lbl-base-logada" id="visorBaseLogada">MG04 - Base</div>
                 <div id="badgeRole" class="role-badge"></div>
@@ -338,7 +338,7 @@
                 <div class="dashboard-container" style="position: relative;">
                     <!-- INDICADOR DO ROBÔ RODANDO NO BACKEND -->
                     <div class="robo-status-icon" id="roboStatusInfo">
-                        <i class="fa-solid fa-robot fa-bounce"></i> Robô Monitorando Multi-Bases...
+                        <i class="fa-solid fa-robot fa-bounce"></i> Scanner Universal Ativado...
                     </div>
 
                     <div id="content-novatos" class="dash-content active">
@@ -361,7 +361,6 @@
                         <div id="container-novatos-list"></div>
                     </div>
 
-                    <!-- NOVO LAYOUT DO CONTROLE DE DOBRAS (RESUMO POR BASE) -->
                     <div id="content-dobras" class="dash-content">
                         <div class="base-dash-header mb-3"><i class="fa-solid fa-bolt text-warning me-2"></i> Sumário de Dobras Operacionais (AM/PM)</div>
                         <div id="container-dobras-list" class="row g-3">
@@ -492,15 +491,42 @@
         </div>
     </div>
 
-    <!-- SCRIPT FIREBASE E LÓGICA -->
+    <!-- SCRIPT FIREBASE E LÓGICA MODULAR (SUBAGENTES) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
         import { getDatabase, ref, onValue, push, update, set, get, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
         // ==========================================
-        // 1. O BANCO DE DADOS PRINCIPAL E O SISTEMA DE LOGIN (AGORA SÃO INICIALIZADOS PRIMEIRO)
-        // Isso resolve o travamento na tela de login.
+        // 1. CONFIGURAÇÕES DE BANCOS E ROTAS
+        // ==========================================
+        const configsExternas = {
+            "LMG-48 Uberaba": { apiKey: "AIzaSyBxzyFdum86noYdpQnldyjX4wiPB7IJEMY", databaseURL: "https://spx-logistica-online-default-rtdb.firebaseio.com", projectId: "spx-logistica-online" },
+            "LMG-45 Varginha": { apiKey: "AIzaSyCa-2vyQgzxxU1kzWruvWsKZ0X8ZRTRfO4", databaseURL: "https://lmg---44-default-rtdb.firebaseio.com", projectId: "lmg---44" },
+            "LMG-36 Divinópolis": { apiKey: "AIzaSyD5x5FCQj3CsNGOjAs-RfgA4ZHzFbUcrA0", databaseURL: "https://filadriver-default-rtdb.firebaseio.com", projectId: "filadriver" },
+            "LMG-19 Extrema": { apiKey: "AIzaSyAmSrxRdWJuZGtulk00BNK6IiXZMX8H1Pk", databaseURL: "https://lmg-19-extrema-default-rtdb.firebaseio.com", projectId: "lmg-19-extrema" },
+            "LMG-27 Lagoa da Prata": { apiKey: "AIzaSyBS3Yby3VRHECT54y3MMdLZoE-L_rMEAEA", databaseURL: "https://lmg-27-default-rtdb.firebaseio.com", projectId: "lmg-27" },
+            "LMG-39 Patos de Minas": { apiKey: "AIzaSyDitF1wjGzzifPVecVh81nI_KBPmKLTZOE", databaseURL: "https://fiorino-lmg-39-default-rtdb.firebaseio.com", projectId: "fiorino-lmg-39" }
+        };
+
+        // Mapeamento de nós específicos dentro de cada Realtime Database
+        const rotasEspeciais = {
+            "LMG-48 Uberaba": ['shopi_uberaba', 'shopee_history', 'historico_alocacao'],
+            "LMG-27 Lagoa da Prata": ['lagoa_prata_lmg27_history', 'shopee_history', 'historico_alocacao'],
+            "default": ['shopee_history', 'historico_alocacao', 'rodizio', 'historico', 'alocacao']
+        };
+
+        window.dbsExternos = {};
+        window.sessaoAtual = { uid: '', email: '', role: '', baseAtiva: '' };
+        window.dataVisualizadaNoInspetor = '';
+        window.baseAgendamentos = [];
+        window.listaUsuarios = [];
+        window.chartMotivosDashObj = null;
+        window.dobrasGlobaisCalculadas = {};
+
+        // ==========================================
+        // 2. INICIALIZAÇÃO NÚCLEO (SUBAGENTE AUTH)
+        // O Main DB é iniciado imediatamente para não bloquear o Login
         // ==========================================
         const firebaseConfigMain = {
             apiKey: "AIzaSyAWoaxC02mZNqeFgDQZBVRxAavVReDJ74M",
@@ -512,46 +538,31 @@
             appId: "1:534903138386:web:13932c768a9bd4bc1f178b"
         };
 
-        // Ao inicializar o Main primeiro, o Firebase reconhece ele como "[DEFAULT]" e o Google Auth funciona perfeitamente.
         const app = initializeApp(firebaseConfigMain);
         const db = getDatabase(app);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
-       
         const agendamentosRef = ref(db, 'agendamentos');
         const usuariosRef = ref(db, 'usuarios');
 
         // ==========================================
-        // 2. OS BANCOS DE DADOS EXTERNOS (INICIALIZADOS POR ÚLTIMO)
+        // 3. INICIALIZAÇÃO SECUNDÁRIA (SUBAGENTE CONEXÕES)
+        // Conecta nas bases regionais em background, pós-login
         // ==========================================
-        const configsExternas = {
-            "LMG-48 Uberaba": { apiKey: "AIzaSyBxzyFdum86noYdpQnldyjX4wiPB7IJEMY", databaseURL: "https://spx-logistica-online-default-rtdb.firebaseio.com", projectId: "spx-logistica-online" },
-            "LMG-45 Varginha": { apiKey: "AIzaSyCa-2vyQgzxxU1kzWruvWsKZ0X8ZRTRfO4", databaseURL: "https://lmg---44-default-rtdb.firebaseio.com", projectId: "lmg---44" },
-            "LMG-36 Divinópolis": { apiKey: "AIzaSyD5x5FCQj3CsNGOjAs-RfgA4ZHzFbUcrA0", databaseURL: "https://filadriver-default-rtdb.firebaseio.com", projectId: "filadriver" },
-            "LMG-19 Extrema": { apiKey: "AIzaSyAmSrxRdWJuZGtulk00BNK6IiXZMX8H1Pk", databaseURL: "https://lmg-19-extrema-default-rtdb.firebaseio.com", projectId: "lmg-19-extrema" },
-            "LMG-27 Lagoa da Prata": { apiKey: "AIzaSyBS3Yby3VRHECT54y3MMdLZoE-L_rMEAEA", databaseURL: "https://lmg-27-default-rtdb.firebaseio.com", projectId: "lmg-27" },
-            "LMG-39 Patos de Minas": { apiKey: "AIzaSyDitF1wjGzzifPVecVh81nI_KBPmKLTZOE", databaseURL: "https://fiorino-lmg-39-default-rtdb.firebaseio.com", projectId: "fiorino-lmg-39" }
+        window.iniciarBancosExternos = function() {
+            console.log("[Subagente Conexões] Estabelecendo links com as Bases Operacionais...");
+            Object.keys(configsExternas).forEach(base => {
+                if (!window.dbsExternos[base]) {
+                    try {
+                        const safeAppName = base.replace(/[^a-zA-Z0-9]/g, '');
+                        const extApp = initializeApp(configsExternas[base], safeAppName);
+                        window.dbsExternos[base] = getDatabase(extApp);
+                    } catch (error) {
+                        console.warn(`[Subagente Conexões] Alerta na conexão da base ${base}. Pode já estar iniciada.`);
+                    }
+                }
+            });
         };
-       
-        window.dbsExternos = {};
-        Object.keys(configsExternas).forEach(base => {
-            try {
-                // Tira hífens para evitar conflito de nomenclatura no firebase
-                const safeAppName = base.replace(/[^a-zA-Z0-9]/g, '');
-                const extApp = initializeApp(configsExternas[base], safeAppName);
-                window.dbsExternos[base] = getDatabase(extApp);
-            } catch (error) { console.warn(`Firebase externo da base ${base} já iniciado.`); }
-        });
-
-        // ==========================================
-        // LÓGICAS DE SISTEMA (SEM ALTERAÇÕES DE ESTRUTURA)
-        // ==========================================
-        window.sessaoAtual = { uid: '', email: '', role: '', baseAtiva: '' };
-        window.dataVisualizadaNoInspetor = '';
-        window.baseAgendamentos = [];
-        window.listaUsuarios = [];
-        window.chartMotivosDashObj = null;
-        window.dobrasGlobaisCalculadas = {};
 
         window.toggleTheme = function() {
             const body = document.body;
@@ -681,7 +692,7 @@
                         window.sessaoAtual.baseAtiva = base_alocada;
                         window.iniciarSessao(false);
                     }
-                }).catch(error => { console.error(error); });
+                });
             } else {
                 signOut(auth).then(() => {
                     document.getElementById('login-screen').style.display = 'flex';
@@ -768,6 +779,10 @@
                    
                     window.meuCalendario.render(); window.recarregarEventosNoCalendario();
                    
+                    // Inicia conexões secundárias APÓS carregar a interface (Não trava o Login)
+                    window.iniciarBancosExternos();
+
+                    // ACIONA O ROBÔ INICIAL E CONFIGURA O LOOP A CADA 40 MINUTOS
                     window.sincronizarStatusBasesExternas();
                     setInterval(window.sincronizarStatusBasesExternas, 40 * 60 * 1000);
                 }
@@ -969,97 +984,63 @@
             document.getElementById('container-dobras-list').innerHTML = htmlDobras;
         }
 
+        // ==========================================
+        // 4. O ROBÔ SÊNIOR "SCANNER UNIVERSAL" (SUBAGENTE SCANNER)
+        // Utiliza rotas específicas mapeadas por base.
+        // ==========================================
         window.sincronizarStatusBasesExternas = async function() {
-            console.log("[ROBÔ SÊNIOR] Iniciando Scanner Universal (V3)...");
-            const formatarDataFirebase = (dataInput) => dataInput.replace(/-/g, '');
+            console.log("[Subagente Scanner] Iniciando varredura profunda...");
+            const formatarDataFirebase = (dataInput) => dataInput.replace(/-/g, ''); // "2026-10-15" -> "20261015"
 
             let externalData = {};
-            const caminhosTentativas = ['lagoa_prata_lmg27_history', 'shopee_history', 'historico_alocacao', 'rodizio', 'historico', 'alocacao'];
 
+            // 1. Download Inteligente (Baseado em Dicionário de Rotas)
             for (let baseKey in window.dbsExternos) {
                 let dbExterna = window.dbsExternos[baseKey];
                 externalData[baseKey] = null;
+               
+                // Puxa as rotas alvo da base, se não tiver usa a default
+                let caminhosTentativas = rotasEspeciais[baseKey] || rotasEspeciais["default"];
+
                 for (let caminho of caminhosTentativas) {
                     try {
                         let snap = await get(ref(dbExterna, caminho));
-                        if (snap.exists() && snap.val()) {
-                            let val = snap.val();
-                            if (typeof val === 'object' && Object.keys(val).length > 0) {
-                                externalData[baseKey] = val;
-                                console.log(`[ROBÔ] Achei dados da base ${baseKey} na pasta: ${caminho}`);
-                                break;
-                            }
+                        if (snap.exists()) {
+                            externalData[baseKey] = snap.val();
+                            console.log(`[Subagente Scanner] Dados da ${baseKey} capturados em: ${caminho}`);
+                            break;
                         }
-                    } catch(e) { }
+                    } catch(e) { /* Avança para a próxima tentativa silenciosamente */ }
                 }
             }
 
-            function extrairRegistros(dbData) {
-                let list = [];
-                function traverse(node, contextDate, contextTurno) {
-                    if (node === null || typeof node !== 'object') return;
-                   
-                    let keys = Object.keys(node).map(k => k.toLowerCase());
-                    if (keys.includes('driver_id') || keys.includes('motorista') || keys.includes('nome') || keys.includes('id') || keys.includes('telefone')) {
-                        list.push({
-                            raw: JSON.stringify(node).toLowerCase(),
-                            nodeData: node,
-                            inferredDate: contextDate,
-                            inferredTurno: contextTurno
-                        });
-                        return;
-                    }
-                   
-                    for (let key in node) {
-                        let nextDate = contextDate;
-                        let nextTurno = contextTurno;
-                        let kLower = key.toLowerCase();
-                       
-                        if (kLower === 'am' || kLower === 'pm') nextTurno = kLower;
-                        if (kLower.match(/^202\d{5}$/) || kLower.match(/^\d{4}-\d{2}-\d{2}$/) \vert{}\vert{} kLower.match(/^\d{2}\/\d{2}\/\d{4}$/)) nextDate = kLower;
-                       
-                        traverse(node[key], nextDate, nextTurno);
-                    }
-                }
-                traverse(dbData, null, null);
-                return list;
-            }
-
-            let registrosPorBase = {};
-            for (let baseKey in externalData) {
-                if (externalData[baseKey]) {
-                    registrosPorBase[baseKey] = extrairRegistros(externalData[baseKey]);
-                } else {
-                    registrosPorBase[baseKey] = [];
-                }
-            }
-
+            // 2. Validar Starts
             for (let i = 0; i < window.baseAgendamentos.length; i++) {
                 let ag = window.baseAgendamentos[i];
 
                 if (ag.status === 'agendado') {
-                    let recordsToScan = registrosPorBase[ag.base_alocada];
-                   
-                    if (recordsToScan && recordsToScan.length > 0) {
+                    let baseData = externalData[ag.base_alocada];
+                    if (baseData) {
                         let dataISO = ag.data;
                         let dataBR = ag.data.split('-').reverse().join('/');
                         let dataJunta = formatarDataFirebase(ag.data);
                        
                         let nomeBusca = ag.nome.trim().toLowerCase();
-                        let idBusca = String(ag.driver_id);
                         let turnoBusca = ag.turno.toLowerCase();
-                       
-                        let found = recordsToScan.some(r => {
-                            let str = r.raw;
-                            let recTurno = r.inferredTurno || str;
-                            let recDate = r.inferredDate || str;
+                        let found = false;
 
-                            let hasDriver = str.includes(idBusca) || str.includes(nomeBusca);
-                            let hasTurno = recTurno.includes(turnoBusca);
-                            let hasDate = recDate.includes(dataISO) || recDate.includes(dataBR) || recDate.includes(dataJunta);
+                        let dadosDireto = baseData[dataJunta] || baseData[dataISO];
+                        let recordsToScan = dadosDireto ? Object.values(dadosDireto) : Object.values(baseData);
 
-                            return hasDriver && hasTurno && hasDate;
-                        });
+                        for(let r of recordsToScan) {
+                            let strRecord = JSON.stringify(r).toLowerCase();
+                            if ((strRecord.includes(ag.driver_id) || strRecord.includes(nomeBusca)) &&
+                               (strRecord.includes(dataISO) || strRecord.includes(dataBR) || strRecord.includes(dataJunta)) &&
+                               strRecord.includes(turnoBusca)) {
+                                   found = true;
+                                   break;
+                            }
+                        }
 
                         if (found) {
                             await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
@@ -1068,47 +1049,51 @@
                 }
             }
 
+            // 3. Cálculo de Dobras
             let contagemDobras = {
                 "LMG-45 Varginha": 0, "UDI Uberlândia": 0, "LMG-39 Patos de Minas": 0,
                 "LMG-36 Divinópolis": 0, "LMG-27 Lagoa da Prata": 0, "LMG-19 Extrema": 0, "LMG-48 Uberaba": 0
             };
 
-            for (let baseKey in registrosPorBase) {
-                let records = registrosPorBase[baseKey];
-                if (records.length === 0) continue;
+            for (let baseKey in externalData) {
+                let baseData = externalData[baseKey];
+                if (!baseData) continue;
+
+                let recordsToScan = [];
+                if (typeof Object.values(baseData)[0] === 'object') {
+                     Object.values(baseData).forEach(dia => {
+                         if (typeof dia === 'object') recordsToScan.push(...Object.values(dia));
+                     });
+                } else {
+                     recordsToScan = Object.values(baseData);
+                }
 
                 let mapDobras = {};
 
-                records.forEach(r => {
-                    let str = r.raw;
-                    let obj = r.nodeData;
+                recordsToScan.forEach(r => {
+                    let strRecord = JSON.stringify(r).toLowerCase();
                    
-                    let id = obj.driver_id || obj.id || obj.ID || obj.motorista || obj.Motorista || obj.nome || obj.Nome || null;
+                    let id = r.driver_id || r.id || r.ID || r.motorista || null;
+                    let data = r.data || r.Data || r.date || null;
+                    let turno = r.turno || r.Turno || r.TURNO || null;
+
+                    if (!id) { let m = strRecord.match(/"(\d{4,8})"/); if(m) id = m[1]; }
                     if (!id) {
-                        let m = str.match(/"(id|driver_id|motorista|nome)":"?([^"]+)"?/i);
-                        if(m) id = m[2];
+                        let nomeStr = r.nome || r.Nome || r["Nome do Motorista"] || r.driver || null;
+                        if(nomeStr) id = nomeStr.trim().toLowerCase();
                     }
-                    if (!id) return;
-
-                    id = String(id).trim().toLowerCase();
                    
-                    let date = r.inferredDate;
-                    if (!date) {
-                        let md = str.match(/(\d{4}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4}|202\d{5})/);
-                        if(md) date = md[1];
-                    }
-                    if (!date) return;
-
-                    let turno = r.inferredTurno;
+                    if (!data) { let md = strRecord.match(/(\d{4}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4})/); if(md) data = md[1]; }
                     if (!turno) {
-                        if (str.includes("am") || str.includes("manhã")) turno = "am";
-                        else if (str.includes("pm") || str.includes("tarde")) turno = "pm";
+                        if(strRecord.includes("am") || strRecord.includes("manhã")) turno = "am";
+                        else if(strRecord.includes("pm") || strRecord.includes("tarde")) turno = "pm";
                     }
-                    if (!turno) return;
 
-                    let key = `${id}_${date}`;
-                    if(!mapDobras[key]) mapDobras[key] = new Set();
-                    mapDobras[key].add(turno);
+                    if (id && data && turno) {
+                        let key = `${id}_${data}`;
+                        if(!mapDobras[key]) mapDobras[key] = new Set();
+                        mapDobras[key].add(turno);
+                    }
                 });
 
                 let count = 0;
@@ -1124,7 +1109,7 @@
             if (document.getElementById('view-dashboard').classList.contains('active')) {
                 window.renderizarDashboardCompleto();
             }
-            console.log("[ROBÔ SÊNIOR] Varredura profunda finalizada. Status e Dobras atualizados.");
+            console.log("[Subagente Scanner] Varredura profunda finalizada.");
         };
 
         window.renderizarUsuarios = function() {
