@@ -209,7 +209,7 @@
         .modal-footer-actions { display: flex; gap: 10px; margin-top: 20px; }
         .btn-cancel { background: transparent; color: var(--text-muted); border: 1px solid var(--border-dark); font-weight: 600; padding: 10px; border-radius: 4px; flex: 1; transition: 0.2s; font-size: 0.8rem; text-transform: uppercase; }
         .btn-cancel:hover { background: var(--input-bg); color: var(--text-main); }
-        .btn-danger-action { background: var(--ocorrencia); color: white; font-weight: 600; padding: 10px; width: 100%; border-radius: 4px; border: none; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; flex: 2;}
+        .btn-danger-action { background: var(--st-ocorrencia); color: white; font-weight: 600; padding: 10px; width: 100%; border-radius: 4px; border: none; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; flex: 2;}
         .btn-danger-action:hover { filter: brightness(0.9); }
        
         .robo-status-icon { position: absolute; bottom: 10px; right: 15px; font-size: 0.6rem; color: var(--st-rodou); display: flex; align-items: center; gap: 5px; opacity: 0.7; }
@@ -354,7 +354,7 @@
                         </div>
                        
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 style="color: var(--text-main); font-weight: 700; margin: 0; text-transform: uppercase; font-size: 0.8rem;"><i class="fa-solid fa-users me-2"></i> Drivers em Adaptação (Rodaram < 15 Dias)</h6>
+                            <h6 style="color: var(--text-main); font-weight: 700; margin: 0; text-transform: uppercase; font-size: 0.8rem;"><i class="fa-solid fa-users me-2"></i> Drivers em Adaptação (Rodaram &lt; 15 Dias)</h6>
                             <span class="badge" style="background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-main);" id="lblCountNovatos">0 Novatos</span>
                         </div>
                        
@@ -509,10 +509,11 @@
             "LMG-39 Patos de Minas": { apiKey: "AIzaSyDitF1wjGzzifPVecVh81nI_KBPmKLTZOE", databaseURL: "https://fiorino-lmg-39-default-rtdb.firebaseio.com", projectId: "fiorino-lmg-39" }
         };
 
-        // Mapeamento de nós específicos dentro de cada Realtime Database
+        // Mapeamento de nós específicos dentro de cada Realtime Database (Nomes passados pelo hub)
         const rotasEspeciais = {
-            "LMG-48 Uberaba": ['shopi_uberaba', 'shopee_history', 'historico_alocacao'],
-            "LMG-27 Lagoa da Prata": ['lagoa_prata_lmg27_history', 'shopee_history', 'historico_alocacao'],
+            "LMG-48 Uberaba": ['shopee_history'],
+            "LMG-27 Lagoa da Prata": ['lagoa_prata_lmg27_history'],
+            "LMG-36 Divinópolis": ['divinopolis_lmg36_history'],
             "default": ['shopee_history', 'historico_alocacao', 'rodizio', 'historico', 'alocacao']
         };
 
@@ -986,62 +987,95 @@
 
         // ==========================================
         // 4. O ROBÔ SÊNIOR "SCANNER UNIVERSAL" (SUBAGENTE SCANNER)
-        // Utiliza rotas específicas mapeadas por base.
+        // Busca profunda em background PRIORIZANDO O NOME DO DRIVER
         // ==========================================
         window.sincronizarStatusBasesExternas = async function() {
-            console.log("[Subagente Scanner] Iniciando varredura profunda...");
+            console.log("[Subagente Scanner] Iniciando varredura PROFUNDA focado em NOMES...");
             const formatarDataFirebase = (dataInput) => dataInput.replace(/-/g, ''); // "2026-10-15" -> "20261015"
+           
+            // Filtro poderoso: remove acentos e formatações para garantir o match do nome
+            const normalizar = (texto) => texto ? String(texto).normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase() : "";
 
             let externalData = {};
 
-            // 1. Download Inteligente (Baseado em Dicionário de Rotas)
+            function extrairRegistros(obj, parentPath = '') {
+                let records = [];
+                if (!obj || typeof obj !== 'object') return records;
+               
+                let isRecord = (obj.hasOwnProperty('nome') || obj.hasOwnProperty('driver_id') || obj.hasOwnProperty('motorista') || obj.hasOwnProperty('Motorista') || obj.hasOwnProperty('telefone') || obj.hasOwnProperty('veiculo') || obj.hasOwnProperty('id') || obj.hasOwnProperty('turno'));
+               
+                if (isRecord && Object.keys(obj).length < 25) {
+                    records.push({ ...obj, _parentPath: parentPath.toLowerCase() });
+                } else {
+                    for (let key in obj) {
+                        records = records.concat(extrairRegistros(obj[key], parentPath + ' ' + key));
+                    }
+                }
+                return records;
+            }
+
+            // 1. Download usando as Rotas Específicas
             for (let baseKey in window.dbsExternos) {
                 let dbExterna = window.dbsExternos[baseKey];
-                externalData[baseKey] = null;
-               
-                // Puxa as rotas alvo da base, se não tiver usa a default
+                externalData[baseKey] = [];
                 let caminhosTentativas = rotasEspeciais[baseKey] || rotasEspeciais["default"];
 
                 for (let caminho of caminhosTentativas) {
                     try {
                         let snap = await get(ref(dbExterna, caminho));
                         if (snap.exists()) {
-                            externalData[baseKey] = snap.val();
-                            console.log(`[Subagente Scanner] Dados da ${baseKey} capturados em: ${caminho}`);
+                            let dadosBrutos = snap.val();
+                            let registrosAchatados = extrairRegistros(dadosBrutos);
+                            externalData[baseKey] = registrosAchatados;
+                            console.log(`[Subagente Scanner] Base ${baseKey}: ${registrosAchatados.length} registros capturados na rota ${caminho}`);
                             break;
                         }
-                    } catch(e) { /* Avança para a próxima tentativa silenciosamente */ }
+                    } catch(e) { }
                 }
             }
 
-            // 2. Validar Starts
+            // 2. Validar Starts (Agendamentos que já Rodaram) - Foco no NOME
             for (let i = 0; i < window.baseAgendamentos.length; i++) {
                 let ag = window.baseAgendamentos[i];
 
                 if (ag.status === 'agendado') {
-                    let baseData = externalData[ag.base_alocada];
-                    if (baseData) {
+                    let recordsToScan = externalData[ag.base_alocada] || [];
+                    if (recordsToScan.length > 0) {
                         let dataISO = ag.data;
                         let dataBR = ag.data.split('-').reverse().join('/');
                         let dataJunta = formatarDataFirebase(ag.data);
                        
-                        let nomeBusca = ag.nome.trim().toLowerCase();
-                        let turnoBusca = ag.turno.toLowerCase();
+                        let nomeBuscaNormalizado = normalizar(ag.nome);
+                        let idBusca = ag.driver_id ? String(ag.driver_id) : 'xxx_nulo';
+                        let turnoBusca = normalizar(ag.turno);
                         let found = false;
 
-                        let dadosDireto = baseData[dataJunta] || baseData[dataISO];
-                        let recordsToScan = dadosDireto ? Object.values(dadosDireto) : Object.values(baseData);
-
                         for(let r of recordsToScan) {
-                            let strRecord = JSON.stringify(r).toLowerCase();
-                            if ((strRecord.includes(ag.driver_id) || strRecord.includes(nomeBusca)) &&
-                               (strRecord.includes(dataISO) || strRecord.includes(dataBR) || strRecord.includes(dataJunta)) &&
-                               strRecord.includes(turnoBusca)) {
-                                   found = true;
-                                   break;
+                            let strValuesRaw = Object.values(r).map(v => String(v)).join(' ');
+                            let strValues = normalizar(strValuesRaw);
+                            let path = normalizar(r._parentPath || '');
+                           
+                            // MATCH 1: Prioridade total para o NOME do motorista.
+                            let hasNameOrId = strValues.includes(nomeBuscaNormalizado) || (idBusca !== 'xxx_nulo' && strValuesRaw.includes(idBusca));
+                           
+                            // Match Data
+                            let hasDate = strValues.includes(dataISO) || strValues.includes(dataBR) || strValues.includes(dataJunta) ||
+                                          path.includes(dataISO) || path.includes(dataBR.replace(/\//g,'')) || path.includes(dataJunta);
+                           
+                            // Match Turno
+                            let rTurnoStr = normalizar(r.turno || r.Turno || r.TURNO || '');
+                            let hasTurno = false;
+                           
+                            if (turnoBusca === 'am' && (rTurnoStr.includes('am') || rTurnoStr.includes('manha') || /\b(am|manha)\b/.test(strValues) || /\b(am|manha)\b/.test(path))) hasTurno = true;
+                            if (turnoBusca === 'pm' && (rTurnoStr.includes('pm') || rTurnoStr.includes('tarde') || /\b(pm|tarde)\b/.test(strValues) || /\b(pm|tarde)\b/.test(path))) hasTurno = true;
+
+                            if (hasNameOrId && hasDate && hasTurno) {
+                                found = true;
+                                break;
                             }
                         }
 
+                        // Dispara a atualização visual e no Main DB se deu match
                         if (found) {
                             await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
                         }
@@ -1049,48 +1083,49 @@
                 }
             }
 
-            // 3. Cálculo de Dobras
+            // 3. Cálculo Avançado de Dobras Operacionais (Por Nome)
             let contagemDobras = {
                 "LMG-45 Varginha": 0, "UDI Uberlândia": 0, "LMG-39 Patos de Minas": 0,
                 "LMG-36 Divinópolis": 0, "LMG-27 Lagoa da Prata": 0, "LMG-19 Extrema": 0, "LMG-48 Uberaba": 0
             };
 
             for (let baseKey in externalData) {
-                let baseData = externalData[baseKey];
-                if (!baseData) continue;
-
-                let recordsToScan = [];
-                if (typeof Object.values(baseData)[0] === 'object') {
-                     Object.values(baseData).forEach(dia => {
-                         if (typeof dia === 'object') recordsToScan.push(...Object.values(dia));
-                     });
-                } else {
-                     recordsToScan = Object.values(baseData);
-                }
+                let recordsToScan = externalData[baseKey] || [];
+                if (recordsToScan.length === 0) continue;
 
                 let mapDobras = {};
 
                 recordsToScan.forEach(r => {
-                    let strRecord = JSON.stringify(r).toLowerCase();
+                    let strValuesRaw = Object.values(r).map(v => String(v)).join(' ');
+                    let strValues = normalizar(strValuesRaw);
+                    let path = normalizar(r._parentPath || '');
                    
-                    let id = r.driver_id || r.id || r.ID || r.motorista || null;
+                    // Extração pelo NOME em primeiro lugar para cruzar as dobras
+                    let nomeMotorista = r.nome || r.Nome || r["Nome do Motorista"] || r.driver || r.motorista || r.Motorista || null;
+                    let idMotorista = r.driver_id || r.id || r.ID || null;
+                   
+                    let chaveIdentificacao = nomeMotorista ? normalizar(nomeMotorista) : (idMotorista ? String(idMotorista).trim() : null);
+                   
+                    // Extração de Data
                     let data = r.data || r.Data || r.date || null;
-                    let turno = r.turno || r.Turno || r.TURNO || null;
-
-                    if (!id) { let m = strRecord.match(/"(\d{4,8})"/); if(m) id = m[1]; }
-                    if (!id) {
-                        let nomeStr = r.nome || r.Nome || r["Nome do Motorista"] || r.driver || null;
-                        if(nomeStr) id = nomeStr.trim().toLowerCase();
+                    if (!data) {
+                        let md = path.match(/(\d{8}|\d{4}-\d{2}-\d{2})/);
+                        if(md) data = md[1];
                     }
-                   
-                    if (!data) { let md = strRecord.match(/(\d{4}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4})/); if(md) data = md[1]; }
-                    if (!turno) {
-                        if(strRecord.includes("am") || strRecord.includes("manhã")) turno = "am";
-                        else if(strRecord.includes("pm") || strRecord.includes("tarde")) turno = "pm";
+                    if (!data) {
+                        let md = strValuesRaw.match(/(\d{4}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4})/);
+                        if(md) data = md[1];
                     }
 
-                    if (id && data && turno) {
-                        let key = `${id}_${data}`;
+                    // Extração de Turno
+                    let rTurnoStr = normalizar(r.turno || r.Turno || r.TURNO || '');
+                    let turno = null;
+                    if (rTurnoStr.includes('am') || rTurnoStr.includes('manha') || /\b(am|manha)\b/.test(strValues) || /\b(am|manha)\b/.test(path)) turno = 'am';
+                    else if (rTurnoStr.includes('pm') || rTurnoStr.includes('tarde') || /\b(pm|tarde)\b/.test(strValues) || /\b(pm|tarde)\b/.test(path)) turno = 'pm';
+
+                    // Registra AM/PM usando a chave de identificação do motorista
+                    if (chaveIdentificacao && data && turno) {
+                        let key = `${chaveIdentificacao}_${data}`;
                         if(!mapDobras[key]) mapDobras[key] = new Set();
                         mapDobras[key].add(turno);
                     }
@@ -1109,7 +1144,7 @@
             if (document.getElementById('view-dashboard').classList.contains('active')) {
                 window.renderizarDashboardCompleto();
             }
-            console.log("[Subagente Scanner] Varredura profunda finalizada.");
+            console.log("[Subagente Scanner] Varredura profunda baseada em NOMES finalizada com sucesso.");
         };
 
         window.renderizarUsuarios = function() {
