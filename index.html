@@ -493,11 +493,14 @@
         // Nós onde o robô procura as pastas de data (ex.: shopee_history/20261020).
         // A raiz do banco (/20261020) também é testada automaticamente.
         const rotasPorBase = {
-            // Confirmado no Firebase: shopee_history/AAAAMMDD (cada base tem o seu próprio banco)
+            // Todos confirmados no Firebase: <nó>/AAAAMMDD (cada base tem o seu próprio banco/link)
             "LMG-48 Uberaba": ['shopee_history'],
             "LMG-19 Extrema": ['shopee_history'],
-            "LMG-27 Lagoa da Prata": ['lagoa_prata_lmg27_history', 'shopee_history', 'historico_alocacao', 'rodizio', 'historico'],
-            "LMG-36 Divinópolis": ['divinopolis_lmg36_history', 'shopee_history', 'historico_alocacao', 'rodizio', 'historico'],
+            "LMG-45 Varginha": ['shopee_history'],
+            "LMG-39 Patos de Minas": ['shopee_history'],
+            "LMG-27 Lagoa da Prata": ['lagoa_prata_lmg27_history'],
+            "LMG-36 Divinópolis": ['divinopolis_lmg36_history'],
+            // Uberlândia (UDI): quando o banco existir, adicionar em configsExternas e aqui.
             "default": ['shopee_history', 'varginha_lmg45_history', 'extrema_lmg19_history', 'patos_lmg39_history', 'historico_alocacao', 'rodizio', 'historico', 'alocacao']
         };
 
