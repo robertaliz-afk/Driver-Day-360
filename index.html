@@ -180,6 +180,8 @@
         .btn-reagendar:hover { background: var(--st-falta); color: #fff; }
         .btn-excluir { background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); }
         .btn-excluir:hover { background: var(--st-ocorrencia); color: #fff; }
+        .btn-editar-card { width: 26px; height: 26px; flex-shrink: 0; align-self: flex-start; border-radius: 6px; border: 1px solid var(--border-dark); background: var(--bg-panel); color: var(--text-muted); display: flex; justify-content: center; align-items: center; font-size: 0.7rem; cursor: pointer; transition: 0.2s; }
+        .btn-editar-card:hover { border-color: var(--st-agendado); color: var(--st-agendado); }
 
         .painel-ocorrencia { width: 100%; margin-top: 2px; padding: 8px; background: rgba(239, 68, 68, 0.1); border: 1px dashed rgba(239, 68, 68, 0.3); border-radius: 4px; font-size: 0.65rem; color: #fca5a5; }
 
@@ -413,9 +415,10 @@
             </div>
             <form id="formStart">
                 <input type="hidden" id="inputModoEdicao" value="">
+                <input type="hidden" id="inputTipoEdicao" value="">
                
                 <div class="mb-3" id="boxNovaData" style="display: none;">
-                    <label class="form-label text-warning"><i class="fa-regular fa-calendar me-1"></i> NOVA DATA DO START</label>
+                    <label class="form-label text-warning" id="lblNovaData"><i class="fa-regular fa-calendar me-1"></i> NOVA DATA DO START</label>
                     <input type="date" class="form-control" id="inputNovaData">
                 </div>
 
@@ -459,6 +462,7 @@
                         <option value="Problemas mecânicos">Problemas mecânicos</option>
                         <option value="Problemas pessoais">Problemas pessoais</option>
                         <option value="Não é cluster de preferência">Não é cluster de preferência</option>
+                        <option value="Perdeu o horário agendado">Perdeu o horário agendado</option>
                         <option value="Outros motivos">Outros motivos</option>
                     </select>
                     <textarea class="form-control" id="inputJustificativaTexto" rows="2" placeholder="Especifique o motivo detalhadamente..." style="display:none;"></textarea>
@@ -1410,6 +1414,7 @@
                                         <span class="ms-auto" style="font-size: 0.6rem; color: ${configCor.cor}; font-weight: 700;">${configCor.texto}</span>
                                     </div>
                                 </div>
+                                <button class="btn-editar-card" title="Editar informações do agendamento" onclick="window.abrirModalEdicao('${esc(d.id)}')"><i class="fa-solid fa-pen"></i></button>
                             </div>
                             <div class="d-flex w-100 gap-2 mt-1 pt-2" style="border-top: 1px solid var(--border-dark);">
                                 ${botoesHTML}
@@ -1435,7 +1440,7 @@
             window.sessaoAtual.baseAtiva = baseAlvo;
             document.getElementById('tituloModalCadastro').innerHTML = `<i class="fa-solid fa-user-plus me-2 text-primary"></i> Agendar Driver <span class="text-muted text-lowercase" style="font-size:0.6rem;">(Base: ${esc(baseAlvo)})</span>`;
             document.getElementById('boxNovaData').style.display = 'none'; document.getElementById('inputNovaData').removeAttribute('required');
-            document.getElementById('inputModoEdicao').value = ''; document.getElementById('inputId').readOnly = false;
+            document.getElementById('inputModoEdicao').value = ''; document.getElementById('inputTipoEdicao').value = ''; document.getElementById('inputId').readOnly = false;
             modalPadrao.classList.add('active'); document.getElementById('inputId').focus();
         }
        
@@ -1445,8 +1450,29 @@
             const driver = window.baseAgendamentos.find(d => d.id === idDriver);
             if(!driver) return;
             document.getElementById('tituloModalCadastro').innerHTML = `<i class="fa-solid fa-calendar-day me-2 text-warning"></i> Reagendar Driver`;
+            document.getElementById('lblNovaData').innerHTML = `<i class="fa-regular fa-calendar me-1"></i> NOVA DATA DO START`;
+            document.getElementById('inputTipoEdicao').value = 'reagendar';
             document.getElementById('inputModoEdicao').value = driver.id; document.getElementById('boxNovaData').style.display = 'block'; document.getElementById('inputNovaData').setAttribute('required', 'true');
             document.getElementById('inputId').value = driver.driver_id; document.getElementById('inputId').readOnly = true;
+            document.getElementById('inputCluster').value = driver.cluster || ''; document.getElementById('inputNome').value = driver.nome || '';
+            document.getElementById('inputTurno').value = driver.turno || 'AM';
+            document.getElementById('inputTelefone').value = driver.telefone || ''; document.getElementById('inputVeiculo').value = driver.veiculo || 'moto';
+            modalPadrao.classList.add('active');
+        }
+
+        // Editar: corrige dados digitados errado. Não conta como reagendamento e mantém o status,
+        // a não ser que a data seja trocada (aí volta para "agendado" na nova data).
+        window.abrirModalEdicao = function(idDriver) {
+            const driver = window.baseAgendamentos.find(d => d.id === idDriver);
+            if(!driver) return;
+            document.getElementById('tituloModalCadastro').innerHTML = `<i class="fa-solid fa-pen me-2 text-primary"></i> Editar Agendamento`;
+            document.getElementById('lblNovaData').innerHTML = `<i class="fa-regular fa-calendar me-1"></i> DATA DO START`;
+            document.getElementById('inputTipoEdicao').value = 'editar';
+            document.getElementById('inputModoEdicao').value = driver.id;
+            document.getElementById('boxNovaData').style.display = 'block';
+            document.getElementById('inputNovaData').setAttribute('required', 'true');
+            document.getElementById('inputNovaData').value = driver.data || '';
+            document.getElementById('inputId').value = driver.driver_id || ''; document.getElementById('inputId').readOnly = false;
             document.getElementById('inputCluster').value = driver.cluster || ''; document.getElementById('inputNome').value = driver.nome || '';
             document.getElementById('inputTurno').value = driver.turno || 'AM';
             document.getElementById('inputTelefone').value = driver.telefone || ''; document.getElementById('inputVeiculo').value = driver.veiculo || 'moto';
@@ -1491,7 +1517,19 @@
                 justificativa: ''
             };
 
-            if(idEdicao) {
+            const tipoEdicao = document.getElementById('inputTipoEdicao').value;
+
+            if(idEdicao && tipoEdicao === 'editar') {
+                const driverAntigo = window.baseAgendamentos.find(d => d.id === idEdicao);
+                if (!driverAntigo) { alert('Agendamento não encontrado. Ele pode ter sido excluído.'); window.fecharModal(); return; }
+                const novaData = document.getElementById('inputNovaData').value;
+                const correcao = {
+                    driver_id: payload.driver_id, nome: payload.nome, cluster: payload.cluster,
+                    veiculo: payload.veiculo, turno: payload.turno, telefone: payload.telefone, data: novaData
+                };
+                if (novaData !== driverAntigo.data) { correcao.status = 'agendado'; correcao.justificativa = ''; }
+                await update(ref(db, 'agendamentos/' + idEdicao), correcao);
+            } else if(idEdicao) {
                 const driverAntigo = window.baseAgendamentos.find(d => d.id === idEdicao);
                 if (!driverAntigo) { alert('Agendamento não encontrado. Ele pode ter sido excluído.'); window.fecharModal(); return; }
                 payload.data = document.getElementById('inputNovaData').value;
