@@ -181,6 +181,11 @@
         .btn-excluir { background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); }
         .btn-excluir:hover { background: var(--st-ocorrencia); color: #fff; }
         .btn-editar-card { width: 26px; height: 26px; flex-shrink: 0; align-self: flex-start; border-radius: 6px; border: 1px solid var(--border-dark); background: var(--bg-panel); color: var(--text-muted); display: flex; justify-content: center; align-items: center; font-size: 0.7rem; cursor: pointer; transition: 0.2s; }
+        .ad-strip { display: grid; grid-template-columns: repeat(15, 1fr); gap: 3px; margin-top: 8px; }
+        .ad-dia { height: 10px; border-radius: 2px; background: var(--input-bg); border: 1px solid var(--border-dark); }
+        .ad-dia.rodou { background: var(--st-rodou); border-color: var(--st-rodou); }
+        .ad-dia.hoje { box-shadow: 0 0 0 1px var(--text-main); }
+        .ad-dia.futuro { opacity: 0.35; }
         .btn-editar-card:hover { border-color: var(--st-agendado); color: var(--st-agendado); }
 
         .painel-ocorrencia { width: 100%; margin-top: 2px; padding: 8px; background: rgba(239, 68, 68, 0.1); border: 1px dashed rgba(239, 68, 68, 0.3); border-radius: 4px; font-size: 0.65rem; color: #fca5a5; }
@@ -251,6 +256,7 @@
             <nav class="sidebar-slim" id="main-sidebar">
                 <a class="nav-icon active" id="nav-calendar" title="Agenda Tática" onclick="window.switchView('calendar', this)"><i class="fa-solid fa-calendar-days"></i></a>
                 <a class="nav-icon" id="nav-dashboard" title="Controle de Novatos" onclick="window.switchView('dashboard', this)"><i class="fa-solid fa-clipboard-user"></i></a>
+                <a class="nav-icon" id="nav-adaptacao" title="Adaptação (15 dias)" onclick="window.switchView('adaptacao', this)"><i class="fa-solid fa-route"></i></a>
                 <a class="nav-icon" id="nav-report" title="Relatório Global" onclick="window.switchView('report', this)"><i class="fa-solid fa-list-check"></i></a>
                 <a class="nav-icon" id="nav-users" title="Gestão de Acessos" onclick="window.switchView('users', this)"><i class="fa-solid fa-users-gear"></i></a>
             </nav>
@@ -344,12 +350,55 @@
                         </div>
                        
                         <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 style="color: var(--text-main); font-weight: 700; margin: 0; text-transform: uppercase; font-size: 0.8rem;"><i class="fa-solid fa-users me-2"></i> Drivers em Adaptação (Rodaram &lt; 15 Dias)</h6>
+                            <h6 style="color: var(--text-main); font-weight: 700; margin: 0; text-transform: uppercase; font-size: 0.8rem;"><i class="fa-solid fa-users me-2"></i> Novatos (ainda sem start ou parados há 7+ dias)</h6>
                             <span class="badge" style="background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-main);" id="lblCountNovatos">0 Novatos</span>
                         </div>
                        
                         <div id="container-novatos-list"></div>
                     </div>
+                </div>
+            </main>
+
+            <!-- ADAPTAÇÃO: 15 DIAS CORRIDOS A PARTIR DO 1º START -->
+            <main class="app-view" id="view-adaptacao">
+                <div class="view-header">
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center;">
+                        <i class="fa-solid fa-route text-muted me-2"></i> ADAPTAÇÃO
+                    </div>
+                    <button class="btn-sync-robo" onclick="window.sincronizarStatusBasesExternas()" title="Ler as bases agora">
+                        <i class="fa-solid fa-sync"></i> Atualizar Dados das Bases
+                    </button>
+                </div>
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Base Operacional:</label>
+                        <select class="filter-select" id="adFiltroBase" onchange="window.renderizarAdaptacao()">
+                            <option value="all">Visão Global (Todas as Bases)</option>
+                            <option value="LMG-45 Varginha">LMG-45 Varginha</option>
+                            <option value="UDI Uberlândia">UDI Uberlândia</option>
+                            <option value="LMG-39 Patos de Minas">LMG-39 Patos</option>
+                            <option value="LMG-36 Divinópolis">LMG-36 Divinópolis</option>
+                            <option value="LMG-27 Lagoa da Prata">LMG-27 Lagoa da Prata</option>
+                            <option value="LMG-19 Extrema">LMG-19 Extrema</option>
+                            <option value="LMG-48 Uberaba">LMG-48 Uberaba</option>
+                        </select>
+                    </div>
+                    <span class="d-flex align-items-center gap-2 ms-auto" style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">
+                        <span class="ad-dia rodou" style="width:12px; display:inline-block;"></span> Rodou
+                        <span class="ad-dia" style="width:12px; display:inline-block; margin-left:8px;"></span> Não rodou
+                    </span>
+                </div>
+                <div class="dashboard-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 style="color: var(--text-main); font-weight: 700; margin: 0; text-transform: uppercase; font-size: 0.8rem;"><i class="fa-solid fa-person-running me-2"></i> Em adaptação</h6>
+                        <span class="badge" style="background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-main);" id="lblCountAdaptacao">0</span>
+                    </div>
+                    <div id="container-adaptacao-list"></div>
+                    <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+                        <h6 style="color: var(--text-muted); font-weight: 700; margin: 0; text-transform: uppercase; font-size: 0.75rem;"><i class="fa-solid fa-flag-checkered me-2"></i> Concluíram os 15 dias (últimos 30 dias)</h6>
+                        <span class="badge" style="background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-muted);" id="lblCountConcluidos">0</span>
+                    </div>
+                    <div id="container-concluidos-list"></div>
                 </div>
             </main>
 
@@ -463,6 +512,8 @@
                         <option value="Problemas pessoais">Problemas pessoais</option>
                         <option value="Não é cluster de preferência">Não é cluster de preferência</option>
                         <option value="Perdeu o horário agendado">Perdeu o horário agendado</option>
+                        <option value="Não respondeu o WhatsApp dentro do horário">Não respondeu o WhatsApp dentro do horário</option>
+                        <option value="Sem retorno">Sem retorno</option>
                         <option value="Outros motivos">Outros motivos</option>
                     </select>
                     <textarea class="form-control" id="inputJustificativaTexto" rows="2" placeholder="Especifique o motivo detalhadamente..." style="display:none;"></textarea>
@@ -566,6 +617,8 @@
         const provider = new GoogleAuthProvider();
         const agendamentosRef = ref(db, 'agendamentos');
         const usuariosRef = ref(db, 'usuarios');
+        const adaptacaoRef = ref(db, 'adaptacao_rodadas');
+        window.baseAdaptacao = {};
 
         window.iniciarBancosExternos = function() {
             Object.keys(configsExternas).forEach(base => {
@@ -664,6 +717,9 @@
                     if(document.getElementById('view-dashboard').classList.contains('active')) {
                         window.renderizarDashboardCompleto();
                     }
+                    if(document.getElementById('view-adaptacao').classList.contains('active')) {
+                        window.renderizarAdaptacao();
+                    }
                     window.renderizarRelatorioEmLinhas();
                 }
                 if(window.dataVisualizadaNoInspetor) window.abrirInspetorDeDia(window.dataVisualizadaNoInspetor);
@@ -674,6 +730,15 @@
                 }
             }
         });
+
+        // Dias em que o robô encontrou o driver rodando nas bases (depois do 1º start)
+        onValue(adaptacaoRef, (snapshot) => {
+            window.baseAdaptacao = snapshot.val() || {};
+            if (document.getElementById('app-screen').style.display === 'flex' && window.sessaoAtual.role === 'gestor') {
+                if (document.getElementById('view-dashboard').classList.contains('active')) window.renderizarDashboardCompleto();
+                if (document.getElementById('view-adaptacao').classList.contains('active')) window.renderizarAdaptacao();
+            }
+        }, (erro) => console.warn('Sem acesso a adaptacao_rodadas:', erro));
 
         onValue(usuariosRef, (snapshot) => {
             window.listaUsuarios = [];
@@ -770,6 +835,7 @@
                
                 document.getElementById('main-sidebar').style.display = 'flex';
                 document.getElementById('nav-dashboard').style.display = 'flex';
+                document.getElementById('nav-adaptacao').style.display = 'flex';
                 document.getElementById('nav-report').style.display = 'flex';
                 document.getElementById('nav-users').style.display = 'flex';
                 window.switchView('calendar', document.getElementById('nav-calendar'));
@@ -780,6 +846,7 @@
                 document.getElementById('visorBaseLogada').style.display = 'block';
                
                 document.getElementById('nav-dashboard').style.display = 'none';
+                document.getElementById('nav-adaptacao').style.display = 'none';
                 document.getElementById('nav-report').style.display = 'none';
                 document.getElementById('nav-users').style.display = 'none';
                
@@ -882,7 +949,7 @@
             document.getElementById('view-' + viewId).classList.add('active');
            
             if (window.sessaoAtual.role === 'gestor') {
-                if (viewId === 'dashboard' || viewId === 'report' || viewId === 'users') {
+                if (viewId === 'dashboard' || viewId === 'adaptacao' || viewId === 'report' || viewId === 'users') {
                     document.getElementById('adminBaseSelector').style.display = 'none';
                     document.getElementById('visorBaseLogada').innerText = "VISÃO GLOBAL (MG04)";
                     document.getElementById('visorBaseLogada').style.display = 'block';
@@ -896,7 +963,138 @@
             if (viewId === 'report') { window.renderizarRelatorioEmLinhas(); }
             if (viewId === 'users') { window.renderizarUsuarios(); }
             if (viewId === 'dashboard') { setTimeout(() => window.renderizarDashboardCompleto(), 100); }
+            if (viewId === 'adaptacao') { window.renderizarAdaptacao(); }
         }
+
+        // ==========================================
+        // CICLO DO DRIVER: NOVATO -> ADAPTAÇÃO (15 dias) -> CONCLUÍDO
+        // ==========================================
+        // Regras:
+        //  - Nunca rodou ................................. Novato
+        //  - Rodou: abre um ciclo de 15 dias corridos contando do 1º dia que rodou.
+        //  - Dentro do ciclo, sem ficar 7 dias inteiros parado .... Adaptação
+        //  - 7 dias inteiros sem rodar (ex.: rodou dia 01 e nada do 02 ao 08) -> volta para Novatos no dia 09, sinalizado
+        //  - Passou dos 15 dias rodando (ativo no fim) ..... Concluído
+        //  - Se voltar a rodar depois de 7 dias inteiros parado, abre um ciclo novo de 15 dias.
+        const DIAS_CICLO = 15;
+        const DIAS_SEM_RODAR_RETORNO = 7;
+        const __utc = (iso) => { const [a, m, d] = String(iso).split('-').map(Number); return Date.UTC(a, m - 1, d); };
+        window.diasEntre = (isoA, isoB) => Math.round((__utc(isoB) - __utc(isoA)) / 86400000);
+        window.somarDias = (iso, n) => { const t = new Date(__utc(iso) + n * 86400000); return `${t.getUTCFullYear()}-${String(t.getUTCMonth()+1).padStart(2,'0')}-${String(t.getUTCDate()).padStart(2,'0')}`; };
+
+        // Mesma pessoa = mesma base + mesmo ID (ou nome, se não tiver ID). Seguro para chave do Firebase.
+        window.chaveDriver = function(base, id, nome) {
+            const quem = String(id || '').replace(/\D/g, '') || window.normalizarTexto(nome);
+            return `${window.padronizarNomeBase(base || '')}__${quem}`.replace(/[.#$\[\]\/]/g, '_');
+        };
+
+        window.calcularCicloDrivers = function(agendaBase) {
+            const hoje = window.getHojeString();
+            const drivers = {};
+            const pegar = (base, id, nome) => {
+                const k = window.chaveDriver(base, id, nome);
+                if (!drivers[k]) drivers[k] = { chave: k, id, nome, base: window.padronizarNomeBase(base || ''), datas: new Set() };
+                if (nome) drivers[k].nome = nome;
+                if (id) drivers[k].id = id;
+                return drivers[k];
+            };
+            // Dias em que rodou agendado (verde) ...
+            (agendaBase || window.baseAgendamentos).forEach(ag => {
+                const dr = pegar(ag.base_alocada, ag.driver_id, ag.nome);
+                if (ag.status === 'em_rota' && ag.data && ag.data <= hoje) dr.datas.add(ag.data);
+            });
+            // ... e dias que o robô achou o driver rodando nas bases depois disso
+            Object.entries(window.baseAdaptacao || {}).forEach(([k, reg]) => {
+                if (!reg || !drivers[k]) return; // só drivers que existem na agenda
+                Object.keys(reg.datas || {}).forEach(d => { if (d <= hoje) drivers[k].datas.add(d); });
+            });
+
+            Object.values(drivers).forEach(dr => {
+                const datas = Array.from(dr.datas).sort();
+                dr.diasRodados = datas;
+                if (!datas.length) { dr.fase = 'novato'; return; }
+                // Início do ciclo atual = primeiro dia depois da última parada de 7+ dias
+                let inicio = datas[0];
+                for (let i = 1; i < datas.length; i++) {
+                    if (window.diasEntre(datas[i - 1], datas[i]) > DIAS_SEM_RODAR_RETORNO) inicio = datas[i];
+                }
+                const ultimo = datas[datas.length - 1];
+                const fim = window.somarDias(inicio, DIAS_CICLO - 1);
+                dr.inicio = inicio; dr.fim = fim; dr.ultimo = ultimo;
+                dr.diasSemRodar = window.diasEntre(ultimo, hoje);
+                dr.diaDoCiclo = Math.min(window.diasEntre(inicio, hoje) + 1, DIAS_CICLO);
+                dr.rodadosNoCiclo = datas.filter(d => d >= inicio && d <= fim);
+                if (hoje > fim && window.diasEntre(ultimo, fim) <= DIAS_SEM_RODAR_RETORNO) dr.fase = 'concluido';
+                else if (dr.diasSemRodar > DIAS_SEM_RODAR_RETORNO) dr.fase = 'retorno';
+                else dr.fase = 'adaptacao';
+            });
+            return drivers;
+        };
+
+        const fmtBr = (iso) => iso ? iso.split('-').reverse().slice(0, 2).join('/') : '-';
+        const badgeBase = (base) => `<span class="badge" style="background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border-dark); font-size:0.5rem; margin-left: 5px;">${esc((base || '').replace(/LMG-\d+\s|UDI\s/, ''))}</span>`;
+
+        window.renderizarAdaptacao = function() {
+            const lista = document.getElementById('container-adaptacao-list');
+            if (!lista) return;
+            const filtroBase = document.getElementById('adFiltroBase').value;
+            const hoje = window.getHojeString();
+            const todos = Object.values(window.calcularCicloDrivers())
+                .filter(dr => filtroBase === 'all' || window.mesmaBase(dr.base, filtroBase));
+
+            // Quem está há mais tempo sem rodar aparece primeiro (maior risco de voltar para Novatos)
+            const emAdaptacao = todos.filter(dr => dr.fase === 'adaptacao')
+                .sort((a, b) => (b.diasSemRodar - a.diasSemRodar) || (b.diaDoCiclo - a.diaDoCiclo));
+            const concluidos = todos.filter(dr => dr.fase === 'concluido' && window.diasEntre(dr.fim, hoje) <= 30)
+                .sort((a, b) => b.fim.localeCompare(a.fim));
+
+            document.getElementById('lblCountAdaptacao').innerText = `${emAdaptacao.length} driver(s)`;
+            document.getElementById('lblCountConcluidos').innerText = `${concluidos.length}`;
+
+            if (!emAdaptacao.length) {
+                lista.innerHTML = `<div class="text-center text-muted p-5"><i class="fa-solid fa-route fs-2 mb-3"></i><br>Nenhum driver em adaptação para este filtro.</div>`;
+            } else {
+                lista.innerHTML = '<div class="row g-3">' + emAdaptacao.map(dr => {
+                    const rodados = new Set(dr.rodadosNoCiclo);
+                    let strip = '';
+                    for (let i = 0; i < DIAS_CICLO; i++) {
+                        const d = window.somarDias(dr.inicio, i);
+                        const cls = ['ad-dia', rodados.has(d) ? 'rodou' : '', d === hoje ? 'hoje' : '', d > hoje ? 'futuro' : ''].join(' ');
+                        strip += `<div class="${cls}" title="${fmtBr(d)}${rodados.has(d) ? ' - rodou' : ''}"></div>`;
+                    }
+                    const alerta = dr.diasSemRodar >= 4;
+                    const corUltimo = alerta ? 'var(--st-falta)' : 'var(--text-muted)';
+                    const txtUltimo = dr.diasSemRodar === 0 ? 'hoje' : dr.diasSemRodar === 1 ? 'ontem' : `há ${dr.diasSemRodar} dias`;
+                    return `
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="base-dash-card p-2" style="min-height: auto;${alerta ? ' border-color: var(--st-falta);' : ''}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="w-100 pr-1" style="overflow: hidden;">
+                                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${esc(dr.nome)}">${esc(dr.nome)}</div>
+                                    <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 1px;">ID: ${esc(dr.id)} ${filtroBase === 'all' ? badgeBase(dr.base) : ''}</div>
+                                </div>
+                                <span class="badge px-1 flex-shrink-0" style="background: rgba(16, 185, 129, 0.1); color: var(--st-rodou); border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.6rem;">Dia ${dr.diaDoCiclo}/${DIAS_CICLO}</span>
+                            </div>
+                            <div class="ad-strip">${strip}</div>
+                            <div class="d-flex justify-content-between mt-2" style="font-size: 0.6rem; font-weight: 600;">
+                                <span style="color: var(--st-rodou);"><i class="fa-solid fa-check"></i> Rodou ${dr.rodadosNoCiclo.length} dia(s)</span>
+                                <span style="color: ${corUltimo};">${alerta ? '<i class="fa-solid fa-clock"></i> ' : ''}Último start: ${fmtBr(dr.ultimo)} (${txtUltimo})</span>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('') + '</div>';
+            }
+
+            document.getElementById('container-concluidos-list').innerHTML = !concluidos.length
+                ? `<div class="text-muted" style="font-size: 0.75rem;">Ninguém concluiu nos últimos 30 dias.</div>`
+                : '<div class="row g-2">' + concluidos.map(dr => `
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="base-dash-card p-2" style="min-height: auto; opacity: 0.75;">
+                            <div style="font-size: 0.7rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${esc(dr.nome)}">${esc(dr.nome)}</div>
+                            <div style="font-size: 0.6rem; color: var(--text-muted);">ID: ${esc(dr.id)} ${filtroBase === 'all' ? badgeBase(dr.base) : ''} · ${fmtBr(dr.inicio)} a ${fmtBr(dr.fim)} · rodou ${dr.rodadosNoCiclo.length} dia(s)</div>
+                        </div>
+                    </div>`).join('') + '</div>';
+        };
 
         window.renderizarDashboardCompleto = function() {
             if(!document.getElementById('content-novatos')) return;
@@ -917,10 +1115,13 @@
                 dadosFiltrados = dadosFiltrados.filter(d => (d.data || '') >= corte);
             }
 
+            const ciclo = window.calcularCicloDrivers();
+
             let statsDriver = {};
             window.baseAgendamentos.forEach(d => {
-                const keyDriver = window.normalizarTexto(d.nome) || d.driver_id;
-                if(!statsDriver[keyDriver]) { statsDriver[keyDriver] = { id: d.driver_id, nome: d.nome, rodou: 0, recusas: 0, reagendamentos: 0, motivos: new Set() }; }
+                const keyDriver = window.chaveDriver(d.base_alocada, d.driver_id, d.nome);
+                if(!statsDriver[keyDriver]) { statsDriver[keyDriver] = { id: d.driver_id, nome: d.nome, rodou: 0, recusas: 0, reagendamentos: 0, agendado: 0, motivos: new Set() }; }
+                statsDriver[keyDriver].agendado += 1 + (Number(d.reagendamentos) || 0);
                 if(d.status === 'em_rota') statsDriver[keyDriver].rodou++;
                 if(d.status === 'ocorrencia') {
                     statsDriver[keyDriver].recusas++;
@@ -931,25 +1132,42 @@
                 }
             });
 
-            let novatosKeys = new Set(Object.keys(statsDriver).filter(k => statsDriver[k].rodou < 15));
+            // Novatos = ainda não rodou, ou rodou mas está parado há 7+ dias (volta sinalizado)
+            let novatosKeys = new Set(Object.keys(statsDriver).filter(k => ciclo[k] && (ciclo[k].fase === 'novato' || ciclo[k].fase === 'retorno')));
 
             let novatosDisplayMap = {};
-            dadosFiltrados.forEach(d => {
-                const keyDriver = window.normalizarTexto(d.nome) || d.driver_id;
+            const incluirNovato = (d, keyDriver) => {
                 if(novatosKeys.has(keyDriver)) {
                     if(!novatosDisplayMap[keyDriver]) {
                         novatosDisplayMap[keyDriver] = {
+                            retorno: ciclo[keyDriver].fase === 'retorno',
+                            diasSemRodar: ciclo[keyDriver].diasSemRodar,
+                            ultimoStart: ciclo[keyDriver].ultimo,
                             id: d.driver_id, nome: d.nome, base_recente: d.base_alocada,
                             lifetime_rodou: statsDriver[keyDriver].rodou,
                             lifetime_recusas: statsDriver[keyDriver].recusas,
                             lifetime_reagendamentos: statsDriver[keyDriver].reagendamentos,
+                            lifetime_agendado: statsDriver[keyDriver].agendado,
                             motivos: Array.from(statsDriver[keyDriver].motivos)
                         };
                     }
                 }
+            };
+            dadosFiltrados.forEach(d => incluirNovato(d, window.chaveDriver(d.base_alocada, d.driver_id, d.nome)));
+            // Quem voltou por estar parado aparece mesmo fora do período filtrado (só respeita a base)
+            window.baseAgendamentos.forEach(d => {
+                const k = window.chaveDriver(d.base_alocada, d.driver_id, d.nome);
+                if (ciclo[k] && ciclo[k].fase === 'retorno' && (filtroBase === 'all' || window.mesmaBase(d.base_alocada, filtroBase))) incluirNovato(d, k);
             });
 
-            const novatosParaExibir = Object.values(novatosDisplayMap).sort((a,b) => b.lifetime_recusas - a.lifetime_recusas);
+            const LIMITE_AGENDAMENTOS = 3; // acima disso o driver é sinalizado e vai para o topo
+            const novatosParaExibir = Object.values(novatosDisplayMap).sort((a,b) => {
+                const pa = (a.retorno || a.lifetime_agendado > LIMITE_AGENDAMENTOS) ? 1 : 0;
+                const pb = (b.retorno || b.lifetime_agendado > LIMITE_AGENDAMENTOS) ? 1 : 0;
+                if (pa !== pb) return pb - pa;
+                if (pa && b.lifetime_agendado !== a.lifetime_agendado) return b.lifetime_agendado - a.lifetime_agendado;
+                return b.lifetime_recusas - a.lifetime_recusas;
+            });
             document.getElementById('lblCountNovatos').innerText = `${novatosParaExibir.length} Novato(s)`;
 
             let htmlNovatos = '<div class="row g-3">';
@@ -957,15 +1175,18 @@
                 htmlNovatos += `<div class="col-12 text-center text-muted p-5"><i class="fa-solid fa-user-check fs-2 mb-3"></i><br>Nenhum novato encontrado para este filtro.</div>`;
             } else {
                 novatosParaExibir.forEach(n => {
-                    let perc = Math.min((n.lifetime_rodou / 15) * 100, 100);
                     let motivosHtml = n.motivos.length > 0 ? `<div class="mt-2 pt-2" style="border-top: 1px solid var(--border-dark); font-size:0.55rem; color: var(--st-ocorrencia);"><i class="fa-solid fa-triangle-exclamation"></i> <strong>Causas:</strong> ${n.motivos.map(esc).join(', ')}</div>` : '';
                     let baseHtml = filtroBase === 'all' ? `<span class="badge" style="background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border-dark); font-size:0.5rem; margin-left: 5px;">${esc((n.base_recente || '').replace(/LMG-\d+\s|UDI\s/, ''))}</span>` : '';
                    
+                    const prioridade = n.retorno || n.lifetime_agendado > LIMITE_AGENDAMENTOS;
+                    const corAgend = prioridade ? 'var(--st-ocorrencia)' : 'var(--st-agendado)';
+                    const bgAgend = prioridade ? 'rgba(239, 68, 68, 0.12)' : 'rgba(59, 130, 246, 0.1)';
+                    let badgeAgendado = `<span class="badge px-1" style="background: ${bgAgend}; color: ${corAgend}; border: 1px solid ${corAgend}; font-size: 0.55rem; margin-top: 3px;">${prioridade ? '<i class="fa-solid fa-flag"></i>' : '<i class="fa-regular fa-calendar"></i>'} ${n.lifetime_agendado}x Agendado</span>`;
                     let badgeReagendamento = n.lifetime_reagendamentos > 0 ? `<span class="badge px-1" style="background: rgba(245, 158, 11, 0.1); color: var(--st-falta); border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.55rem; margin-top: 3px;"><i class="fa-solid fa-calendar-day"></i> ${n.lifetime_reagendamentos}x Reagend.</span>` : '';
                    
                     htmlNovatos += `
                     <div class="col-xl-3 col-lg-4 col-md-6">
-                        <div class="base-dash-card p-2" style="min-height: auto;">
+                        <div class="base-dash-card p-2" style="min-height: auto;${prioridade ? ' border: 1px solid var(--st-ocorrencia); box-shadow: 0 0 0 1px var(--st-ocorrencia);' : ''}">
                             <div class="d-flex justify-content-between align-items-start mb-1">
                                 <div class="w-100 pr-1" style="overflow: hidden;">
                                     <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${esc(n.nome)}">${esc(n.nome)}</div>
@@ -973,12 +1194,14 @@
                                 </div>
                                 <div class="text-end flex-shrink-0 d-flex flex-column align-items-end">
                                     <span class="badge px-1" style="background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.55rem;"><i class="fa-solid fa-ban"></i> ${n.lifetime_recusas}x Recusa(s)</span>
+                                    ${badgeAgendado}
                                     ${badgeReagendamento}
                                 </div>
                             </div>
-                            <div class="mt-2">
-                                <div class="d-flex justify-content-between mb-1" style="font-size: 0.55rem; font-weight: 600; color: var(--text-muted);"><span>Adaptação</span><span>${n.lifetime_rodou}/15 D</span></div>
-                                <div class="progress" style="height: 4px; background-color: var(--input-bg); border: 1px solid var(--border-dark);"><div class="progress-bar" role="progressbar" style="width: ${perc}%; background-color: var(--st-rodou);" aria-valuenow="${n.lifetime_rodou}" aria-valuemin="0" aria-valuemax="15"></div></div>
+                            <div class="mt-2" style="font-size: 0.6rem; font-weight: 600;">
+                                ${n.retorno
+                                    ? `<span style="color: var(--st-ocorrencia);"><i class="fa-solid fa-clock-rotate-left"></i> ${n.diasSemRodar - 1} dias sem rodar · último start ${fmtBr(n.ultimoStart)}</span>`
+                                    : `<span style="color: var(--text-muted);"><i class="fa-regular fa-hourglass"></i> Aguardando 1º start</span>`}
                             </div>
                             ${motivosHtml}
                         </div>
@@ -1181,9 +1404,14 @@
                 }
                 diag.basesSemBanco = Array.from(semBanco);
 
+                diag.adaptacao = { acompanhados: 0, novosDias: [] };
                 const confirmados = [];
+                const novosDiasAdaptacao = {}; // chaveDriver -> { driver, datas: [] }
 
-                await Promise.all(Object.entries(porBase).map(async ([baseKey, ags]) => {
+                // Leitura das bases com cache por base (usado nas duas etapas abaixo)
+                const contextos = {};
+                const contextoBase = (baseKey) => {
+                    if (contextos[baseKey]) return contextos[baseKey];
                     const dbExt = window.dbsExternos[baseKey];
                     const rotasBase = rotasPorBase[baseKey] || rotasPorBase['default'];
                     const rotasComRaiz = ['', ...rotasBase]; // '' = pasta da data direto na raiz
@@ -1249,6 +1477,12 @@
                         return cacheArvoreCompleta;
                     };
 
+                    return (contextos[baseKey] = { pastasDaData, arvoreCompleta });
+                };
+
+                // ETAPA 1: agendados até hoje -> rodou no dia agendado?
+                await Promise.all(Object.entries(porBase).map(async ([baseKey, ags]) => {
+                    const { pastasDaData, arvoreCompleta } = contextoBase(baseKey);
                     for (const ag of ags) {
                         diag.verificados++;
                         const alvo = MotorVerificacao.prepararDriver(ag.nome, ag.driver_id);
@@ -1270,11 +1504,49 @@
                     }
                 }));
 
+                // ETAPA 2: drivers em ciclo de adaptação (já contando quem acabou de ser confirmado)
+                const idsConfirmados = new Set(confirmados.map(a => a.id));
+                const agendaAtualizada = window.baseAgendamentos.map(a => idsConfirmados.has(a.id) ? { ...a, status: 'em_rota' } : a);
+                const adaptPorBase = {};
+                Object.values(window.calcularCicloDrivers(agendaAtualizada)).forEach(dr => {
+                    if (!dr.inicio || dr.fase === 'concluido' || hojeStr > dr.fim) return;
+                    const chave = Object.keys(window.dbsExternos).find(k => window.mesmaBase(k, dr.base));
+                    if (chave) (adaptPorBase[chave] = adaptPorBase[chave] || []).push(dr);
+                });
+
+                await Promise.all(Object.entries(adaptPorBase).map(async ([baseKey, lista]) => {
+                    const { pastasDaData } = contextoBase(baseKey);
+                    // Só lê as pastas de data (não baixa o histórico inteiro)
+                    for (const dr of lista) {
+                        diag.adaptacao.acompanhados++;
+                        const jaRodados = new Set(dr.diasRodados);
+                        const alvo = MotorVerificacao.prepararDriver(dr.nome, dr.id);
+                        const ultimoDia = hojeStr < dr.fim ? hojeStr : dr.fim;
+                        const dias = [];
+                        for (let d = dr.inicio; d <= ultimoDia; d = window.somarDias(d, 1)) if (!jaRodados.has(d)) dias.push(d);
+                        await Promise.all(dias.map(pastasDaData));
+                        for (const d of dias) {
+                            const pastas = await pastasDaData(d);
+                            const alvoData = MotorVerificacao.prepararData(d);
+                            if (pastas.some(p => MotorVerificacao.procurar(p, alvo, alvoData, true, false))) {
+                                (novosDiasAdaptacao[dr.chave] = novosDiasAdaptacao[dr.chave] || { dr, datas: [] }).datas.push(d);
+                                diag.adaptacao.novosDias.push(`${dr.nome} (${dr.id}) - ${d} - ${baseKey}`);
+                            }
+                        }
+                    }
+                }));
+
                 // Grava como no original (só o status), um por um: se um falhar, os outros ficam verdes mesmo assim
                 const errosGravacao = [];
                 await Promise.all(confirmados.map(ag =>
                     update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' })
                         .catch(e => errosGravacao.push(`${ag.nome}: ${e.code || e.message}`))));
+                await Promise.all(Object.entries(novosDiasAdaptacao).map(([chave, { dr, datas }]) => {
+                    const dados = { nome: dr.nome || '', driver_id: dr.id || '', base: dr.base };
+                    datas.forEach(d => { dados[`datas/${d}`] = true; });
+                    return update(ref(db, 'adaptacao_rodadas/' + chave), dados)
+                        .catch(e => errosGravacao.push(`${dr.nome} (adaptação): ${e.code || e.message}`));
+                }));
                 if (errosGravacao.length) diag.errosGravacao = errosGravacao;
 
                 // Resumo no botão (passe o mouse para ver os detalhes)
@@ -1287,6 +1559,7 @@
                 const titulo = [
                     `Última verificação: ${diag.quando}`,
                     `${diag.verificados} agendado(s) verificados, ${diag.rodaram.length} confirmados como rodou.`,
+                    `Adaptação: ${diag.adaptacao.acompanhados} driver(s) acompanhados, ${diag.adaptacao.novosDias.length} novo(s) dia(s) rodado(s).`,
                     ...avisos,
                     'Detalhes completos: abra o console (F12) e digite  ultimoDiagnosticoRobo'
                 ].join('\n');
@@ -1375,7 +1648,9 @@
             const driversDoDia = window.baseAgendamentos.filter(a => a.data === dataStr && window.mesmaBase(a.base_alocada, window.sessaoAtual.baseAtiva));
             document.getElementById('lblCountStarts').innerText = `Total de Agendados: ${driversDoDia.length}`;
            
-            let htmlLista = `<button class="btn-action w-100 mb-3 shadow-sm" onclick="window.abrirModalCadastro()"><i class="fa-solid fa-plus me-2"></i> AGENDAR DRIVER</button>`;
+            // Gestor: agenda, edita, reagenda e exclui. Analista: só ocorrência e WhatsApp.
+            const podeEditar = window.ehGestor();
+            let htmlLista = podeEditar ? `<button class="btn-action w-100 mb-3 shadow-sm" onclick="window.abrirModalCadastro()"><i class="fa-solid fa-plus me-2"></i> AGENDAR DRIVER</button>` : '';
            
             if(driversDoDia.length === 0) {
                 htmlLista += `<div class="text-center text-muted data-mono mt-4">Nenhum start programado na base.</div>`;
@@ -1391,10 +1666,10 @@
                     if(configCor.id === 'agendado' || configCor.id === 'pendente_hoje' || configCor.id === 'falta' || configCor.id === 'ocorrencia') {
                         botoesHTML += `<button class="btn-acao-lista btn-ocorrencia" title="Registrar Ocorrência" onclick="window.abrirModalOcorrencia('${esc(d.id)}')"><i class="fa-solid fa-flag"></i></button>`;
                     }
-                    if(configCor.id === 'ocorrencia' || configCor.id === 'falta' || configCor.id === 'pendente_hoje') {
+                    if(podeEditar && (configCor.id === 'ocorrencia' || configCor.id === 'falta' || configCor.id === 'pendente_hoje')) {
                         botoesHTML += `<button class="btn-acao-lista btn-reagendar" title="Reagendar Driver" onclick="window.abrirModalReagendamento('${esc(d.id)}')"><i class="fa-solid fa-calendar-day"></i></button>`;
                     }
-                    botoesHTML += `<button class="btn-acao-lista btn-excluir" title="Excluir Agendamento" onclick="window.excluirAgendamento('${esc(d.id)}')"><i class="fa-solid fa-trash"></i></button>`;
+                    if (podeEditar) botoesHTML += `<button class="btn-acao-lista btn-excluir" title="Excluir Agendamento" onclick="window.excluirAgendamento('${esc(d.id)}')"><i class="fa-solid fa-trash"></i></button>`;
 
                     let htmlJustificativa = d.status === 'ocorrencia' ? `<div class="painel-ocorrencia"><i class="fa-solid fa-circle-info me-1"></i> <strong>OCORRÊNCIA:</strong> ${esc(d.justificativa)}</div>` : '';
 
@@ -1414,7 +1689,7 @@
                                         <span class="ms-auto" style="font-size: 0.6rem; color: ${configCor.cor}; font-weight: 700;">${configCor.texto}</span>
                                     </div>
                                 </div>
-                                <button class="btn-editar-card" title="Editar informações do agendamento" onclick="window.abrirModalEdicao('${esc(d.id)}')"><i class="fa-solid fa-pen"></i></button>
+                                ${podeEditar ? `<button class="btn-editar-card" title="Editar informações do agendamento" onclick="window.abrirModalEdicao('${esc(d.id)}')"><i class="fa-solid fa-pen"></i></button>` : ''}
                             </div>
                             <div class="d-flex w-100 gap-2 mt-1 pt-2" style="border-top: 1px solid var(--border-dark);">
                                 ${botoesHTML}
@@ -1426,7 +1701,11 @@
             document.getElementById('listaDrivers').innerHTML = htmlLista;
         }
 
+        window.ehGestor = () => window.sessaoAtual.role === 'gestor';
+        const somenteGestor = () => { if (window.ehGestor()) return true; alert('Somente gestores podem alterar a agenda.'); return false; };
+
         window.excluirAgendamento = async function(id) {
+            if (!somenteGestor()) return;
             if(confirm("ATENÇÃO: Deseja excluir este agendamento? Esta ação não pode ser desfeita.")) {
                 await remove(ref(db, 'agendamentos/' + id));
             }
@@ -1436,6 +1715,7 @@
         const modalOcorrencia = document.getElementById('modalOcorrencia');
 
         window.abrirModalCadastro = function() {
+            if (!somenteGestor()) return;
             const baseAlvo = window.padronizarNomeBase(window.sessaoAtual.baseAtiva || document.getElementById('adminBaseSelector').value);
             window.sessaoAtual.baseAtiva = baseAlvo;
             document.getElementById('tituloModalCadastro').innerHTML = `<i class="fa-solid fa-user-plus me-2 text-primary"></i> Agendar Driver <span class="text-muted text-lowercase" style="font-size:0.6rem;">(Base: ${esc(baseAlvo)})</span>`;
@@ -1447,6 +1727,7 @@
         window.fecharModal = function() { modalPadrao.classList.remove('active'); document.getElementById('formStart').reset(); }
        
         window.abrirModalReagendamento = function(idDriver) {
+            if (!somenteGestor()) return;
             const driver = window.baseAgendamentos.find(d => d.id === idDriver);
             if(!driver) return;
             document.getElementById('tituloModalCadastro').innerHTML = `<i class="fa-solid fa-calendar-day me-2 text-warning"></i> Reagendar Driver`;
@@ -1463,6 +1744,7 @@
         // Editar: corrige dados digitados errado. Não conta como reagendamento e mantém o status,
         // a não ser que a data seja trocada (aí volta para "agendado" na nova data).
         window.abrirModalEdicao = function(idDriver) {
+            if (!somenteGestor()) return;
             const driver = window.baseAgendamentos.find(d => d.id === idDriver);
             if(!driver) return;
             document.getElementById('tituloModalCadastro').innerHTML = `<i class="fa-solid fa-pen me-2 text-primary"></i> Editar Agendamento`;
@@ -1503,6 +1785,7 @@
 
         document.getElementById('formStart').addEventListener('submit', async function(e) {
             e.preventDefault();
+            if (!somenteGestor()) return;
             const idEdicao = document.getElementById('inputModoEdicao').value;
             const baseAtivaGarantida = window.padronizarNomeBase(window.sessaoAtual.baseAtiva || document.getElementById('adminBaseSelector').value);
 
@@ -1562,3 +1845,4 @@
     </script>
 </body>
 </html>
+
