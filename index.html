@@ -24,10 +24,10 @@
             --spx-orange-gradient: linear-gradient(135deg, #ff6a00 0%, #ee4d2d 100%);
            
             /* Status Cores */
-            --st-agendado: #3b82f6;
-            --st-rodou: #10b981;    
-            --st-ocorrencia: #ef4444;
-            --st-falta: #f59e0b;    
+            --st-agendado: #3b82f6;   /* Azul: Futuro */
+            --st-rodou: #10b981;      /* Verde: Rodou */
+            --st-ocorrencia: #ef4444; /* Vermelho: Pendente no Dia / Ocorrência */
+            --st-falta: #f59e0b;      /* Laranja: Passou do dia e não rodou (Sem ocorrência) */
             --whatsapp: #25D366;
            
             /* DARK MODE (Padrão) */
@@ -115,14 +115,8 @@
         .view-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; transition: 0.3s ease;}
 
         /* ========================================================
-           DASHBOARD E TABS
+           DASHBOARD DE NOVATOS
            ======================================================== */
-        .dash-tab-btn { background: transparent; border: none; color: var(--text-muted); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; padding: 6px 14px; border-radius: 4px; transition: 0.2s; cursor: pointer; }
-        .dash-tab-btn.active { background: var(--spx-orange-gradient); color: #fff; box-shadow: 0 4px 10px rgba(238, 77, 45, 0.3); }
-        .dash-content { display: none; animation: fadeIn 0.3s ease forwards; }
-        .dash-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
         .filter-bar { display: flex; gap: 15px; padding: 15px 20px; background: var(--bg-panel); border-bottom: 1px solid var(--border-dark); align-items: center; flex-wrap: wrap; transition: 0.3s ease;}
         .filter-group { display: flex; align-items: center; gap: 8px; }
         .filter-group label { font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin: 0; }
@@ -132,10 +126,6 @@
         .dashboard-container { padding: 25px; overflow-y: auto; flex-grow: 1; align-content: flex-start; }
         .base-dash-card { background: var(--card-bg); border: 1px solid var(--border-dark); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; box-shadow: 0 10px 20px var(--shadow-color); transition: 0.3s ease; }
         .base-dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 15px; margin-bottom: 15px; font-weight: 700; color: var(--text-main); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
-
-        /* Status Indicadores de Dobras */
-        .dobras-card-count { font-size: 2.5rem; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 5px; }
-        .dobras-card-title { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
 
         /* ========================================================
            RELATÓRIOS GERAIS
@@ -212,7 +202,8 @@
         .btn-danger-action { background: var(--st-ocorrencia); color: white; font-weight: 600; padding: 10px; width: 100%; border-radius: 4px; border: none; transition: 0.2s; text-transform: uppercase; font-size: 0.8rem; flex: 2;}
         .btn-danger-action:hover { filter: brightness(0.9); }
        
-        .robo-status-icon { position: absolute; bottom: 10px; right: 15px; font-size: 0.6rem; color: var(--st-rodou); display: flex; align-items: center; gap: 5px; opacity: 0.7; }
+        .btn-sync-robo { background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--st-rodou); font-size: 0.7rem; font-weight: 600; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+        .btn-sync-robo:hover { border-color: var(--spx-orange); color: var(--spx-orange); }
     </style>
 </head>
 <body>
@@ -256,7 +247,7 @@
         <div class="workspace">
             <nav class="sidebar-slim" id="main-sidebar">
                 <a class="nav-icon active" id="nav-calendar" title="Agenda Tática" onclick="window.switchView('calendar', this)"><i class="fa-solid fa-calendar-days"></i></a>
-                <a class="nav-icon" id="nav-dashboard" title="Controle de Novatos e Dobras" onclick="window.switchView('dashboard', this)"><i class="fa-solid fa-clipboard-user"></i></a>
+                <a class="nav-icon" id="nav-dashboard" title="Controle de Novatos" onclick="window.switchView('dashboard', this)"><i class="fa-solid fa-clipboard-user"></i></a>
                 <a class="nav-icon" id="nav-report" title="Relatório Global" onclick="window.switchView('report', this)"><i class="fa-solid fa-list-check"></i></a>
                 <a class="nav-icon" id="nav-users" title="Gestão de Acessos" onclick="window.switchView('users', this)"><i class="fa-solid fa-users-gear"></i></a>
             </nav>
@@ -269,9 +260,12 @@
 
             <main class="app-view active" id="view-calendar">
                 <div class="view-header">
-                    <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center;">
-                        <i class="fa-solid fa-calendar-week text-muted me-2"></i> AGENDAMENTO DE NOVATOS
-                        <span id="dynamicBaseHeader" style="margin-left: 15px; color: var(--spx-orange); font-size: 0.8rem; background: rgba(238, 77, 45, 0.1); padding: 3px 10px; border-radius: 4px; border: 1px solid rgba(238, 77, 45, 0.3); text-transform: uppercase;"></span>
+                    <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 10px;">
+                        <span><i class="fa-solid fa-calendar-week text-muted me-2"></i> AGENDAMENTO DE NOVATOS</span>
+                        <span id="dynamicBaseHeader" style="color: var(--spx-orange); font-size: 0.8rem; background: rgba(238, 77, 45, 0.1); padding: 3px 10px; border-radius: 4px; border: 1px solid rgba(238, 77, 45, 0.3); text-transform: uppercase;"></span>
+                        <button class="btn-sync-robo" id="roboStatusInfo" onclick="window.sincronizarStatusBasesExternas()" title="Verificar nas bases agora se os agendados rodaram">
+                            <i class="fa-solid fa-robot"></i> Verificar Starts
+                        </button>
                     </div>
                     <div class="d-flex gap-3" style="font-size: 0.65rem; font-weight: 600; text-transform: uppercase; align-items: center;">
                         <span style="color: var(--text-muted);" title="Moto, Carro ou Fiorino"><i class="fa-solid fa-car"></i> Ícones representam o veículo</span>
@@ -298,17 +292,15 @@
                 </div>
             </main>
 
-            <!-- DASHBOARD: NOVATOS E DOBRAS -->
+            <!-- DASHBOARD: CONTROLE DE NOVATOS -->
             <main class="app-view" id="view-dashboard">
                 <div class="view-header">
                     <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center;">
-                        <i class="fa-solid fa-clipboard-user text-muted me-2"></i> CONTROLE DE NOVATOS E DOBRAS
+                        <i class="fa-solid fa-seedling text-muted me-2"></i> CONTROLE DE NOVATOS
                     </div>
-                   
-                    <div class="d-flex p-1 rounded" style="background: var(--input-bg); border: 1px solid var(--border-dark);">
-                        <button class="dash-tab-btn active" id="btn-tab-novatos" onclick="window.switchDashTab('novatos')"><i class="fa-solid fa-seedling me-1"></i> Hub Novatos</button>
-                        <button class="dash-tab-btn" id="btn-tab-dobras" onclick="window.switchDashTab('dobras')"><i class="fa-solid fa-bolt me-1"></i> Controle de Dobras</button>
-                    </div>
+                    <button class="btn-sync-robo" onclick="window.sincronizarStatusBasesExternas()" title="Forçar leitura das bases agora">
+                        <i class="fa-solid fa-sync"></i> Atualizar Dados das Bases
+                    </button>
                 </div>
                
                 <div class="filter-bar">
@@ -336,16 +328,11 @@
                 </div>
 
                 <div class="dashboard-container" style="position: relative;">
-                    <!-- INDICADOR DO ROBÔ RODANDO NO BACKEND -->
-                    <div class="robo-status-icon" id="roboStatusInfo">
-                        <i class="fa-solid fa-robot fa-bounce"></i> Scanner Universal Ativado...
-                    </div>
-
-                    <div id="content-novatos" class="dash-content active">
+                    <div id="content-novatos">
                         <div class="row mb-4">
                             <div class="col-12">
                                 <div class="base-dash-card" style="padding: 15px;">
-                                    <div class="base-dash-header text-danger mb-0" style="border-bottom: none;"><i class="fa-solid fa-chart-pie me-1"></i> Principais Gargalos (Recusas no Período Filtrado)</div>
+                                    <div class="base-dash-header text-danger mb-0" style="border-bottom: none;"><i class="fa-solid fa-chart-pie me-1"></i> Principais Gargalos (Ocorrências no Período Filtrado)</div>
                                     <div style="position: relative; height: 120px; width: 100%;">
                                         <canvas id="chartMotivosNovatos"></canvas>
                                     </div>
@@ -360,14 +347,6 @@
                        
                         <div id="container-novatos-list"></div>
                     </div>
-
-                    <div id="content-dobras" class="dash-content">
-                        <div class="base-dash-header mb-3"><i class="fa-solid fa-bolt text-warning me-2"></i> Sumário de Dobras Operacionais (AM/PM)</div>
-                        <div id="container-dobras-list" class="row g-3">
-                            <!-- Injetado pelo JS como Cards de Resumo -->
-                        </div>
-                    </div>
-
                 </div>
             </main>
 
@@ -396,9 +375,9 @@
                         <select class="filter-select" id="filtroStatus" onchange="window.renderizarRelatorioEmLinhas()">
                             <option value="all">Todos</option>
                             <option value="agendado">Agendado (Futuro/Hoje)</option>
-                            <option value="em_rota">Rodou</option>
-                            <option value="ocorrencia">Ocorrência</option>
-                            <option value="falta">Não Rodou (Falta)</option>
+                            <option value="em_rota">Rodou (Verde)</option>
+                            <option value="ocorrencia">Ocorrência (Vermelho)</option>
+                            <option value="falta">Não Rodou / Sem Ocorrência (Laranja)</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -498,7 +477,7 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
         // ==========================================
-        // 1. CONFIGURAÇÕES DE BANCOS E ROTAS
+        // SUBAGENTE 1: CONFIGURAÇÕES E PADRONIZAÇÃO DE BASES
         // ==========================================
         const configsExternas = {
             "LMG-48 Uberaba": { apiKey: "AIzaSyBxzyFdum86noYdpQnldyjX4wiPB7IJEMY", databaseURL: "https://spx-logistica-online-default-rtdb.firebaseio.com", projectId: "spx-logistica-online" },
@@ -509,12 +488,39 @@
             "LMG-39 Patos de Minas": { apiKey: "AIzaSyDitF1wjGzzifPVecVh81nI_KBPmKLTZOE", databaseURL: "https://fiorino-lmg-39-default-rtdb.firebaseio.com", projectId: "fiorino-lmg-39" }
         };
 
-        // Mapeamento de nós específicos dentro de cada Realtime Database (Nomes passados pelo hub)
-        const rotasEspeciais = {
-            "LMG-48 Uberaba": ['shopee_history'],
-            "LMG-27 Lagoa da Prata": ['lagoa_prata_lmg27_history'],
-            "LMG-36 Divinópolis": ['divinopolis_lmg36_history'],
-            "default": ['shopee_history', 'historico_alocacao', 'rodizio', 'historico', 'alocacao']
+        const rotasPorBase = {
+            "LMG-48 Uberaba": ['shopee_history', 'historico_alocacao', 'rodizio', 'historico', 'alocacao'],
+            "LMG-27 Lagoa da Prata": ['lagoa_prata_lmg27_history', 'shopee_history', 'historico_alocacao', 'rodizio', 'historico'],
+            "LMG-36 Divinópolis": ['divinopolis_lmg36_history', 'shopee_history', 'historico_alocacao', 'rodizio', 'historico'],
+            "default": ['shopee_history', 'varginha_lmg45_history', 'extrema_lmg19_history', 'patos_lmg39_history', 'historico_alocacao', 'rodizio', 'historico', 'alocacao']
+        };
+
+        window.normalizarTexto = (txt) => txt ? String(txt).normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase() : "";
+       
+        window.mesmaBase = function(baseA, baseB) {
+            if (!baseA || !baseB) return false;
+            const a = window.normalizarTexto(baseA).replace(/[^a-z0-9]/g, '');
+            const b = window.normalizarTexto(baseB).replace(/[^a-z0-9]/g, '');
+            if (a === b) return true;
+            if (a.includes('varginha') && b.includes('varginha')) return true;
+            if (a.includes('uberaba') && b.includes('uberaba')) return true;
+            if (a.includes('uberlandia') && b.includes('uberlandia')) return true;
+            if (a.includes('patos') && b.includes('patos')) return true;
+            if (a.includes('divinopolis') && b.includes('divinopolis')) return true;
+            if (a.includes('lagoa') && b.includes('lagoa')) return true;
+            if (a.includes('extrema') && b.includes('extrema')) return true;
+            return false;
+        };
+
+        window.padronizarNomeBase = function(baseNome) {
+            const listaOficial = [
+                "LMG-45 Varginha", "UDI Uberlândia", "LMG-39 Patos de Minas",
+                "LMG-36 Divinópolis", "LMG-27 Lagoa da Prata", "LMG-19 Extrema", "LMG-48 Uberaba"
+            ];
+            for (let b of listaOficial) {
+                if (window.mesmaBase(b, baseNome)) return b;
+            }
+            return baseNome;
         };
 
         window.dbsExternos = {};
@@ -523,11 +529,9 @@
         window.baseAgendamentos = [];
         window.listaUsuarios = [];
         window.chartMotivosDashObj = null;
-        window.dobrasGlobaisCalculadas = {};
 
         // ==========================================
-        // 2. INICIALIZAÇÃO NÚCLEO (SUBAGENTE AUTH)
-        // O Main DB é iniciado imediatamente para não bloquear o Login
+        // SUBAGENTE 2: NÚCLEO DE AUTENTICAÇÃO E BANCO PRINCIPAL
         // ==========================================
         const firebaseConfigMain = {
             apiKey: "AIzaSyAWoaxC02mZNqeFgDQZBVRxAavVReDJ74M",
@@ -546,12 +550,7 @@
         const agendamentosRef = ref(db, 'agendamentos');
         const usuariosRef = ref(db, 'usuarios');
 
-        // ==========================================
-        // 3. INICIALIZAÇÃO SECUNDÁRIA (SUBAGENTE CONEXÕES)
-        // Conecta nas bases regionais em background, pós-login
-        // ==========================================
         window.iniciarBancosExternos = function() {
-            console.log("[Subagente Conexões] Estabelecendo links com as Bases Operacionais...");
             Object.keys(configsExternas).forEach(base => {
                 if (!window.dbsExternos[base]) {
                     try {
@@ -559,7 +558,7 @@
                         const extApp = initializeApp(configsExternas[base], safeAppName);
                         window.dbsExternos[base] = getDatabase(extApp);
                     } catch (error) {
-                        console.warn(`[Subagente Conexões] Alerta na conexão da base ${base}. Pode já estar iniciada.`);
+                        console.warn(`Conexão externa ${base} já ativa.`);
                     }
                 }
             });
@@ -601,6 +600,12 @@
             return `${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}-${String(h.getDate()).padStart(2,'0')}`;
         }
 
+        // Regra de Status:
+        // - 'em_rota' -> Verde (Rodou)
+        // - 'ocorrencia' -> Vermelho (Com justificativa aberta)
+        // - 'agendado' no futuro (> hoje) -> Azul (Agendado)
+        // - 'agendado' hoje (=== hoje) -> Vermelho (Pendente no dia escalado)
+        // - 'agendado' no passado (< hoje) e sem ocorrência -> Laranja (Não Rodou)
         window.getStatusInfo = function(statusBanco, dataAgendamento) {
             const hojeStr = window.getHojeString();
            
@@ -611,7 +616,7 @@
                 if (dataAgendamento > hojeStr) {
                     return { cor: 'var(--st-agendado)', bg: 'rgba(59, 130, 246, 0.1)', texto: 'Agendado', id: 'agendado' };
                 } else if (dataAgendamento === hojeStr) {
-                    return { cor: 'var(--st-ocorrencia)', bg: 'rgba(239, 68, 68, 0.1)', texto: 'Pendente Hoje', id: 'ocorrencia' };
+                    return { cor: 'var(--st-ocorrencia)', bg: 'rgba(239, 68, 68, 0.1)', texto: 'Pendente Hoje', id: 'pendente_hoje' };
                 } else if (dataAgendamento < hojeStr) {
                     return { cor: 'var(--st-falta)', bg: 'rgba(245, 158, 11, 0.1)', texto: 'Não Rodou', id: 'falta' };
                 }
@@ -651,8 +656,9 @@
             if(document.getElementById('app-screen').style.display === 'flex') {
                 if(window.sessaoAtual.role === 'gestor') { window.renderizarUsuarios(); }
                 if(window.sessaoAtual.role === 'analista' && myUserData) {
-                    if (myUserData.base_alocada && window.sessaoAtual.baseAtiva !== myUserData.base_alocada) {
-                        window.sessaoAtual.baseAtiva = myUserData.base_alocada;
+                    const baseAlocadaPadrao = window.padronizarNomeBase(myUserData.base_alocada || '');
+                    if (baseAlocadaPadrao && window.sessaoAtual.baseAtiva !== baseAlocadaPadrao) {
+                        window.sessaoAtual.baseAtiva = baseAlocadaPadrao;
                         window.iniciarSessao(false);
                     }
                 }
@@ -677,7 +683,7 @@
                         set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'gestor', base_alocada: 'Todas' });
                     } else if (snapshot.exists()) {
                         role = snapshot.val().role;
-                        base_alocada = snapshot.val().base_alocada || '';
+                        base_alocada = window.padronizarNomeBase(snapshot.val().base_alocada || '');
                     } else {
                         set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'analista', base_alocada: '' });
                     }
@@ -778,14 +784,12 @@
                         });
                     }
                    
-                    window.meuCalendario.render(); window.recarregarEventosNoCalendario();
+                    window.meuCalendario.render();
+                    window.recarregarEventosNoCalendario();
                    
-                    // Inicia conexões secundárias APÓS carregar a interface (Não trava o Login)
                     window.iniciarBancosExternos();
-
-                    // ACIONA O ROBÔ INICIAL E CONFIGURA O LOOP A CADA 40 MINUTOS
                     window.sincronizarStatusBasesExternas();
-                    setInterval(window.sincronizarStatusBasesExternas, 40 * 60 * 1000);
+                    setInterval(window.sincronizarStatusBasesExternas, 20 * 60 * 1000);
                 }
 
                 if(isGestor) {
@@ -795,12 +799,15 @@
             }, 500);
         }
 
+        // ==========================================
+        // SUBAGENTE 3: CALENDÁRIO E DASHBOARD DE NOVATOS
+        // ==========================================
         window.recarregarEventosNoCalendario = function() {
             if(!window.meuCalendario) return;
             window.meuCalendario.removeAllEvents();
            
             let contagemPorData = {};
-            window.baseAgendamentos.filter(ag => ag.base_alocada === window.sessaoAtual.baseAtiva).forEach(ag => {
+            window.baseAgendamentos.filter(ag => window.mesmaBase(ag.base_alocada, window.sessaoAtual.baseAtiva)).forEach(ag => {
                 if (!contagemPorData[ag.data]) { contagemPorData[ag.data] = 0; }
                 contagemPorData[ag.data]++;
             });
@@ -816,11 +823,16 @@
         }
 
         window.trocarBaseAtiva = function(novaBase) {
-            window.sessaoAtual.baseAtiva = novaBase;
-            document.getElementById('dynamicBaseHeader').innerText = novaBase.replace(/LMG-\d+\s|UDI\s/, '');
+            window.sessaoAtual.baseAtiva = window.padronizarNomeBase(novaBase);
+            document.getElementById('dynamicBaseHeader').innerText = window.sessaoAtual.baseAtiva.replace(/LMG-\d+\s|UDI\s/, '');
             window.recarregarEventosNoCalendario();
-            document.getElementById('listaDrivers').innerHTML = `<div class="text-center text-muted mt-5 pt-4" style="font-size: 0.75rem;"><i class="fa-solid fa-rotate fs-4 mb-2"></i><br>Base alterada. Clique em um dia.</div>`;
-            document.getElementById('lblDiaSelecionado').innerText = 'Nenhum dia selecionado'; document.getElementById('lblCountStarts').innerText = '';
+            if (window.dataVisualizadaNoInspetor) {
+                window.abrirInspetorDeDia(window.dataVisualizadaNoInspetor);
+            } else {
+                document.getElementById('listaDrivers').innerHTML = `<div class="text-center text-muted mt-5 pt-4" style="font-size: 0.75rem;"><i class="fa-solid fa-rotate fs-4 mb-2"></i><br>Base alterada. Clique em um dia.</div>`;
+                document.getElementById('lblDiaSelecionado').innerText = 'Nenhum dia selecionado';
+                document.getElementById('lblCountStarts').innerText = '';
+            }
         }
 
         window.switchView = function(viewId, elementoClicado) {
@@ -841,17 +853,10 @@
                 }
             }
 
-            if (viewId === 'calendar' && window.meuCalendario) { setTimeout(() => window.meuCalendario.render(), 100); }
+            if (viewId === 'calendar' && window.meuCalendario) { setTimeout(() => { window.meuCalendario.render(); window.recarregarEventosNoCalendario(); }, 100); }
             if (viewId === 'report') { window.renderizarRelatorioEmLinhas(); }
             if (viewId === 'users') { window.renderizarUsuarios(); }
             if (viewId === 'dashboard') { setTimeout(() => window.renderizarDashboardCompleto(), 100); }
-        }
-
-        window.switchDashTab = function(tabName) {
-            document.querySelectorAll('.dash-tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.dash-content').forEach(content => content.classList.remove('active'));
-            document.getElementById('btn-tab-' + tabName).classList.add('active');
-            document.getElementById('content-' + tabName).classList.add('active');
         }
 
         window.renderizarDashboardCompleto = function() {
@@ -862,9 +867,8 @@
 
             let dadosFiltrados = [...window.baseAgendamentos];
 
-            if (filtroBase !== 'all') { dadosFiltrados = dadosFiltrados.filter(d => d.base_alocada === filtroBase); }
+            if (filtroBase !== 'all') { dadosFiltrados = dadosFiltrados.filter(d => window.mesmaBase(d.base_alocada, filtroBase)); }
 
-            const hojeStr = window.getHojeString();
             if (filtroTempo === 'week') {
                 const hoje = new Date();
                 const seteDiasAtras = new Date(hoje.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -877,29 +881,31 @@
 
             let statsDriver = {};
             window.baseAgendamentos.forEach(d => {
-                if(!statsDriver[d.driver_id]) { statsDriver[d.driver_id] = { id: d.driver_id, nome: d.nome, rodou: 0, recusas: 0, reagendamentos: 0, motivos: new Set() }; }
-                if(d.status === 'em_rota') statsDriver[d.driver_id].rodou++;
+                const keyDriver = window.normalizarTexto(d.nome) || d.driver_id;
+                if(!statsDriver[keyDriver]) { statsDriver[keyDriver] = { id: d.driver_id, nome: d.nome, rodou: 0, recusas: 0, reagendamentos: 0, motivos: new Set() }; }
+                if(d.status === 'em_rota') statsDriver[keyDriver].rodou++;
                 if(d.status === 'ocorrencia') {
-                    statsDriver[d.driver_id].recusas++;
-                    if(d.justificativa) statsDriver[d.driver_id].motivos.add(d.justificativa);
+                    statsDriver[keyDriver].recusas++;
+                    if(d.justificativa) statsDriver[keyDriver].motivos.add(d.justificativa);
                 }
                 if(d.reagendamentos) {
-                    statsDriver[d.driver_id].reagendamentos += d.reagendamentos;
+                    statsDriver[keyDriver].reagendamentos += d.reagendamentos;
                 }
             });
 
-            let novatosIds = Object.values(statsDriver).filter(s => s.rodou < 15).map(s => s.id);
+            let novatosKeys = Object.keys(statsDriver).filter(k => statsDriver[k].rodou < 15);
 
             let novatosDisplayMap = {};
             dadosFiltrados.forEach(d => {
-                if(novatosIds.includes(d.driver_id)) {
-                    if(!novatosDisplayMap[d.driver_id]) {
-                        novatosDisplayMap[d.driver_id] = {
+                const keyDriver = window.normalizarTexto(d.nome) || d.driver_id;
+                if(novatosKeys.includes(keyDriver)) {
+                    if(!novatosDisplayMap[keyDriver]) {
+                        novatosDisplayMap[keyDriver] = {
                             id: d.driver_id, nome: d.nome, base_recente: d.base_alocada,
-                            lifetime_rodou: statsDriver[d.driver_id].rodou,
-                            lifetime_recusas: statsDriver[d.driver_id].recusas,
-                            lifetime_reagendamentos: statsDriver[d.driver_id].reagendamentos,
-                            motivos: Array.from(statsDriver[d.driver_id].motivos)
+                            lifetime_rodou: statsDriver[keyDriver].rodou,
+                            lifetime_recusas: statsDriver[keyDriver].recusas,
+                            lifetime_reagendamentos: statsDriver[keyDriver].reagendamentos,
+                            motivos: Array.from(statsDriver[keyDriver].motivos)
                         };
                     }
                 }
@@ -915,7 +921,7 @@
                 novatosParaExibir.forEach(n => {
                     let perc = Math.min((n.lifetime_rodou / 15) * 100, 100);
                     let motivosHtml = n.motivos.length > 0 ? `<div class="mt-2 pt-2" style="border-top: 1px solid var(--border-dark); font-size:0.55rem; color: var(--st-ocorrencia);"><i class="fa-solid fa-triangle-exclamation"></i> <strong>Causas:</strong> ${n.motivos.join(', ')}</div>` : '';
-                    let baseHtml = filtroBase === 'all' ? `<span class="badge" style="background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border-dark); font-size:0.5rem; margin-left: 5px;">${n.base_recente.replace(/LMG-\d+\s|UDI\s/, '')}</span>` : '';
+                    let baseHtml = filtroBase === 'all' ? `<span class="badge" style="background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border-dark); font-size:0.5rem; margin-left: 5px;">${(n.base_recente || '').replace(/LMG-\d+\s|UDI\s/, '')}</span>` : '';
                    
                     let badgeReagendamento = n.lifetime_reagendamentos > 0 ? `<span class="badge px-1" style="background: rgba(245, 158, 11, 0.1); color: var(--st-falta); border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.55rem; margin-top: 3px;"><i class="fa-solid fa-calendar-day"></i> ${n.lifetime_reagendamentos}x Reagend.</span>` : '';
                    
@@ -958,193 +964,164 @@
                 data: { labels: Object.keys(mapMotivos), datasets: [{ data: Object.values(mapMotivos), backgroundColor: ['#ef4444', '#f59e0b', '#0ea5e9', '#8b949e', '#10b981'], borderWidth: 0 }] },
                 options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: {size: 11} } } } }
             });
-
-            let htmlDobras = '';
-            let chavesBases = Object.keys(window.dobrasGlobaisCalculadas);
-           
-            if (filtroBase !== 'all') {
-                chavesBases = chavesBases.filter(b => b === filtroBase);
-            }
-
-            if(chavesBases.length === 0 || chavesBases.every(b => window.dobrasGlobaisCalculadas[b] === 0)) {
-                htmlDobras = `<div class="col-12 text-center text-muted p-5"><i class="fa-solid fa-bolt fs-2 mb-3"></i><br>Nenhum registro de dobra operacional no período. O Robô continua verificando.</div>`;
-            } else {
-                chavesBases.forEach(baseName => {
-                    let totalDobras = window.dobrasGlobaisCalculadas[baseName] || 0;
-                    if (totalDobras > 0) {
-                        htmlDobras += `
-                        <div class="col-md-3">
-                            <div class="base-dash-card text-center" style="border-top: 3px solid var(--spx-orange);">
-                                <div class="dobras-card-count">${totalDobras}</div>
-                                <div class="dobras-card-title">${baseName.replace(/LMG-\d+\s|UDI\s/, '')}</div>
-                            </div>
-                        </div>`;
-                    }
-                });
-            }
-            document.getElementById('container-dobras-list').innerHTML = htmlDobras;
         }
 
         // ==========================================
-        // 4. O ROBÔ SÊNIOR "SCANNER UNIVERSAL" (SUBAGENTE SCANNER)
-        // Busca profunda em background PRIORIZANDO O NOME DO DRIVER
+        // SUBAGENTE 4: VALIDADOR EXCLUSIVO DE AGENDAMENTOS NAS BASES EXTERNAS
         // ==========================================
+        // Verifica dentro de qualquer objeto/subpasta do Firebase se o motorista agendado rodou na data escalada
+        function buscarDriverNaData(raizBanco, dataAgendadaISO, nomeAgendadoNorm, idAgendadoStr) {
+            if (!raizBanco || typeof raizBanco !== 'object') return false;
+
+            let [ano, mes, dia] = dataAgendadaISO.split('-');
+            let variantesData = [
+                dataAgendadaISO,                // 2026-10-14
+                `${ano}${mes}${dia}`,           // 20261014
+                `${dia}/${mes}/${ano}`,         // 14/10/2026
+                `${dia}-${mes}-${ano}`,         // 14-10-2026
+                `${dia}_${mes}_${ano}`,         // 14_10_2026
+                `${dia}${mes}${ano}`,           // 14102026
+                `${dia}/${mes}`                 // 14/10
+            ];
+
+            let partesNome = nomeAgendadoNorm.split(/\s+/).filter(p => p.length > 2);
+
+            // Confere se o texto contém o nome do motorista (ou primeiro + último nome) ou o ID
+            function contemMotorista(textoNorm) {
+                if (nomeAgendadoNorm.length >= 3 && textoNorm.includes(nomeAgendadoNorm)) return true;
+                if (idAgendadoStr && idAgendadoStr.length >= 4 && textoNorm.includes(idAgendadoStr)) return true;
+                if (partesNome.length >= 2) {
+                    let primeiro = partesNome[0];
+                    let ultimo = partesNome[partesNome.length - 1];
+                    // Se encontrar uma linha com o primeiro e o último nome juntos
+                    let regexNome = new RegExp(primeiro + "[\\s\\S]{0,40}" + ultimo);
+                    if (regexNome.test(textoNorm)) return true;
+                }
+                return false;
+            }
+
+            // Confere se o caminho ou objeto pertence à data agendada
+            function contemData(textoNorm) {
+                return variantesData.some(dt => textoNorm.includes(dt));
+            }
+
+            // Percorre a árvore do Firebase
+            function varrerNo(noAtual, caminhoAcumulado, dataJaConfirmadaNoCaminho) {
+                if (!noAtual) return false;
+
+                if (typeof noAtual !== 'object') {
+                    let txtFolha = window.normalizarTexto(caminhoAcumulado + ' ' + String(noAtual));
+                    let temData = dataJaConfirmadaNoCaminho || contemData(txtFolha);
+                    return temData && contemMotorista(txtFolha);
+                }
+
+                // Se a chave atual da pasta já é a data do agendamento (ex: pasta "2026-10-14" ou "20261014"),
+                // basta procurar o nome do motorista dentro de qualquer um dos 2 arquivos (AM ou PM) dessa pasta!
+                if (dataJaConfirmadaNoCaminho) {
+                    let dumpSubArvore = window.normalizarTexto(JSON.stringify(noAtual));
+                    if (contemMotorista(dumpSubArvore)) return true;
+                    return false;
+                }
+
+                // Continua entrando nas pastas
+                for (let chave in noAtual) {
+                    let chaveNorm = window.normalizarTexto(chave);
+                    let novoCaminho = caminhoAcumulado + ' ' + chaveNorm;
+                    let confirmouDataAqui = contemData(chaveNorm) || contemData(novoCaminho);
+
+                    if (varrerNo(noAtual[chave], novoCaminho, confirmouDataAqui)) {
+                        return true;
+                    }
+                }
+
+                // Caso a data esteja escrita dentro do objeto final junto com o nome
+                let valores = Object.values(noAtual);
+                let temSubObjeto = valores.some(v => v && typeof v === 'object');
+                if (!temSubObjeto) {
+                    let dumpLinha = window.normalizarTexto(caminhoAcumulado + ' ' + JSON.stringify(noAtual));
+                    if (contemData(dumpLinha) && contemMotorista(dumpLinha)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            return varrerNo(raizBanco, '', false);
+        }
+
         window.sincronizarStatusBasesExternas = async function() {
-            console.log("[Subagente Scanner] Iniciando varredura PROFUNDA focado em NOMES...");
-            const formatarDataFirebase = (dataInput) => dataInput.replace(/-/g, ''); // "2026-10-15" -> "20261015"
-           
-            // Filtro poderoso: remove acentos e formatações para garantir o match do nome
-            const normalizar = (texto) => texto ? String(texto).normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase() : "";
+            const statusIcon = document.getElementById('roboStatusInfo');
+            if(statusIcon) statusIcon.innerHTML = `<i class="fa-solid fa-sync fa-spin"></i> Verificando bases...`;
 
-            let externalData = {};
+            window.iniciarBancosExternos();
 
-            function extrairRegistros(obj, parentPath = '') {
-                let records = [];
-                if (!obj || typeof obj !== 'object') return records;
-               
-                let isRecord = (obj.hasOwnProperty('nome') || obj.hasOwnProperty('driver_id') || obj.hasOwnProperty('motorista') || obj.hasOwnProperty('Motorista') || obj.hasOwnProperty('telefone') || obj.hasOwnProperty('veiculo') || obj.hasOwnProperty('id') || obj.hasOwnProperty('turno'));
-               
-                if (isRecord && Object.keys(obj).length < 25) {
-                    records.push({ ...obj, _parentPath: parentPath.toLowerCase() });
-                } else {
-                    for (let key in obj) {
-                        records = records.concat(extrairRegistros(obj[key], parentPath + ' ' + key));
-                    }
-                }
-                return records;
+            // Filtra apenas os agendamentos que ainda estão com status 'agendado' (Pendentes de confirmação)
+            const agendamentosPendentes = window.baseAgendamentos.filter(ag => ag.status === 'agendado' && ag.data && ag.nome);
+
+            if (agendamentosPendentes.length === 0) {
+                if(statusIcon) statusIcon.innerHTML = `<i class="fa-solid fa-robot"></i> Starts Sincronizados`;
+                return;
             }
 
-            // 1. Download usando as Rotas Específicas
-            for (let baseKey in window.dbsExternos) {
+            // Descobre apenas quais bases possuem agendamentos pendentes para consultar rápido
+            let basesParaConsultar = new Set();
+            agendamentosPendentes.forEach(ag => {
+                let chaveOficial = Object.keys(window.dbsExternos).find(k => window.mesmaBase(k, ag.base_alocada));
+                if (chaveOficial) basesParaConsultar.add(chaveOficial);
+            });
+
+            let cacheBancosExternos = {};
+
+            // Baixa os nós de histórico das bases necessárias
+            await Promise.all(Array.from(basesParaConsultar).map(async (baseKey) => {
                 let dbExterna = window.dbsExternos[baseKey];
-                externalData[baseKey] = [];
-                let caminhosTentativas = rotasEspeciais[baseKey] || rotasEspeciais["default"];
+                let rotasTentativa = rotasPorBase[baseKey] || rotasPorBase["default"];
+                cacheBancosExternos[baseKey] = [];
 
-                for (let caminho of caminhosTentativas) {
+                for (let rota of rotasTentativa) {
                     try {
-                        let snap = await get(ref(dbExterna, caminho));
+                        let snap = await get(ref(dbExterna, rota));
                         if (snap.exists()) {
-                            let dadosBrutos = snap.val();
-                            let registrosAchatados = extrairRegistros(dadosBrutos);
-                            externalData[baseKey] = registrosAchatados;
-                            console.log(`[Subagente Scanner] Base ${baseKey}: ${registrosAchatados.length} registros capturados na rota ${caminho}`);
-                            break;
+                            cacheBancosExternos[baseKey].push(snap.val());
                         }
-                    } catch(e) { }
+                    } catch (e) {}
+                }
+
+                // Se nenhuma pasta padrão retornou, tenta a raiz do banco da base
+                if (cacheBancosExternos[baseKey].length === 0) {
+                    try {
+                        let snapRaiz = await get(ref(dbExterna, '/'));
+                        if (snapRaiz.exists()) {
+                            cacheBancosExternos[baseKey].push(snapRaiz.val());
+                        }
+                    } catch (e) {}
+                }
+            }));
+
+            // Checa cada driver agendado na data escalada
+            for (let ag of agendamentosPendentes) {
+                let chaveOficial = Object.keys(cacheBancosExternos).find(k => window.mesmaBase(k, ag.base_alocada));
+                if (!chaveOficial || !cacheBancosExternos[chaveOficial]) continue;
+
+                let nomeNorm = window.normalizarTexto(ag.nome);
+                let idStr = ag.driver_id ? String(ag.driver_id).trim() : '';
+                let rodouNoDia = false;
+
+                for (let arvoreDados of cacheBancosExternos[chaveOficial]) {
+                    if (buscarDriverNaData(arvoreDados, ag.data, nomeNorm, idStr)) {
+                        rodouNoDia = true;
+                        break;
+                    }
+                }
+
+                if (rodouNoDia) {
+                    // Se rodou no dia escalado -> Fica Verdinho ('em_rota')
+                    await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
                 }
             }
 
-            // 2. Validar Starts (Agendamentos que já Rodaram) - Foco no NOME
-            for (let i = 0; i < window.baseAgendamentos.length; i++) {
-                let ag = window.baseAgendamentos[i];
-
-                if (ag.status === 'agendado') {
-                    let recordsToScan = externalData[ag.base_alocada] || [];
-                    if (recordsToScan.length > 0) {
-                        let dataISO = ag.data;
-                        let dataBR = ag.data.split('-').reverse().join('/');
-                        let dataJunta = formatarDataFirebase(ag.data);
-                       
-                        let nomeBuscaNormalizado = normalizar(ag.nome);
-                        let idBusca = ag.driver_id ? String(ag.driver_id) : 'xxx_nulo';
-                        let turnoBusca = normalizar(ag.turno);
-                        let found = false;
-
-                        for(let r of recordsToScan) {
-                            let strValuesRaw = Object.values(r).map(v => String(v)).join(' ');
-                            let strValues = normalizar(strValuesRaw);
-                            let path = normalizar(r._parentPath || '');
-                           
-                            // MATCH 1: Prioridade total para o NOME do motorista.
-                            let hasNameOrId = strValues.includes(nomeBuscaNormalizado) || (idBusca !== 'xxx_nulo' && strValuesRaw.includes(idBusca));
-                           
-                            // Match Data
-                            let hasDate = strValues.includes(dataISO) || strValues.includes(dataBR) || strValues.includes(dataJunta) ||
-                                          path.includes(dataISO) || path.includes(dataBR.replace(/\//g,'')) || path.includes(dataJunta);
-                           
-                            // Match Turno
-                            let rTurnoStr = normalizar(r.turno || r.Turno || r.TURNO || '');
-                            let hasTurno = false;
-                           
-                            if (turnoBusca === 'am' && (rTurnoStr.includes('am') || rTurnoStr.includes('manha') || /\b(am|manha)\b/.test(strValues) || /\b(am|manha)\b/.test(path))) hasTurno = true;
-                            if (turnoBusca === 'pm' && (rTurnoStr.includes('pm') || rTurnoStr.includes('tarde') || /\b(pm|tarde)\b/.test(strValues) || /\b(pm|tarde)\b/.test(path))) hasTurno = true;
-
-                            if (hasNameOrId && hasDate && hasTurno) {
-                                found = true;
-                                break;
-                            }
-                        }
-
-                        // Dispara a atualização visual e no Main DB se deu match
-                        if (found) {
-                            await update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' });
-                        }
-                    }
-                }
-            }
-
-            // 3. Cálculo Avançado de Dobras Operacionais (Por Nome)
-            let contagemDobras = {
-                "LMG-45 Varginha": 0, "UDI Uberlândia": 0, "LMG-39 Patos de Minas": 0,
-                "LMG-36 Divinópolis": 0, "LMG-27 Lagoa da Prata": 0, "LMG-19 Extrema": 0, "LMG-48 Uberaba": 0
-            };
-
-            for (let baseKey in externalData) {
-                let recordsToScan = externalData[baseKey] || [];
-                if (recordsToScan.length === 0) continue;
-
-                let mapDobras = {};
-
-                recordsToScan.forEach(r => {
-                    let strValuesRaw = Object.values(r).map(v => String(v)).join(' ');
-                    let strValues = normalizar(strValuesRaw);
-                    let path = normalizar(r._parentPath || '');
-                   
-                    // Extração pelo NOME em primeiro lugar para cruzar as dobras
-                    let nomeMotorista = r.nome || r.Nome || r["Nome do Motorista"] || r.driver || r.motorista || r.Motorista || null;
-                    let idMotorista = r.driver_id || r.id || r.ID || null;
-                   
-                    let chaveIdentificacao = nomeMotorista ? normalizar(nomeMotorista) : (idMotorista ? String(idMotorista).trim() : null);
-                   
-                    // Extração de Data
-                    let data = r.data || r.Data || r.date || null;
-                    if (!data) {
-                        let md = path.match(/(\d{8}|\d{4}-\d{2}-\d{2})/);
-                        if(md) data = md[1];
-                    }
-                    if (!data) {
-                        let md = strValuesRaw.match(/(\d{4}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4})/);
-                        if(md) data = md[1];
-                    }
-
-                    // Extração de Turno
-                    let rTurnoStr = normalizar(r.turno || r.Turno || r.TURNO || '');
-                    let turno = null;
-                    if (rTurnoStr.includes('am') || rTurnoStr.includes('manha') || /\b(am|manha)\b/.test(strValues) || /\b(am|manha)\b/.test(path)) turno = 'am';
-                    else if (rTurnoStr.includes('pm') || rTurnoStr.includes('tarde') || /\b(pm|tarde)\b/.test(strValues) || /\b(pm|tarde)\b/.test(path)) turno = 'pm';
-
-                    // Registra AM/PM usando a chave de identificação do motorista
-                    if (chaveIdentificacao && data && turno) {
-                        let key = `${chaveIdentificacao}_${data}`;
-                        if(!mapDobras[key]) mapDobras[key] = new Set();
-                        mapDobras[key].add(turno);
-                    }
-                });
-
-                let count = 0;
-                for(let key in mapDobras) {
-                    if(mapDobras[key].has("am") && mapDobras[key].has("pm")) {
-                        count++;
-                    }
-                }
-                contagemDobras[baseKey] = count;
-            }
-
-            window.dobrasGlobaisCalculadas = contagemDobras;
-            if (document.getElementById('view-dashboard').classList.contains('active')) {
-                window.renderizarDashboardCompleto();
-            }
-            console.log("[Subagente Scanner] Varredura profunda baseada em NOMES finalizada com sucesso.");
+            if(statusIcon) statusIcon.innerHTML = `<i class="fa-solid fa-robot"></i> Starts Sincronizados`;
         };
 
         window.renderizarUsuarios = function() {
@@ -1156,7 +1133,7 @@
                 let selectBaseHTML = '';
                 if (u.role === 'analista') {
                     const basesOpts = ['LMG-45 Varginha', 'UDI Uberlândia', 'LMG-39 Patos de Minas', 'LMG-36 Divinópolis', 'LMG-27 Lagoa da Prata', 'LMG-19 Extrema', 'LMG-48 Uberaba'];
-                    selectBaseHTML = `<div class="mt-3" style="border-top: 1px solid var(--border-dark); padding-top: 10px;"><label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">ATRIBUIR BASE AO ANALISTA:</label><select class="form-select form-select-sm mt-1" style="background: var(--input-bg); color: var(--text-main); border-color: var(--border-dark); font-size:0.75rem;" onchange="window.alterarBaseUsuario('${u.uid}', this.value)"><option value="" disabled ${!u.base_alocada ? 'selected' : ''}>-- Nenhuma Base (Acesso Pendente) --</option>${basesOpts.map(b => `<option value="${b}" ${u.base_alocada === b ? 'selected' : ''}>${b}</option>`).join('')}</select></div>`;
+                    selectBaseHTML = `<div class="mt-3" style="border-top: 1px solid var(--border-dark); padding-top: 10px;"><label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">ATRIBUIR BASE AO ANALISTA:</label><select class="form-select form-select-sm mt-1" style="background: var(--input-bg); color: var(--text-main); border-color: var(--border-dark); font-size:0.75rem;" onchange="window.alterarBaseUsuario('${u.uid}', this.value)"><option value="" disabled ${!u.base_alocada ? 'selected' : ''}>-- Nenhuma Base (Acesso Pendente) --</option>${basesOpts.map(b => `<option value="${b}" ${window.mesmaBase(u.base_alocada, b) ? 'selected' : ''}>${b}</option>`).join('')}</select></div>`;
                 }
 
                 html += `<div class="col-md-4"><div class="base-dash-card"><div class="d-flex justify-content-between align-items-start mb-3"><div style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); word-break: break-all; padding-right: 10px;">${u.email}</div>${!isCurrent ? `<div class="dropdown"><button class="btn btn-sm text-muted border-0 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical fs-5"></i></button><ul class="dropdown-menu shadow"><li><h6 class="dropdown-header">Alterar Permissão</h6></li><li><a class="dropdown-item ${u.role === 'gestor' ? 'active' : ''}" href="#" onclick="window.toggleRole('${u.uid}', 'gestor')"><i class="fa-solid fa-user-tie me-2"></i> Gestor</a></li><li><a class="dropdown-item ${u.role === 'analista' ? 'active' : ''}" href="#" onclick="window.toggleRole('${u.uid}', 'analista')"><i class="fa-solid fa-user me-2"></i> Analista</a></li></ul></div>` : ''}</div><div>${badge} ${isCurrent ? '<span class="badge bg-success">Você</span>' : ''}</div>${selectBaseHTML}</div></div>`;
@@ -1166,7 +1143,7 @@
         }
 
         window.toggleRole = async function(uid, newRole) { await update(ref(db, `usuarios/${uid}`), { role: newRole }); }
-        window.alterarBaseUsuario = async function(uid, novaBase) { await update(ref(db, `usuarios/${uid}`), { base_alocada: novaBase }); }
+        window.alterarBaseUsuario = async function(uid, novaBase) { await update(ref(db, `usuarios/${uid}`), { base_alocada: window.padronizarNomeBase(novaBase) }); }
 
         window.renderizarRelatorioEmLinhas = function() {
             let dadosFiltrados = [...window.baseAgendamentos];
@@ -1174,7 +1151,7 @@
             const filterStatus = document.getElementById('filtroStatus').value;
             const filterSort = document.getElementById('filtroOrdem').value;
 
-            if (filterBase !== 'all') dadosFiltrados = dadosFiltrados.filter(d => d.base_alocada === filterBase);
+            if (filterBase !== 'all') dadosFiltrados = dadosFiltrados.filter(d => window.mesmaBase(d.base_alocada, filterBase));
             if (filterStatus !== 'all') {
                 const hojeStr = window.getHojeString();
                 if(filterStatus === 'falta') dadosFiltrados = dadosFiltrados.filter(d => d.status === 'agendado' && d.data < hojeStr);
@@ -1182,8 +1159,8 @@
                 else dadosFiltrados = dadosFiltrados.filter(d => d.status === filterStatus);
             }
 
-            if (filterSort === 'az') dadosFiltrados.sort((a, b) => a.nome.localeCompare(b.nome));
-            else if (filterSort === 'za') dadosFiltrados.sort((a, b) => b.nome.localeCompare(a.nome));
+            if (filterSort === 'az') dadosFiltrados.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+            else if (filterSort === 'za') dadosFiltrados.sort((a, b) => (b.nome || '').localeCompare(a.nome || ''));
             else if (filterSort === 'date_desc') dadosFiltrados.sort((a, b) => new Date(b.data) - new Date(a.data));
             else if (filterSort === 'date_asc') dadosFiltrados.sort((a, b) => new Date(a.data) - new Date(b.data));
 
@@ -1194,14 +1171,14 @@
                 htmlRows = `<div class="text-center text-muted mt-5 pt-5"><i class="fa-solid fa-filter-circle-xmark fs-2 mb-3"></i><br>Nenhum motorista atende aos filtros selecionados.</div>`;
             } else {
                 dadosFiltrados.forEach(d => {
-                    const dataFormatada = d.data.split('-').reverse().join('/');
+                    const dataFormatada = (d.data || '').split('-').reverse().join('/');
                     const configCor = window.getStatusInfo(d.status, d.data);
                    
                     let statusBadge = `<span class="status-badge" style="background: ${configCor.bg}; color: ${configCor.cor}; border: 1px solid ${configCor.cor}; opacity: 0.8;"><i class="fa-solid fa-circle"></i> ${configCor.texto}</span>`;
                     let veicIcon = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
                     let msgWpp = encodeURIComponent(`Oi, tudo bem? Você confirma seu agendamento para a data do dia ${dataFormatada}?`);
 
-                    htmlRows += `<div class="report-row"><div class="row-col-perfil"><div class="row-avatar"><i class="fa-solid ${veicIcon}"></i></div><div><div class="row-nome">${d.nome}</div><div class="row-id">ID: ${d.driver_id}</div></div></div><div class="row-col-base"><div class="row-label">Base / Cluster</div><div class="row-value">${d.base_alocada.replace(/LMG-\d+\s|UDI\s/, '')} <span class="text-muted">(${d.cluster})</span></div></div><div class="row-col-data"><div class="row-label">Data Agendada</div><div class="row-value data-mono">${dataFormatada}</div></div><div class="row-col-status">${statusBadge}</div><div class="row-col-actions"><a href="https://wa.me/55${d.telefone}?text=${msgWpp}" target="_blank" class="btn-acao-lista btn-wpp" title="Contatar (Com Mensagem)"><i class="fa-brands fa-whatsapp"></i></a></div></div>`;
+                    htmlRows += `<div class="report-row"><div class="row-col-perfil"><div class="row-avatar"><i class="fa-solid ${veicIcon}"></i></div><div><div class="row-nome">${d.nome}</div><div class="row-id">ID: ${d.driver_id}</div></div></div><div class="row-col-base"><div class="row-label">Base / Cluster</div><div class="row-value">${(d.base_alocada || '').replace(/LMG-\d+\s|UDI\s/, '')} <span class="text-muted">(${d.cluster})</span></div></div><div class="row-col-data"><div class="row-label">Data Agendada</div><div class="row-value data-mono">${dataFormatada}</div></div><div class="row-col-status">${statusBadge}</div><div class="row-col-actions"><a href="https://wa.me/55${d.telefone}?text=${msgWpp}" target="_blank" class="btn-acao-lista btn-wpp" title="Contatar (Com Mensagem)"><i class="fa-brands fa-whatsapp"></i></a></div></div>`;
                 });
             }
             document.getElementById('reportRowsContainer').innerHTML = htmlRows;
@@ -1212,23 +1189,27 @@
             const dataBr = dataStr.split('-').reverse().join('/');
             document.getElementById('lblDiaSelecionado').innerText = dataBr;
            
-            const driversDoDia = window.baseAgendamentos.filter(a => a.data === dataStr && a.base_alocada === window.sessaoAtual.baseAtiva);
+            const driversDoDia = window.baseAgendamentos.filter(a => a.data === dataStr && window.mesmaBase(a.base_alocada, window.sessaoAtual.baseAtiva));
             document.getElementById('lblCountStarts').innerText = `Total de Agendados: ${driversDoDia.length}`;
            
-            let htmlLista = window.sessaoAtual.role === 'gestor' ? `<button class="btn-action w-100 mb-3 shadow-sm" onclick="window.abrirModalCadastro()"><i class="fa-solid fa-plus me-2"></i> AGENDAR DRIVER</button>` : '';
+            let htmlLista = `<button class="btn-action w-100 mb-3 shadow-sm" onclick="window.abrirModalCadastro()"><i class="fa-solid fa-plus me-2"></i> AGENDAR DRIVER</button>`;
            
             if(driversDoDia.length === 0) {
                 htmlLista += `<div class="text-center text-muted data-mono mt-4">Nenhum start programado na base.</div>`;
             } else {
-                driversDoDia.sort((a, b) => a.nome.localeCompare(b.nome)).forEach(d => {
+                driversDoDia.sort((a, b) => (a.nome || '').localeCompare(b.nome || '')).forEach(d => {
                     const configCor = window.getStatusInfo(d.status, d.data);
                     let iconClass = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
                    
                     let msgWpp = encodeURIComponent(`Oi, tudo bem? Você confirma seu agendamento para a data do dia ${dataBr}?`);
                     let botoesHTML = `<a href="https://wa.me/55${d.telefone}?text=${msgWpp}" target="_blank" class="btn-acao-lista btn-wpp" title="Confirmar Start no WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>`;
                    
-                    if(configCor.id === 'agendado' || configCor.id === 'falta' || configCor.id === 'ocorrencia') { botoesHTML += `<button class="btn-acao-lista btn-ocorrencia" title="Registrar Ocorrência" onclick="window.abrirModalOcorrencia('${d.id}')"><i class="fa-solid fa-flag"></i></button>`; }
-                    if(window.sessaoAtual.role === 'gestor' && (configCor.id === 'ocorrencia' || configCor.id === 'falta')) { botoesHTML += `<button class="btn-acao-lista btn-reagendar" title="Reagendar Driver" onclick="window.abrirModalReagendamento('${d.id}')"><i class="fa-solid fa-calendar-day"></i></button>`; }
+                    if(configCor.id === 'agendado' || configCor.id === 'pendente_hoje' || configCor.id === 'falta' || configCor.id === 'ocorrencia') {
+                        botoesHTML += `<button class="btn-acao-lista btn-ocorrencia" title="Registrar Ocorrência" onclick="window.abrirModalOcorrencia('${d.id}')"><i class="fa-solid fa-flag"></i></button>`;
+                    }
+                    if(configCor.id === 'ocorrencia' || configCor.id === 'falta' || configCor.id === 'pendente_hoje') {
+                        botoesHTML += `<button class="btn-acao-lista btn-reagendar" title="Reagendar Driver" onclick="window.abrirModalReagendamento('${d.id}')"><i class="fa-solid fa-calendar-day"></i></button>`;
+                    }
                     botoesHTML += `<button class="btn-acao-lista btn-excluir" title="Excluir Agendamento" onclick="window.excluirAgendamento('${d.id}')"><i class="fa-solid fa-trash"></i></button>`;
 
                     let htmlJustificativa = d.status === 'ocorrencia' ? `<div class="painel-ocorrencia"><i class="fa-solid fa-circle-info me-1"></i> <strong>OCORRÊNCIA:</strong> ${d.justificativa}</div>` : '';
@@ -1244,8 +1225,9 @@
                                 <div class="d-info w-100">
                                     <div class="d-nome" title="${d.nome}" style="color: ${configCor.cor};">${d.nome}</div>
                                     <div class="data-mono d-flex align-items-center gap-1" style="color: var(--text-main); font-weight: 500; font-size: 0.7rem; margin-top: 2px;">
-                                        ID: ${d.driver_id} | ${d.cluster.toUpperCase()}
+                                        ID: ${d.driver_id} | ${(d.cluster || '').toUpperCase()}
                                         ${tagTurnoHtml}
+                                        <span class="ms-auto" style="font-size: 0.6rem; color: ${configCor.cor}; font-weight: 700;">${configCor.texto}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1269,7 +1251,9 @@
         const modalOcorrencia = document.getElementById('modalOcorrencia');
 
         window.abrirModalCadastro = function() {
-            document.getElementById('tituloModalCadastro').innerHTML = `<i class="fa-solid fa-user-plus me-2 text-primary"></i> Agendar Driver <span class="text-muted text-lowercase" style="font-size:0.6rem;">(Base: ${window.sessaoAtual.baseAtiva})</span>`;
+            const baseAlvo = window.padronizarNomeBase(window.sessaoAtual.baseAtiva || document.getElementById('adminBaseSelector').value);
+            window.sessaoAtual.baseAtiva = baseAlvo;
+            document.getElementById('tituloModalCadastro').innerHTML = `<i class="fa-solid fa-user-plus me-2 text-primary"></i> Agendar Driver <span class="text-muted text-lowercase" style="font-size:0.6rem;">(Base: ${baseAlvo})</span>`;
             document.getElementById('boxNovaData').style.display = 'none'; document.getElementById('inputNovaData').removeAttribute('required');
             document.getElementById('inputModoEdicao').value = ''; document.getElementById('inputId').readOnly = false;
             modalPadrao.classList.add('active'); document.getElementById('inputId').focus();
@@ -1314,25 +1298,33 @@
         document.getElementById('formStart').addEventListener('submit', async function(e) {
             e.preventDefault();
             const idEdicao = document.getElementById('inputModoEdicao').value;
+            const baseAtivaGarantida = window.padronizarNomeBase(window.sessaoAtual.baseAtiva || document.getElementById('adminBaseSelector').value);
+
             const payload = {
-                driver_id: document.getElementById('inputId').value, nome: document.getElementById('inputNome').value,
-                cluster: document.getElementById('inputCluster').value, veiculo: document.getElementById('inputVeiculo').value,
+                driver_id: document.getElementById('inputId').value.trim(),
+                nome: document.getElementById('inputNome').value.trim(),
+                cluster: document.getElementById('inputCluster').value.trim(),
+                veiculo: document.getElementById('inputVeiculo').value,
                 turno: document.getElementById('inputTurno').value,
-                telefone: document.getElementById('inputTelefone').value.replace(/\D/g, ''), status: 'agendado', justificativa: ''
+                telefone: document.getElementById('inputTelefone').value.replace(/\D/g, ''),
+                status: 'agendado',
+                justificativa: ''
             };
 
             if(idEdicao) {
                 const driverAntigo = window.baseAgendamentos.find(d => d.id === idEdicao);
                 payload.data = document.getElementById('inputNovaData').value;
+                payload.base_alocada = window.padronizarNomeBase(driverAntigo.base_alocada || baseAtivaGarantida);
                 payload.reagendamentos = (driverAntigo.reagendamentos || 0) + 1;
                 await update(ref(db, 'agendamentos/' + idEdicao), payload);
             } else {
                 payload.data = window.dataVisualizadaNoInspetor;
-                payload.base_alocada = window.sessaoAtual.baseAtiva;
+                payload.base_alocada = baseAtivaGarantida;
                 payload.reagendamentos = 0;
                 await push(ref(db, 'agendamentos'), payload);
             }
             window.fecharModal();
+            setTimeout(() => window.sincronizarStatusBasesExternas(), 600);
         });
 
         document.getElementById('formOcorrencia').addEventListener('submit', async function(e) {
