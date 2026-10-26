@@ -186,6 +186,10 @@
         .ad-dia.rodou { background: var(--st-rodou); border-color: var(--st-rodou); }
         .ad-dia.hoje { box-shadow: 0 0 0 1px var(--text-main); }
         .ad-dia.futuro { opacity: 0.35; }
+        .acesso-linha { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 8px 10px; border-radius: 8px; background: var(--input-bg); border: 1px solid var(--border-dark); }
+        .acesso-ponto { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 0 3px var(--bg-panel); }
+        .acesso-txt { font-size: 0.72rem; font-weight: 600; line-height: 1.2; }
+        .acesso-sub { font-size: 0.62rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
         .btn-editar-card:hover { border-color: var(--st-agendado); color: var(--st-agendado); }
 
         .painel-ocorrencia { width: 100%; margin-top: 2px; padding: 8px; background: rgba(239, 68, 68, 0.1); border: 1px dashed rgba(239, 68, 68, 0.3); border-radius: 4px; font-size: 0.65rem; color: #fca5a5; }
@@ -528,7 +532,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getDatabase, ref, onValue, push, update, set, get, remove } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
+        import { getDatabase, ref, onValue, push, update, set, get, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-database.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
         // ==========================================
@@ -778,12 +782,15 @@
 
                     if (email === 'roberta.liz@shopee.com' || email === 'roberta.lis@shopee.com' || email === 'david.amaral@shopee.com') {
                         role = 'gestor';
-                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'gestor', base_alocada: 'Todas' });
+                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'gestor', base_alocada: 'Todas', ultimo_acesso: serverTimestamp() });
                     } else if (snapshot.exists()) {
                         role = snapshot.val().role;
                         base_alocada = window.padronizarNomeBase(snapshot.val().base_alocada || '');
+                        // Só atualiza a data/hora; não mexe em perfil nem base. Falha aqui não impede o login.
+                        update(ref(db, `usuarios/${user.uid}`), { ultimo_acesso: serverTimestamp() })
+                            .catch(e => console.warn('Não foi possível registrar o último acesso:', e));
                     } else {
-                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'analista', base_alocada: '' });
+                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'analista', base_alocada: '', ultimo_acesso: serverTimestamp() });
                     }
 
                     window.sessaoAtual.uid = user.uid;
@@ -1581,10 +1588,32 @@
             }
         };
 
+        // Último acesso: verde até 1 dia, laranja até 7 dias, vermelho acima de 7, cinza sem registro
+        window.infoUltimoAcesso = function(ts, isCurrent) {
+            if (isCurrent) return { cor: 'var(--st-rodou)', texto: 'Online agora', sub: '' };
+            const n = Number(ts);
+            if (!(n > 0)) return { cor: 'var(--text-muted)', texto: 'Sem registro de acesso', sub: 'aparece após o próximo login' };
+            const min = Math.max(0, Math.floor((Date.now() - n) / 60000));
+            const dias = Math.floor(min / 1440);
+            let texto;
+            if (min < 1) texto = 'Agora há pouco';
+            else if (min < 60) texto = `Há ${min} min`;
+            else if (min < 1440) texto = `Há ${Math.floor(min / 60)} h`;
+            else if (dias === 1) texto = 'Há 1 dia';
+            else if (dias < 30) texto = `Há ${dias} dias`;
+            else { const meses = Math.floor(dias / 30); texto = meses === 1 ? 'Há 1 mês' : `Há ${meses} meses`; }
+            const cor = dias <= 1 ? 'var(--st-rodou)' : dias <= 7 ? 'var(--st-falta)' : 'var(--st-ocorrencia)';
+            const dt = new Date(n);
+            const sub = `${dt.toLocaleDateString('pt-BR')} às ${dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+            return { cor, texto, sub };
+        };
+
         window.renderizarUsuarios = function() {
             let html = '<div class="row g-3">';
             window.listaUsuarios.forEach(u => {
                 let isCurrent = u.uid === window.sessaoAtual.uid;
+                const acesso = window.infoUltimoAcesso(u.ultimo_acesso, isCurrent);
+                const acessoHTML = `<div class="acesso-linha" title="Último acesso ao sistema"><span class="acesso-ponto" style="background: ${acesso.cor};"></span><div><div class="acesso-txt" style="color: var(--text-main);">${acesso.texto}</div>${acesso.sub ? `<div class="acesso-sub">${acesso.sub}</div>` : ''}</div><i class="fa-regular fa-clock ms-auto" style="color: var(--text-muted); font-size: 0.75rem;"></i></div>`;
                 let badge = u.role === 'gestor' ? '<span class="badge bg-danger">Gestor</span>' : '<span class="badge bg-secondary">Analista</span>';
                
                 let selectBaseHTML = '';
@@ -1593,11 +1622,19 @@
                     selectBaseHTML = `<div class="mt-3" style="border-top: 1px solid var(--border-dark); padding-top: 10px;"><label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">ATRIBUIR BASE AO ANALISTA:</label><select class="form-select form-select-sm mt-1" style="background: var(--input-bg); color: var(--text-main); border-color: var(--border-dark); font-size:0.75rem;" onchange="window.alterarBaseUsuario('${esc(u.uid)}', this.value)"><option value="" disabled ${!u.base_alocada ? 'selected' : ''}>-- Nenhuma Base (Acesso Pendente) --</option>${basesOpts.map(b => `<option value="${b}" ${window.mesmaBase(u.base_alocada, b) ? 'selected' : ''}>${b}</option>`).join('')}</select></div>`;
                 }
 
-                html += `<div class="col-md-4"><div class="base-dash-card"><div class="d-flex justify-content-between align-items-start mb-3"><div style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); word-break: break-all; padding-right: 10px;">${esc(u.email)}</div>${!isCurrent ? `<div class="dropdown"><button class="btn btn-sm text-muted border-0 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical fs-5"></i></button><ul class="dropdown-menu shadow"><li><h6 class="dropdown-header">Alterar Permissão</h6></li><li><a class="dropdown-item ${u.role === 'gestor' ? 'active' : ''}" href="#" onclick="event.preventDefault(); window.toggleRole('${esc(u.uid)}', 'gestor')"><i class="fa-solid fa-user-tie me-2"></i> Gestor</a></li><li><a class="dropdown-item ${u.role === 'analista' ? 'active' : ''}" href="#" onclick="event.preventDefault(); window.toggleRole('${esc(u.uid)}', 'analista')"><i class="fa-solid fa-user me-2"></i> Analista</a></li></ul></div>` : ''}</div><div>${badge} ${isCurrent ? '<span class="badge bg-success">Você</span>' : ''}</div>${selectBaseHTML}</div></div>`;
+                html += `<div class="col-md-4"><div class="base-dash-card"><div class="d-flex justify-content-between align-items-start mb-3"><div style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); word-break: break-all; padding-right: 10px;">${esc(u.email)}</div>${!isCurrent ? `<div class="dropdown"><button class="btn btn-sm text-muted border-0 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical fs-5"></i></button><ul class="dropdown-menu shadow"><li><h6 class="dropdown-header">Alterar Permissão</h6></li><li><a class="dropdown-item ${u.role === 'gestor' ? 'active' : ''}" href="#" onclick="event.preventDefault(); window.toggleRole('${esc(u.uid)}', 'gestor')"><i class="fa-solid fa-user-tie me-2"></i> Gestor</a></li><li><a class="dropdown-item ${u.role === 'analista' ? 'active' : ''}" href="#" onclick="event.preventDefault(); window.toggleRole('${esc(u.uid)}', 'analista')"><i class="fa-solid fa-user me-2"></i> Analista</a></li></ul></div>` : ''}</div><div>${badge} ${isCurrent ? '<span class="badge bg-success">Você</span>' : ''}</div>${acessoHTML}${selectBaseHTML}</div></div>`;
             });
             html += '</div>';
             document.getElementById('users-container').innerHTML = html;
         }
+
+        setInterval(() => {
+            const v = document.getElementById('view-users');
+            const uc = document.getElementById('users-container');
+            // Não redesenha com menu aberto ou campo em uso (senão o menu fecha sozinho)
+            if (v && v.classList.contains('active') && window.sessaoAtual.role === 'gestor'
+                && !uc.querySelector('.dropdown-menu.show') && !uc.contains(document.activeElement)) window.renderizarUsuarios();
+        }, 60 * 1000);
 
         window.toggleRole = async function(uid, newRole) { await update(ref(db, `usuarios/${uid}`), { role: newRole }); }
         window.alterarBaseUsuario = async function(uid, novaBase) { await update(ref(db, `usuarios/${uid}`), { base_alocada: window.padronizarNomeBase(novaBase) }); }
