@@ -1117,6 +1117,16 @@
                     </div>`).join('') + '</div>';
         };
 
+        // As chaves geradas pelo push() do Firebase guardam a data/hora em que o registro foi criado
+        window.dataPelaChave = function(chave) {
+            const ALF = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
+            if (typeof chave !== 'string' || chave.length !== 20) return null;
+            let ts = 0;
+            for (let i = 0; i < 8; i++) { const v = ALF.indexOf(chave.charAt(i)); if (v < 0) return null; ts = ts * 64 + v; }
+            const ano = new Date(ts).getFullYear();
+            return ano >= 2020 && ano <= 2100 ? ts : null;
+        };
+
         window.renderizarDashboardCompleto = function() {
             if(!document.getElementById('content-novatos')) return;
 
@@ -1144,11 +1154,23 @@
                 if(!statsDriver[keyDriver]) { statsDriver[keyDriver] = { id: d.driver_id, nome: d.nome, rodou: 0, recusas: 0, reagendamentos: 0, agendado: 0, motivos: new Set(), datas: [], semData: 0 }; }
                 statsDriver[keyDriver].agendado += 1 + (Number(d.reagendamentos) || 0);
                 // Datas anteriores (reagendamentos feitos depois desta versão) + a data atual
-                const hist = Array.isArray(d.historico_datas) ? d.historico_datas : Object.values(d.historico_datas || {});
-                hist.forEach(h => h && h.data && statsDriver[keyDriver].datas.push({ data: h.data, turno: h.turno, status: 'reagendado', justificativa: h.justificativa, statusAntes: h.status }));
-                if (d.data) statsDriver[keyDriver].datas.push({ data: d.data, turno: d.turno, status: d.status, justificativa: d.justificativa, atual: true });
-                // Reagendamentos antigos (antes do histórico existir) não têm a data guardada
-                statsDriver[keyDriver].semData += Math.max(0, (Number(d.reagendamentos) || 0) - hist.length);
+                // Cada vez que o driver foi agendado: quando foi feito, por quem e para qual dia
+                const hist = (Array.isArray(d.historico_datas) ? d.historico_datas : Object.values(d.historico_datas || {})).filter(h => h && h.data);
+                const perdidos = Math.max(0, (Number(d.reagendamentos) || 0) - hist.length); // reagendados antes do histórico existir
+                const criadoEm = window.dataPelaChave(d.id);
+                const acoes = [
+                    ...hist.map(h => ({ feitoEm: Number(h.agendado_em) || 0, por: h.agendado_por || '', para: h.data, turno: h.turno, status: 'reagendado', justificativa: h.justificativa })),
+                    { feitoEm: Number(d.agendado_em) || 0, por: d.agendado_por || '', para: d.data, turno: d.turno, status: d.status, justificativa: d.justificativa }
+                ];
+                if (perdidos === 0) {
+                    if (!acoes[0].feitoEm && criadoEm) acoes[0].feitoEm = criadoEm; // 1º agendamento: data de criação
+                } else if (criadoEm) {
+                    // O 1º agendamento ficou entre os que não tinham histórico, mas a data de criação é conhecida
+                    acoes.unshift({ feitoEm: criadoEm, por: '', para: '', status: 'reagendado', semDestino: true });
+                    statsDriver[keyDriver].semData += perdidos - 1;
+                }
+                if (perdidos > 0 && !criadoEm) statsDriver[keyDriver].semData += perdidos;
+                acoes.forEach(a => statsDriver[keyDriver].datas.push(a));
                 if(d.status === 'em_rota') statsDriver[keyDriver].rodou++;
                 if(d.status === 'ocorrencia') {
                     statsDriver[keyDriver].recusas++;
@@ -1175,7 +1197,7 @@
                             lifetime_recusas: statsDriver[keyDriver].recusas,
                             lifetime_reagendamentos: statsDriver[keyDriver].reagendamentos,
                             lifetime_agendado: statsDriver[keyDriver].agendado,
-                            datasAgendadas: statsDriver[keyDriver].datas.slice().sort((a, b) => a.data.localeCompare(b.data)),
+                            datasAgendadas: statsDriver[keyDriver].datas.slice().sort((a, b) => (a.feitoEm || Infinity) - (b.feitoEm || Infinity) || (a.para || '').localeCompare(b.para || '')),
                             datasSemRegistro: statsDriver[keyDriver].semData,
                             motivos: Array.from(statsDriver[keyDriver].motivos)
                         };
@@ -1211,17 +1233,25 @@
                     const corAgend = prioridade ? 'var(--st-ocorrencia)' : 'var(--st-agendado)';
                     const bgAgend = prioridade ? 'rgba(239, 68, 68, 0.12)' : 'rgba(59, 130, 246, 0.1)';
                     const semanaCurta = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+                    const quem = (email) => email ? esc(String(email).split('@')[0]) : '';
                     const itensDatas = n.datasAgendadas.map((it, i) => {
-                        const [a, m, dd] = it.data.split('-');
-                        const diaSem = semanaCurta[new Date(Number(a), Number(m) - 1, Number(dd)).getDay()];
+                        let quando = '<span style="color: var(--text-muted); font-weight: 600;">Data não registrada</span>';
+                        let horaDia = '';
+                        if (it.feitoEm) {
+                            const dt = new Date(it.feitoEm);
+                            quando = dt.toLocaleDateString('pt-BR');
+                            horaDia = `${semanaCurta[dt.getDay()]} ${dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+                        }
+                        const para = it.para ? `para ${it.para.split('-').reverse().slice(0, 2).join('/')}${it.turno ? ' ' + esc(it.turno) : ''}` : '';
+                        const det = [horaDia, it.por ? `por ${quem(it.por)}` : '', para].filter(Boolean).join(' · ');
                         let st;
                         if (it.status === 'reagendado') st = { cor: 'var(--st-falta)', txt: 'Reagendado' };
-                        else { const c = window.getStatusInfo(it.status, it.data); st = { cor: c.cor, txt: c.texto }; }
-                        const motivo = it.justificativa ? ` · ${esc(it.justificativa)}` : '';
-                        return `<div class="tip-item"><span class="tip-num">${i + 1}º</span><div><div class="tip-data">${dd}/${m}/${a}</div><div class="tip-det">${diaSem}${it.turno ? ' · ' + esc(it.turno) : ''}${motivo}</div></div><span class="tip-status" style="color: ${st.cor};"><i class="fa-solid fa-circle" style="font-size: 0.4rem;"></i>${st.txt}</span></div>`;
+                        else { const c = window.getStatusInfo(it.status, it.para); st = { cor: c.cor, txt: c.texto }; }
+                        const motivo = it.justificativa ? `<div class="tip-det" style="color: var(--st-ocorrencia);">${esc(it.justificativa)}</div>` : '';
+                        return `<div class="tip-item"><span class="tip-num">${i + 1}º</span><div><div class="tip-data">${quando}</div><div class="tip-det">${det}</div>${motivo}</div><span class="tip-status" style="color: ${st.cor};"><i class="fa-solid fa-circle" style="font-size: 0.4rem;"></i>${st.txt}</span></div>`;
                     }).join('');
-                    const semRegistroHtml = n.datasSemRegistro > 0 ? `<div class="tip-sem-data"><i class="fa-regular fa-clock-rotate-left me-1"></i>+ ${n.datasSemRegistro} reagendamento(s) anterior(es) sem data registrada</div>` : '';
-                    const popDatas = `<div class="tip-pop"><div class="tip-titulo"><i class="fa-regular fa-calendar me-1"></i> Datas agendadas</div>${itensDatas || '<div class="tip-det">Nenhuma data registrada.</div>'}${semRegistroHtml}</div>`;
+                    const semRegistroHtml = n.datasSemRegistro > 0 ? `<div class="tip-sem-data"><i class="fa-solid fa-clock-rotate-left me-1"></i>+ ${n.datasSemRegistro} reagendamento(s) feito(s) antes do histórico, sem data</div>` : '';
+                    const popDatas = `<div class="tip-pop"><div class="tip-titulo"><i class="fa-regular fa-calendar-plus me-1"></i> Quando foi agendado</div>${itensDatas || '<div class="tip-det">Nenhum registro.</div>'}${semRegistroHtml}</div>`;
                     let badgeAgendado = `<span class="tip-agend" tabindex="0"><span class="badge px-1" style="background: ${bgAgend}; color: ${corAgend}; border: 1px solid ${corAgend}; font-size: 0.55rem; margin-top: 3px;">${prioridade ? '<i class="fa-solid fa-flag"></i>' : '<i class="fa-regular fa-calendar"></i>'} ${n.lifetime_agendado}x Agendado</span>${popDatas}</span>`;
                     let badgeReagendamento = n.lifetime_reagendamentos > 0 ? `<span class="badge px-1" style="background: rgba(245, 158, 11, 0.1); color: var(--st-falta); border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.55rem; margin-top: 3px;"><i class="fa-solid fa-calendar-day"></i> ${n.lifetime_reagendamentos}x Reagend.</span>` : '';
                    
@@ -1891,14 +1921,23 @@
                 payload.reagendamentos = (driverAntigo.reagendamentos || 0) + 1;
                 // Guarda a data anterior (com turno e motivo) para o histórico de agendamentos
                 const historico = Array.isArray(driverAntigo.historico_datas) ? driverAntigo.historico_datas.slice() : Object.values(driverAntigo.historico_datas || {});
-                if (driverAntigo.data) historico.push({ data: driverAntigo.data, turno: driverAntigo.turno || '', status: driverAntigo.status || '', justificativa: driverAntigo.justificativa || '' });
+                if (driverAntigo.data) historico.push({
+                    data: driverAntigo.data, turno: driverAntigo.turno || '', status: driverAntigo.status || '', justificativa: driverAntigo.justificativa || '',
+                    // Quando esse agendamento anterior foi feito (no 1º, recupera pela chave do Firebase)
+                    agendado_em: Number(driverAntigo.agendado_em) || ((driverAntigo.reagendamentos || 0) === 0 && historico.length === 0 ? (window.dataPelaChave(driverAntigo.id) || 0) : 0),
+                    agendado_por: driverAntigo.agendado_por || ''
+                });
                 payload.historico_datas = historico;
+                payload.agendado_em = serverTimestamp();
+                payload.agendado_por = window.sessaoAtual.email || '';
                 await update(ref(db, 'agendamentos/' + idEdicao), payload);
             } else {
                 if (!window.dataVisualizadaNoInspetor) { alert('Selecione um dia no calendário antes de agendar.'); return; }
                 payload.data = window.dataVisualizadaNoInspetor;
                 payload.base_alocada = baseAtivaGarantida;
                 payload.reagendamentos = 0;
+                payload.agendado_em = serverTimestamp();
+                payload.agendado_por = window.sessaoAtual.email || '';
                 await push(ref(db, 'agendamentos'), payload);
             }
             window.fecharModal();
