@@ -186,6 +186,18 @@
         .ad-dia.rodou { background: var(--st-rodou); border-color: var(--st-rodou); }
         .ad-dia.hoje { box-shadow: 0 0 0 1px var(--text-main); }
         .ad-dia.futuro { opacity: 0.35; }
+        .tip-agend { position: relative; display: inline-block; cursor: help; outline: none; }
+        .tip-pop { display: none; position: absolute; top: calc(100% + 6px); right: 0; z-index: 50; width: 250px; text-align: left; background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 10px; box-shadow: 0 12px 28px rgba(0,0,0,0.35); padding: 10px 12px; }
+        .tip-pop::before { content: ''; position: absolute; top: -6px; right: 14px; width: 10px; height: 10px; background: var(--bg-panel); border-left: 1px solid var(--border-dark); border-top: 1px solid var(--border-dark); transform: rotate(45deg); }
+        .tip-agend:hover .tip-pop, .tip-agend:focus-within .tip-pop { display: block; }
+        .tip-titulo { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 6px; }
+        .tip-item { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-top: 1px solid var(--border-dark); }
+        .tip-item:first-of-type { border-top: none; }
+        .tip-num { font-size: 0.6rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; width: 16px; flex-shrink: 0; padding-top: 1px; }
+        .tip-data { font-size: 0.72rem; font-weight: 700; color: var(--text-main); font-family: 'JetBrains Mono', monospace; }
+        .tip-det { font-size: 0.6rem; color: var(--text-muted); }
+        .tip-status { margin-left: auto; font-size: 0.6rem; font-weight: 700; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
+        .tip-sem-data { font-size: 0.6rem; color: var(--text-muted); font-style: italic; padding-top: 6px; border-top: 1px dashed var(--border-dark); margin-top: 2px; }
         .acesso-linha { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 8px 10px; border-radius: 8px; background: var(--input-bg); border: 1px solid var(--border-dark); }
         .acesso-ponto { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 0 3px var(--bg-panel); }
         .acesso-txt { font-size: 0.72rem; font-weight: 600; line-height: 1.2; }
@@ -1129,8 +1141,14 @@
             let statsDriver = {};
             window.baseAgendamentos.forEach(d => {
                 const keyDriver = window.chaveDriver(d.base_alocada, d.driver_id, d.nome);
-                if(!statsDriver[keyDriver]) { statsDriver[keyDriver] = { id: d.driver_id, nome: d.nome, rodou: 0, recusas: 0, reagendamentos: 0, agendado: 0, motivos: new Set() }; }
+                if(!statsDriver[keyDriver]) { statsDriver[keyDriver] = { id: d.driver_id, nome: d.nome, rodou: 0, recusas: 0, reagendamentos: 0, agendado: 0, motivos: new Set(), datas: [], semData: 0 }; }
                 statsDriver[keyDriver].agendado += 1 + (Number(d.reagendamentos) || 0);
+                // Datas anteriores (reagendamentos feitos depois desta versão) + a data atual
+                const hist = Array.isArray(d.historico_datas) ? d.historico_datas : Object.values(d.historico_datas || {});
+                hist.forEach(h => h && h.data && statsDriver[keyDriver].datas.push({ data: h.data, turno: h.turno, status: 'reagendado', justificativa: h.justificativa, statusAntes: h.status }));
+                if (d.data) statsDriver[keyDriver].datas.push({ data: d.data, turno: d.turno, status: d.status, justificativa: d.justificativa, atual: true });
+                // Reagendamentos antigos (antes do histórico existir) não têm a data guardada
+                statsDriver[keyDriver].semData += Math.max(0, (Number(d.reagendamentos) || 0) - hist.length);
                 if(d.status === 'em_rota') statsDriver[keyDriver].rodou++;
                 if(d.status === 'ocorrencia') {
                     statsDriver[keyDriver].recusas++;
@@ -1157,6 +1175,8 @@
                             lifetime_recusas: statsDriver[keyDriver].recusas,
                             lifetime_reagendamentos: statsDriver[keyDriver].reagendamentos,
                             lifetime_agendado: statsDriver[keyDriver].agendado,
+                            datasAgendadas: statsDriver[keyDriver].datas.slice().sort((a, b) => a.data.localeCompare(b.data)),
+                            datasSemRegistro: statsDriver[keyDriver].semData,
                             motivos: Array.from(statsDriver[keyDriver].motivos)
                         };
                     }
@@ -1190,7 +1210,19 @@
                     const prioridade = n.retorno || n.lifetime_agendado > LIMITE_AGENDAMENTOS;
                     const corAgend = prioridade ? 'var(--st-ocorrencia)' : 'var(--st-agendado)';
                     const bgAgend = prioridade ? 'rgba(239, 68, 68, 0.12)' : 'rgba(59, 130, 246, 0.1)';
-                    let badgeAgendado = `<span class="badge px-1" style="background: ${bgAgend}; color: ${corAgend}; border: 1px solid ${corAgend}; font-size: 0.55rem; margin-top: 3px;">${prioridade ? '<i class="fa-solid fa-flag"></i>' : '<i class="fa-regular fa-calendar"></i>'} ${n.lifetime_agendado}x Agendado</span>`;
+                    const semanaCurta = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+                    const itensDatas = n.datasAgendadas.map((it, i) => {
+                        const [a, m, dd] = it.data.split('-');
+                        const diaSem = semanaCurta[new Date(Number(a), Number(m) - 1, Number(dd)).getDay()];
+                        let st;
+                        if (it.status === 'reagendado') st = { cor: 'var(--st-falta)', txt: 'Reagendado' };
+                        else { const c = window.getStatusInfo(it.status, it.data); st = { cor: c.cor, txt: c.texto }; }
+                        const motivo = it.justificativa ? ` · ${esc(it.justificativa)}` : '';
+                        return `<div class="tip-item"><span class="tip-num">${i + 1}º</span><div><div class="tip-data">${dd}/${m}/${a}</div><div class="tip-det">${diaSem}${it.turno ? ' · ' + esc(it.turno) : ''}${motivo}</div></div><span class="tip-status" style="color: ${st.cor};"><i class="fa-solid fa-circle" style="font-size: 0.4rem;"></i>${st.txt}</span></div>`;
+                    }).join('');
+                    const semRegistroHtml = n.datasSemRegistro > 0 ? `<div class="tip-sem-data"><i class="fa-regular fa-clock-rotate-left me-1"></i>+ ${n.datasSemRegistro} reagendamento(s) anterior(es) sem data registrada</div>` : '';
+                    const popDatas = `<div class="tip-pop"><div class="tip-titulo"><i class="fa-regular fa-calendar me-1"></i> Datas agendadas</div>${itensDatas || '<div class="tip-det">Nenhuma data registrada.</div>'}${semRegistroHtml}</div>`;
+                    let badgeAgendado = `<span class="tip-agend" tabindex="0"><span class="badge px-1" style="background: ${bgAgend}; color: ${corAgend}; border: 1px solid ${corAgend}; font-size: 0.55rem; margin-top: 3px;">${prioridade ? '<i class="fa-solid fa-flag"></i>' : '<i class="fa-regular fa-calendar"></i>'} ${n.lifetime_agendado}x Agendado</span>${popDatas}</span>`;
                     let badgeReagendamento = n.lifetime_reagendamentos > 0 ? `<span class="badge px-1" style="background: rgba(245, 158, 11, 0.1); color: var(--st-falta); border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.55rem; margin-top: 3px;"><i class="fa-solid fa-calendar-day"></i> ${n.lifetime_reagendamentos}x Reagend.</span>` : '';
                    
                     htmlNovatos += `
@@ -1857,6 +1889,10 @@
                 payload.data = document.getElementById('inputNovaData').value;
                 payload.base_alocada = window.padronizarNomeBase(driverAntigo.base_alocada || baseAtivaGarantida);
                 payload.reagendamentos = (driverAntigo.reagendamentos || 0) + 1;
+                // Guarda a data anterior (com turno e motivo) para o histórico de agendamentos
+                const historico = Array.isArray(driverAntigo.historico_datas) ? driverAntigo.historico_datas.slice() : Object.values(driverAntigo.historico_datas || {});
+                if (driverAntigo.data) historico.push({ data: driverAntigo.data, turno: driverAntigo.turno || '', status: driverAntigo.status || '', justificativa: driverAntigo.justificativa || '' });
+                payload.historico_datas = historico;
                 await update(ref(db, 'agendamentos/' + idEdicao), payload);
             } else {
                 if (!window.dataVisualizadaNoInspetor) { alert('Selecione um dia no calendário antes de agendar.'); return; }
