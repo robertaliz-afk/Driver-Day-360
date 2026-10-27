@@ -187,9 +187,12 @@
         .ad-dia.hoje { box-shadow: 0 0 0 1px var(--text-main); }
         .ad-dia.futuro { opacity: 0.35; }
         .tip-agend { position: relative; display: inline-block; cursor: help; outline: none; }
-        .tip-pop { display: none; position: absolute; top: calc(100% + 6px); right: 0; z-index: 50; width: 250px; text-align: left; background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 10px; box-shadow: 0 12px 28px rgba(0,0,0,0.35); padding: 10px 12px; }
+        .tip-pop { display: none; position: absolute; top: calc(100% + 6px); right: 0; z-index: 50; width: 260px; max-height: 300px; overflow-y: auto; text-align: left; background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 10px; box-shadow: 0 12px 28px rgba(0,0,0,0.35); padding: 10px 12px; }
         .tip-pop::before { content: ''; position: absolute; top: -6px; right: 14px; width: 10px; height: 10px; background: var(--bg-panel); border-left: 1px solid var(--border-dark); border-top: 1px solid var(--border-dark); transform: rotate(45deg); }
         .tip-agend:hover .tip-pop, .tip-agend:focus-within .tip-pop { display: block; }
+        /* Sem espaço embaixo (fim da página): abre para cima */
+        .tip-agend.para-cima .tip-pop { top: auto; bottom: calc(100% + 6px); box-shadow: 0 -12px 28px rgba(0,0,0,0.35); }
+        .tip-agend.para-cima .tip-pop::before { top: auto; bottom: -6px; transform: rotate(225deg); }
         .tip-titulo { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); margin-bottom: 6px; }
         .tip-item { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-top: 1px solid var(--border-dark); }
         .tip-item:first-of-type { border-top: none; }
@@ -1126,6 +1129,25 @@
             const ano = new Date(ts).getFullYear();
             return ano >= 2020 && ano <= 2100 ? ts : null;
         };
+
+        // Pop-up inteligente: antes de abrir, mede o espaço e escolhe abrir para baixo ou para cima
+        const posicionarPopup = (alvo) => {
+            const tip = alvo && alvo.closest && alvo.closest('.tip-agend');
+            if (!tip) return;
+            const pop = tip.querySelector('.tip-pop');
+            if (!pop) return;
+            pop.style.visibility = 'hidden'; pop.style.display = 'block';
+            const alturaPop = pop.offsetHeight;
+            pop.style.display = ''; pop.style.visibility = '';
+            const r = tip.getBoundingClientRect();
+            const area = tip.closest('.dashboard-container');
+            const limites = area ? area.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
+            const baixo = Math.min(limites.bottom, window.innerHeight) - r.bottom;
+            const cima = r.top - Math.max(limites.top, 0);
+            tip.classList.toggle('para-cima', baixo < alturaPop + 12 && cima > baixo);
+        };
+        document.addEventListener('mouseover', (e) => posicionarPopup(e.target));
+        document.addEventListener('focusin', (e) => posicionarPopup(e.target));
 
         window.renderizarDashboardCompleto = function() {
             if(!document.getElementById('content-novatos')) return;
