@@ -181,11 +181,39 @@
         .btn-excluir { background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); }
         .btn-excluir:hover { background: var(--st-ocorrencia); color: #fff; }
         .btn-editar-card { width: 26px; height: 26px; flex-shrink: 0; align-self: flex-start; border-radius: 6px; border: 1px solid var(--border-dark); background: var(--bg-panel); color: var(--text-muted); display: flex; justify-content: center; align-items: center; font-size: 0.7rem; cursor: pointer; transition: 0.2s; }
+        .resumo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin-bottom: 26px; }
+        .resumo-card { background: var(--card-bg); border: 1px solid var(--border-dark); border-radius: 12px; padding: 12px 14px; box-shadow: 0 6px 14px var(--shadow-color); }
+        .resumo-card.total { border-color: rgba(238, 77, 45, 0.45); background: linear-gradient(145deg, rgba(238, 77, 45, 0.08), transparent 60%), var(--card-bg); }
+        .resumo-base { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
+        .resumo-base .cod { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--spx-orange); }
+        .resumo-total { display: flex; align-items: baseline; gap: 6px; margin: 6px 0 8px; }
+        .resumo-total .num { font-size: 1.6rem; font-weight: 800; color: var(--text-main); line-height: 1; }
+        .resumo-total .lbl { font-size: 0.62rem; color: var(--text-muted); font-weight: 600; }
+        .resumo-linha { display: flex; justify-content: space-between; align-items: center; font-size: 0.68rem; padding: 3px 0; color: var(--text-main); }
+        .resumo-linha .k { display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-weight: 600; }
+        .resumo-linha .k i { font-size: 0.45rem; }
+        .resumo-linha .v { font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .resumo-barra { height: 5px; border-radius: 3px; background: var(--input-bg); border: 1px solid var(--border-dark); overflow: hidden; margin-top: 8px; display: flex; }
+        .resumo-barra span { height: 100%; }
+        .resumo-conv { font-size: 0.6rem; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
         .ad-strip { display: grid; grid-template-columns: repeat(15, 1fr); gap: 3px; margin-top: 8px; }
         .ad-dia { height: 10px; border-radius: 2px; background: var(--input-bg); border: 1px solid var(--border-dark); }
         .ad-dia.rodou { background: var(--st-rodou); border-color: var(--st-rodou); }
         .ad-dia.hoje { box-shadow: 0 0 0 1px var(--text-main); }
         .ad-dia.futuro { opacity: 0.35; }
+        .secao-novatos { margin-bottom: 28px; }
+        .secao-parados { padding: 14px; border-radius: 12px; border: 1px dashed rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.03); }
+        .titulo-secao { font-weight: 700; margin: 0; text-transform: uppercase; font-size: 0.8rem; display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+        .sub-secao { font-size: 0.62rem; font-weight: 500; color: var(--text-muted); text-transform: none; }
+        .parado-acoes { display: flex; gap: 6px; flex-shrink: 0; }
+        .btn-mini { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border-dark); background: var(--bg-panel); color: var(--text-muted); display: inline-flex; justify-content: center; align-items: center; font-size: 0.72rem; cursor: pointer; text-decoration: none; transition: 0.2s; }
+        .btn-mini:hover { border-color: var(--st-agendado); color: var(--st-agendado); }
+        .btn-mini.wpp { color: var(--whatsapp); border-color: rgba(37, 211, 102, 0.35); }
+        .btn-mini.wpp:hover { background: var(--whatsapp); color: #fff; }
+        .btn-mini.desab { opacity: 0.35; pointer-events: none; }
+        .motivo-parado { margin-top: 8px; padding: 7px 9px; border-radius: 8px; background: var(--input-bg); border: 1px solid var(--border-dark); font-size: 0.62rem; color: var(--text-main); }
+        .motivo-parado .meta { color: var(--text-muted); font-size: 0.56rem; margin-top: 3px; }
+        .motivo-vazio { margin-top: 8px; font-size: 0.6rem; color: var(--text-muted); font-style: italic; }
         .tip-agend { position: relative; display: inline-block; cursor: help; outline: none; }
         .tip-pop { display: none; position: absolute; top: calc(100% + 6px); right: 0; z-index: 50; width: 260px; max-height: 300px; overflow-y: auto; text-align: left; background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 10px; box-shadow: 0 12px 28px rgba(0,0,0,0.35); padding: 10px 12px; }
         .tip-pop::before { content: ''; position: absolute; top: -6px; right: 14px; width: 10px; height: 10px; background: var(--bg-panel); border-left: 1px solid var(--border-dark); border-top: 1px solid var(--border-dark); transform: rotate(45deg); }
@@ -276,6 +304,7 @@
                 <a class="nav-icon active" id="nav-calendar" title="Agenda Tática" onclick="window.switchView('calendar', this)"><i class="fa-solid fa-calendar-days"></i></a>
                 <a class="nav-icon" id="nav-dashboard" title="Controle de Novatos" onclick="window.switchView('dashboard', this)"><i class="fa-solid fa-clipboard-user"></i></a>
                 <a class="nav-icon" id="nav-adaptacao" title="Adaptação (15 dias)" onclick="window.switchView('adaptacao', this)"><i class="fa-solid fa-route"></i></a>
+                <a class="nav-icon" id="nav-resumo" title="Resumo por Base" onclick="window.switchView('resumo', this)"><i class="fa-solid fa-chart-column"></i></a>
                 <a class="nav-icon" id="nav-report" title="Relatório Global" onclick="window.switchView('report', this)"><i class="fa-solid fa-list-check"></i></a>
                 <a class="nav-icon" id="nav-users" title="Gestão de Acessos" onclick="window.switchView('users', this)"><i class="fa-solid fa-users-gear"></i></a>
             </nav>
@@ -368,12 +397,21 @@
                             </div>
                         </div>
                        
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 style="color: var(--text-main); font-weight: 700; margin: 0; text-transform: uppercase; font-size: 0.8rem;"><i class="fa-solid fa-users me-2"></i> Novatos (ainda sem start ou parados há 7+ dias)</h6>
-                            <span class="badge" style="background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-main);" id="lblCountNovatos">0 Novatos</span>
+                        <div class="secao-novatos secao-parados">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="titulo-secao" style="color: var(--st-ocorrencia);"><i class="fa-solid fa-clock-rotate-left me-2"></i> Parados há 7+ dias <span class="sub-secao">já rodaram e pararam · registrar motivo e buscar feedback</span></h6>
+                                <span class="badge" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--st-ocorrencia);" id="lblCountParados">0</span>
+                            </div>
+                            <div id="container-parados-list"></div>
                         </div>
-                       
-                        <div id="container-novatos-list"></div>
+
+                        <div class="secao-novatos">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="titulo-secao" style="color: var(--text-main);"><i class="fa-solid fa-users me-2"></i> Aguardando 1º start</h6>
+                                <span class="badge" style="background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-main);" id="lblCountNovatos">0 Novatos</span>
+                            </div>
+                            <div id="container-novatos-list"></div>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -418,6 +456,49 @@
                         <span class="badge" style="background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-muted);" id="lblCountConcluidos">0</span>
                     </div>
                     <div id="container-concluidos-list"></div>
+                </div>
+            </main>
+
+            <!-- RESUMO POR BASE: quantidades de novatos (sem nomes) -->
+            <main class="app-view" id="view-resumo">
+                <div class="view-header">
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center;">
+                        <i class="fa-solid fa-chart-column text-muted me-2"></i> RESUMO POR BASE
+                    </div>
+                    <button class="btn-sync-robo" onclick="window.sincronizarStatusBasesExternas()" title="Ler as bases agora">
+                        <i class="fa-solid fa-sync"></i> Atualizar Dados das Bases
+                    </button>
+                </div>
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Período:</label>
+                        <select class="filter-select" id="adFiltroPeriodo" onchange="window.renderizarResumoBases()">
+                            <option value="mes">Este mês</option>
+                            <option value="mes_ant">Mês passado</option>
+                            <option value="7">Últimos 7 dias</option>
+                            <option value="30">Últimos 30 dias</option>
+                            <option value="all">Todo o histórico</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Base Operacional:</label>
+                        <select class="filter-select" id="resumoFiltroBase" onchange="window.renderizarResumoBases()">
+                            <option value="all">Visão Global (Todas as Bases)</option>
+                            <option value="LMG-45 Varginha">LMG-45 Varginha</option>
+                            <option value="LMG-44 Uberlândia">LMG-44 Uberlândia</option>
+                            <option value="LMG-39 Patos de Minas">LMG-39 Patos</option>
+                            <option value="LMG-36 Divinópolis">LMG-36 Divinópolis</option>
+                            <option value="LMG-27 Lagoa da Prata">LMG-27 Lagoa da Prata</option>
+                            <option value="LMG-19 Extrema">LMG-19 Extrema</option>
+                            <option value="LMG-48 Uberaba">LMG-48 Uberaba</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="dashboard-container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="titulo-secao" style="color: var(--text-main);"><i class="fa-solid fa-users me-2"></i> Novatos por base <span class="sub-secao" id="lblPeriodoResumo"></span></h6>
+                    </div>
+                    <div id="container-resumo-bases"></div>
                 </div>
             </main>
 
@@ -507,6 +588,42 @@
                 </div>
                 <div class="modal-footer-actions">
                     <button type="button" class="btn-cancel" onclick="window.fecharModal()">Cancelar</button>
+                    <button type="submit" class="btn-action" style="flex: 2;"><i class="fa-solid fa-check me-2"></i> Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalMotivoParado" class="modal-overlay">
+        <div class="modal-box form-dark" style="width: 420px;">
+            <div class="modal-box-header">
+                <div class="modal-title"><i class="fa-solid fa-pen me-2 text-primary"></i> Motivo de estar parado</div>
+                <button class="btn-close-modal" onclick="window.fecharModalMotivoParado()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="formMotivoParado">
+                <input type="hidden" id="inputChaveParado">
+                <input type="hidden" id="inputUltimoStartParado">
+                <p class="text-muted mb-3" style="font-size: 0.78rem;" id="lblDriverParado"></p>
+                <div class="mb-3">
+                    <label class="form-label">MOTIVO</label>
+                    <select class="form-select" id="selectMotivoParado" required>
+                        <option value="" disabled selected>Selecione um motivo...</option>
+                        <option value="Sem retorno do driver">Sem retorno do driver</option>
+                        <option value="Base não ofertou rota">Base não ofertou rota</option>
+                        <option value="Problemas mecânicos">Problemas mecânicos</option>
+                        <option value="Problemas pessoais">Problemas pessoais</option>
+                        <option value="Não gostou da rota / cluster">Não gostou da rota / cluster</option>
+                        <option value="Trabalhando em outra plataforma">Trabalhando em outra plataforma</option>
+                        <option value="Desistiu">Desistiu</option>
+                        <option value="Outros motivos">Outros motivos</option>
+                    </select>
+                </div>
+                <div class="mb-1">
+                    <label class="form-label">OBSERVAÇÃO <span class="text-lowercase">(opcional)</span></label>
+                    <textarea class="form-control" id="inputObsParado" rows="3" maxlength="300" placeholder="Ex.: respondeu no WhatsApp que volta na próxima semana"></textarea>
+                </div>
+                <div class="modal-footer-actions">
+                    <button type="button" class="btn-cancel" onclick="window.fecharModalMotivoParado()">Cancelar</button>
                     <button type="submit" class="btn-action" style="flex: 2;"><i class="fa-solid fa-check me-2"></i> Salvar</button>
                 </div>
             </form>
@@ -639,6 +756,8 @@
         const agendamentosRef = ref(db, 'agendamentos');
         const usuariosRef = ref(db, 'usuarios');
         const adaptacaoRef = ref(db, 'adaptacao_rodadas');
+        const paradosRef = ref(db, 'acompanhamento_parados');
+        window.baseParados = {};
         window.baseAdaptacao = {};
 
         window.iniciarBancosExternos = function() {
@@ -741,6 +860,9 @@
                     if(document.getElementById('view-adaptacao').classList.contains('active')) {
                         window.renderizarAdaptacao();
                     }
+                    if(document.getElementById('view-resumo').classList.contains('active')) {
+                        window.renderizarResumoBases();
+                    }
                     window.renderizarRelatorioEmLinhas();
                 }
                 if(window.dataVisualizadaNoInspetor) window.abrirInspetorDeDia(window.dataVisualizadaNoInspetor);
@@ -760,6 +882,13 @@
                 if (document.getElementById('view-adaptacao').classList.contains('active')) window.renderizarAdaptacao();
             }
         }, (erro) => console.warn('Sem acesso a adaptacao_rodadas:', erro));
+
+        // Motivos registrados pelo gestor para drivers parados há 7+ dias
+        onValue(paradosRef, (snapshot) => {
+            window.baseParados = snapshot.val() || {};
+            if (document.getElementById('app-screen').style.display === 'flex' && window.sessaoAtual.role === 'gestor'
+                && document.getElementById('view-dashboard').classList.contains('active')) window.renderizarDashboardCompleto();
+        }, (erro) => console.warn('Sem acesso a acompanhamento_parados:', erro));
 
         onValue(usuariosRef, (snapshot) => {
             window.listaUsuarios = [];
@@ -860,6 +989,7 @@
                 document.getElementById('main-sidebar').style.display = 'flex';
                 document.getElementById('nav-dashboard').style.display = 'flex';
                 document.getElementById('nav-adaptacao').style.display = 'flex';
+                document.getElementById('nav-resumo').style.display = 'flex';
                 document.getElementById('nav-report').style.display = 'flex';
                 document.getElementById('nav-users').style.display = 'flex';
                 window.switchView('calendar', document.getElementById('nav-calendar'));
@@ -871,6 +1001,7 @@
                
                 document.getElementById('nav-dashboard').style.display = 'none';
                 document.getElementById('nav-adaptacao').style.display = 'none';
+                document.getElementById('nav-resumo').style.display = 'none';
                 document.getElementById('nav-report').style.display = 'none';
                 document.getElementById('nav-users').style.display = 'none';
                
@@ -973,7 +1104,7 @@
             document.getElementById('view-' + viewId).classList.add('active');
            
             if (window.sessaoAtual.role === 'gestor') {
-                if (viewId === 'dashboard' || viewId === 'adaptacao' || viewId === 'report' || viewId === 'users') {
+                if (viewId === 'dashboard' || viewId === 'adaptacao' || viewId === 'resumo' || viewId === 'report' || viewId === 'users') {
                     document.getElementById('adminBaseSelector').style.display = 'none';
                     document.getElementById('visorBaseLogada').innerText = "VISÃO GLOBAL (MG04)";
                     document.getElementById('visorBaseLogada').style.display = 'block';
@@ -988,6 +1119,7 @@
             if (viewId === 'users') { window.renderizarUsuarios(); }
             if (viewId === 'dashboard') { setTimeout(() => window.renderizarDashboardCompleto(), 100); }
             if (viewId === 'adaptacao') { window.renderizarAdaptacao(); }
+            if (viewId === 'resumo') { window.renderizarResumoBases(); }
         }
 
         // ==========================================
@@ -1057,6 +1189,83 @@
 
         const fmtBr = (iso) => iso ? iso.split('-').reverse().slice(0, 2).join('/') : '-';
         const badgeBase = (base) => `<span class="badge" style="background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border-dark); font-size:0.5rem; margin-left: 5px;">${esc((base || '').replace(/LMG-\d+\s|UDI\s/, ''))}</span>`;
+
+        // ==========================================
+        // RESUMO POR BASE (contagens, sem nomes) — pelo dia agendado dentro do período
+        // ==========================================
+        // Agendados   = motoristas diferentes com agendamento no período
+        // Rodaram     = tiveram ao menos um agendamento confirmado (verde) no período
+        // Não rodaram = data já passou e nenhum agendamento do período rodou
+        // Aguardando  = ainda têm agendamento hoje/futuro e não rodaram
+        // Reagendamentos = total de reagendamentos dos agendamentos do período
+        const BASES_RESUMO = ['LMG-48 Uberaba', 'LMG-45 Varginha', 'LMG-44 Uberlândia', 'LMG-39 Patos de Minas', 'LMG-36 Divinópolis', 'LMG-27 Lagoa da Prata', 'LMG-19 Extrema'];
+        const periodoResumo = (valor) => {
+            const hoje = window.getHojeString();
+            const [a, m] = hoje.split('-').map(Number);
+            const ini = (ano, mes) => `${ano}-${String(mes).padStart(2, '0')}-01`;
+            if (valor === 'mes') return { de: ini(a, m), ate: '9999-12-31', txt: 'agendamentos deste mês' };
+            if (valor === 'mes_ant') { const am = m === 1 ? a - 1 : a, mm = m === 1 ? 12 : m - 1; return { de: ini(am, mm), ate: window.somarDias(ini(a, m), -1), txt: 'agendamentos do mês passado' }; }
+            if (valor === '7' || valor === '30') return { de: window.getDataDiasAtras(Number(valor)), ate: '9999-12-31', txt: `agendamentos dos últimos ${valor} dias` };
+            return { de: '0000-00-00', ate: '9999-12-31', txt: 'todo o histórico' };
+        };
+
+        window.calcularResumoBases = function(valorPeriodo) {
+            const hoje = window.getHojeString();
+            const per = periodoResumo(valorPeriodo);
+            const res = {};
+            BASES_RESUMO.forEach(b => { res[b] = { base: b, drivers: {}, reag: 0 }; });
+            window.baseAgendamentos.forEach(d => {
+                if (!d.data || d.data < per.de || d.data > per.ate) return;
+                const base = window.padronizarNomeBase(d.base_alocada || '');
+                if (!res[base]) res[base] = { base, drivers: {}, reag: 0 };
+                const r = res[base];
+                const k = window.chaveDriver(base, d.driver_id, d.nome);
+                const dr = r.drivers[k] || (r.drivers[k] = { rodou: false, pendente: false });
+                if (d.status === 'em_rota') dr.rodou = true;
+                else if (d.status === 'agendado' && d.data >= hoje) dr.pendente = true;
+                r.reag += Number(d.reagendamentos) || 0;
+            });
+            return Object.values(res).map(r => {
+                const lista = Object.values(r.drivers);
+                const agendados = lista.length;
+                const rodaram = lista.filter(x => x.rodou).length;
+                const aguardando = lista.filter(x => !x.rodou && x.pendente).length;
+                return { base: r.base, agendados, rodaram, aguardando, naoRodaram: agendados - rodaram - aguardando, reagendamentos: r.reag };
+            });
+        };
+
+        window.renderizarResumoBases = function() {
+            const cont = document.getElementById('container-resumo-bases');
+            if (!cont) return;
+            const filtroBase = document.getElementById('resumoFiltroBase').value;
+            const valorPeriodo = document.getElementById('adFiltroPeriodo').value || 'mes';
+            document.getElementById('lblPeriodoResumo').innerText = periodoResumo(valorPeriodo).txt;
+            const linhas = window.calcularResumoBases(valorPeriodo).filter(r => filtroBase === 'all' || window.mesmaBase(r.base, filtroBase));
+            const total = linhas.reduce((t, r) => ({ base: 'Todas as bases', agendados: t.agendados + r.agendados, rodaram: t.rodaram + r.rodaram, aguardando: t.aguardando + r.aguardando, naoRodaram: t.naoRodaram + r.naoRodaram, reagendamentos: t.reagendamentos + r.reagendamentos }),
+                { agendados: 0, rodaram: 0, aguardando: 0, naoRodaram: 0, reagendamentos: 0 });
+            const card = (r, ehTotal) => {
+                const cod = (r.base.match(/^(LMG-\d+|UDI)/) || [''])[0];
+                const nome = ehTotal ? 'Todas as bases' : r.base.replace(/^(LMG-\d+|UDI)\s+/, '');
+                const pct = (x) => r.agendados ? (x / r.agendados * 100) : 0;
+                const decididos = r.rodaram + r.naoRodaram;
+                const conv = decididos ? Math.round(r.rodaram / decididos * 100) : null;
+                return `<div class="resumo-card${ehTotal ? ' total' : ''}">
+                    <div class="resumo-base"><span>${esc(nome)}</span><span class="cod">${ehTotal ? '<i class="fa-solid fa-layer-group"></i>' : esc(cod)}</span></div>
+                    <div class="resumo-total"><span class="num">${r.agendados}</span><span class="lbl">motorista(s) agendado(s)</span></div>
+                    <div class="resumo-linha"><span class="k"><i class="fa-solid fa-circle" style="color: var(--st-rodou);"></i> Rodaram</span><span class="v" style="color: var(--st-rodou);">${r.rodaram}</span></div>
+                    <div class="resumo-linha"><span class="k"><i class="fa-solid fa-circle" style="color: var(--st-ocorrencia);"></i> Agendados que não rodaram</span><span class="v" style="color: var(--st-ocorrencia);">${r.naoRodaram}</span></div>
+                    <div class="resumo-linha"><span class="k"><i class="fa-solid fa-circle" style="color: var(--st-agendado);"></i> Aguardando a data</span><span class="v" style="color: var(--st-agendado);">${r.aguardando}</span></div>
+                    <div class="resumo-linha" style="border-top: 1px solid var(--border-dark); margin-top: 4px; padding-top: 6px;"><span class="k"><i class="fa-solid fa-calendar-day" style="font-size: 0.65rem; color: var(--st-falta);"></i> Reagendamentos</span><span class="v" style="color: var(--st-falta);">${r.reagendamentos}</span></div>
+                    <div class="resumo-barra" title="Rodaram / Não rodaram / Aguardando">
+                        <span style="width: ${pct(r.rodaram)}%; background: var(--st-rodou);"></span>
+                        <span style="width: ${pct(r.naoRodaram)}%; background: var(--st-ocorrencia);"></span>
+                        <span style="width: ${pct(r.aguardando)}%; background: var(--st-agendado);"></span>
+                    </div>
+                    <div class="resumo-conv">${conv === null ? 'Sem agendamentos concluídos no período' : `${conv}% dos agendados (com data já passada) rodaram`}</div>
+                </div>`;
+            };
+            cont.innerHTML = `<div class="resumo-grid">${filtroBase === 'all' ? card(total, true) : ''}${linhas.map(r => card(r, false)).join('')}</div>`;
+        };
 
         window.renderizarAdaptacao = function() {
             const lista = document.getElementById('container-adaptacao-list');
@@ -1149,6 +1358,24 @@
         document.addEventListener('mouseover', (e) => posicionarPopup(e.target));
         document.addEventListener('focusin', (e) => posicionarPopup(e.target));
 
+        // Mensagem de feedback para driver parado: assinada por quem envia, com a base onde ele foi agendado
+        // Telefone só com dígitos, sem o 55 do país (o link já coloca): "+55 34 99999-0000" -> "34999990000"
+        window.telWpp = (t) => String(t || '').replace(/\D/g, '').replace(/^55(?=\d{10,11}$)/, '');
+
+        window.mensagemFeedbackParado = function(n) {
+            const cap = (t) => t ? t.charAt(0).toUpperCase() + t.slice(1).toLowerCase() : '';
+            const nomeDriver = cap(String(n.nome || '').trim().split(/\s+/)[0] || '');
+            const remetente = cap(String(window.sessaoAtual.email || '').split('@')[0].split(/[._-]/)[0]) || 'Roberta';
+            const cidade = window.padronizarNomeBase(n.base_recente || '').replace(/^(LMG-\d+|UDI)\s+/, '');
+            return `Oi, ${nomeDriver}, tudo bem?\n\n`
+                + `Me chamo ${remetente} e faço parte da equipe da Shopee em ${cidade}. Estou entrando em contato novamente porque vi que sua última rota com a gente foi no dia ${fmtBr(n.ultimoStart)} e, desde então, você não teve novas rotas.\n\n`
+                + `Queria entender com você:\n`
+                + `• Você está colocando suas disponibilidades no app?\n`
+                + `• Como foram suas entregas? Deu tudo certo na rota?\n`
+                + `• Tem algum ponto de atenção ou dificuldade que queira compartilhar com a gente?\n\n`
+                + `Seu retorno é muito importante para a gente te ajudar a voltar a rodar. Fico no aguardo! 😊`;
+        };
+
         window.renderizarDashboardCompleto = function() {
             if(!document.getElementById('content-novatos')) return;
 
@@ -1173,7 +1400,9 @@
             let statsDriver = {};
             window.baseAgendamentos.forEach(d => {
                 const keyDriver = window.chaveDriver(d.base_alocada, d.driver_id, d.nome);
-                if(!statsDriver[keyDriver]) { statsDriver[keyDriver] = { id: d.driver_id, nome: d.nome, rodou: 0, recusas: 0, reagendamentos: 0, agendado: 0, motivos: new Set(), datas: [], semData: 0 }; }
+                if(!statsDriver[keyDriver]) { statsDriver[keyDriver] = { id: d.driver_id, nome: d.nome, rodou: 0, recusas: 0, reagendamentos: 0, agendado: 0, motivos: new Set(), datas: [], semData: 0, telefone: '', dataTel: '' }; }
+                const telDig = window.telWpp(d.telefone);
+                if (telDig && (d.data || '') >= statsDriver[keyDriver].dataTel) { statsDriver[keyDriver].telefone = telDig; statsDriver[keyDriver].dataTel = d.data || ''; }
                 statsDriver[keyDriver].agendado += 1 + (Number(d.reagendamentos) || 0);
                 // Datas anteriores (reagendamentos feitos depois desta versão) + a data atual
                 // Cada vez que o driver foi agendado: quando foi feito, por quem e para qual dia
@@ -1211,6 +1440,8 @@
                 if(novatosKeys.has(keyDriver)) {
                     if(!novatosDisplayMap[keyDriver]) {
                         novatosDisplayMap[keyDriver] = {
+                            chave: keyDriver,
+                            telefone: statsDriver[keyDriver].telefone,
                             retorno: ciclo[keyDriver].fase === 'retorno',
                             diasSemRodar: ciclo[keyDriver].diasSemRodar,
                             ultimoStart: ciclo[keyDriver].ultimo,
@@ -1241,13 +1472,15 @@
                 if (pa && b.lifetime_agendado !== a.lifetime_agendado) return b.lifetime_agendado - a.lifetime_agendado;
                 return b.lifetime_recusas - a.lifetime_recusas;
             });
-            document.getElementById('lblCountNovatos').innerText = `${novatosParaExibir.length} Novato(s)`;
+            const temMotivo = (n) => { const r = window.baseParados[n.chave]; return !!(r && r.ultimo_start === n.ultimoStart && r.motivo); };
+            // Primeiro os que ainda não têm motivo (pendência do gestor), depois por mais dias parado
+            const parados = novatosParaExibir.filter(n => n.retorno).sort((a, b) => (temMotivo(a) - temMotivo(b)) || (b.diasSemRodar - a.diasSemRodar));
+            const semMotivo = parados.filter(n => !temMotivo(n)).length;
+            const aguardando = novatosParaExibir.filter(n => !n.retorno);
+            document.getElementById('lblCountParados').innerText = `${parados.length} parado(s)${semMotivo ? ` · ${semMotivo} sem motivo` : ''}`;
+            document.getElementById('lblCountNovatos').innerText = `${aguardando.length} Novato(s)`;
 
-            let htmlNovatos = '<div class="row g-3">';
-            if(novatosParaExibir.length === 0) {
-                htmlNovatos += `<div class="col-12 text-center text-muted p-5"><i class="fa-solid fa-user-check fs-2 mb-3"></i><br>Nenhum novato encontrado para este filtro.</div>`;
-            } else {
-                novatosParaExibir.forEach(n => {
+            const cardNovato = (n) => {
                     let motivosHtml = n.motivos.length > 0 ? `<div class="mt-2 pt-2" style="border-top: 1px solid var(--border-dark); font-size:0.55rem; color: var(--st-ocorrencia);"><i class="fa-solid fa-triangle-exclamation"></i> <strong>Causas:</strong> ${n.motivos.map(esc).join(', ')}</div>` : '';
                     let baseHtml = filtroBase === 'all' ? `<span class="badge" style="background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border-dark); font-size:0.5rem; margin-left: 5px;">${esc((n.base_recente || '').replace(/LMG-\d+\s|UDI\s/, ''))}</span>` : '';
                    
@@ -1277,13 +1510,31 @@
                     let badgeAgendado = `<span class="tip-agend" tabindex="0"><span class="badge px-1" style="background: ${bgAgend}; color: ${corAgend}; border: 1px solid ${corAgend}; font-size: 0.55rem; margin-top: 3px;">${prioridade ? '<i class="fa-solid fa-flag"></i>' : '<i class="fa-regular fa-calendar"></i>'} ${n.lifetime_agendado}x Agendado</span>${popDatas}</span>`;
                     let badgeReagendamento = n.lifetime_reagendamentos > 0 ? `<span class="badge px-1" style="background: rgba(245, 158, 11, 0.1); color: var(--st-falta); border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.55rem; margin-top: 3px;"><i class="fa-solid fa-calendar-day"></i> ${n.lifetime_reagendamentos}x Reagend.</span>` : '';
                    
-                    htmlNovatos += `
+                    // Parados: motivo (vale só para o período parado atual), lápis e WhatsApp de feedback
+                    let acoesParado = '', blocoMotivo = '';
+                    if (n.retorno) {
+                        const reg = window.baseParados[n.chave];
+                        const valido = reg && reg.ultimo_start === n.ultimoStart;
+                        const msg = encodeURIComponent(window.mensagemFeedbackParado(n));
+                        const wpp = n.telefone
+                            ? `<a class="btn-mini wpp" href="https://wa.me/55${n.telefone}?text=${msg}" target="_blank" title="Pedir feedback no WhatsApp" onclick="window.registrarFeedbackParado(${esc(JSON.stringify(n.chave))}, ${esc(JSON.stringify(n.ultimoStart))})"><i class="fa-brands fa-whatsapp"></i></a>`
+                            : `<span class="btn-mini wpp desab" title="Sem telefone cadastrado"><i class="fa-brands fa-whatsapp"></i></span>`;
+                        acoesParado = `<div class="parado-acoes">${wpp}<button class="btn-mini" title="Registrar motivo" onclick="window.abrirModalMotivoParado(${esc(JSON.stringify(n.chave))}, ${esc(JSON.stringify(n.ultimoStart))})"><i class="fa-solid fa-pen"></i></button></div>`;
+                        const quemFez = (e) => e ? esc(String(e).split('@')[0]) : '';
+                        const fb = valido && reg.feedback_em ? `<div class="meta" style="color: var(--whatsapp);"><i class="fa-brands fa-whatsapp"></i> Feedback pedido em ${new Date(reg.feedback_em).toLocaleDateString('pt-BR')}${reg.feedback_por ? ' por ' + quemFez(reg.feedback_por) : ''}</div>` : '';
+                        blocoMotivo = valido && reg.motivo
+                            ? `<div class="motivo-parado"><strong>${esc(reg.motivo)}</strong>${reg.observacao ? ` · ${esc(reg.observacao)}` : ''}<div class="meta">${reg.atualizado_em ? new Date(reg.atualizado_em).toLocaleDateString('pt-BR') : ''}${reg.atualizado_por ? ' · por ' + quemFez(reg.atualizado_por) : ''}</div>${fb}</div>`
+                            : `<div class="motivo-vazio"><i class="fa-regular fa-pen-to-square"></i> Sem motivo registrado</div>${fb ? `<div class="motivo-parado" style="padding: 5px 9px;">${fb}</div>` : ''}`;
+                    }
+
+                    return `
                     <div class="col-xl-3 col-lg-4 col-md-6">
                         <div class="base-dash-card p-2" style="min-height: auto;${prioridade ? ' border: 1px solid var(--st-ocorrencia); box-shadow: 0 0 0 1px var(--st-ocorrencia);' : ''}">
                             <div class="d-flex justify-content-between align-items-start mb-1">
                                 <div class="w-100 pr-1" style="overflow: hidden;">
                                     <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${esc(n.nome)}">${esc(n.nome)}</div>
                                     <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 1px;">ID: ${esc(n.id)} ${baseHtml}</div>
+                                    ${acoesParado ? `<div class="mt-2">${acoesParado}</div>` : ''}
                                 </div>
                                 <div class="text-end flex-shrink-0 d-flex flex-column align-items-end">
                                     <span class="badge px-1" style="background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.55rem;"><i class="fa-solid fa-ban"></i> ${n.lifetime_recusas}x Recusa(s)</span>
@@ -1296,13 +1547,18 @@
                                     ? `<span style="color: var(--st-ocorrencia);"><i class="fa-solid fa-clock-rotate-left"></i> ${n.diasSemRodar - 1} dias sem rodar · último start ${fmtBr(n.ultimoStart)}</span>`
                                     : `<span style="color: var(--text-muted);"><i class="fa-regular fa-hourglass"></i> Aguardando 1º start</span>`}
                             </div>
+                            ${blocoMotivo}
                             ${motivosHtml}
                         </div>
                     </div>`;
-                });
-            }
-            htmlNovatos += '</div>';
-            document.getElementById('container-novatos-list').innerHTML = htmlNovatos;
+            };
+
+            document.getElementById('container-parados-list').innerHTML = parados.length
+                ? '<div class="row g-3">' + parados.map(cardNovato).join('') + '</div>'
+                : `<div class="text-muted" style="font-size: 0.75rem;"><i class="fa-solid fa-circle-check me-1" style="color: var(--st-rodou);"></i> Nenhum driver parado há 7+ dias neste filtro.</div>`;
+            document.getElementById('container-novatos-list').innerHTML = aguardando.length
+                ? '<div class="row g-3">' + aguardando.map(cardNovato).join('') + '</div>'
+                : `<div class="text-center text-muted p-5"><i class="fa-solid fa-user-check fs-2 mb-3"></i><br>Nenhum novato aguardando 1º start neste filtro.</div>`;
 
             const mapMotivos = {};
             dadosFiltrados.filter(d => d.status === 'ocorrencia').forEach(d => {
@@ -1755,7 +2011,7 @@
                     let statusBadge = `<span class="status-badge" style="background: ${configCor.bg}; color: ${configCor.cor}; border: 1px solid ${configCor.cor}; opacity: 0.8;"><i class="fa-solid fa-circle"></i> ${configCor.texto}</span>`;
                     let veicIcon = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
                     let msgWpp = encodeURIComponent(`Oi, tudo bem? Você confirma seu agendamento para a data do dia ${dataFormatada}?`);
-                    const tel = String(d.telefone || '').replace(/\D/g, '');
+                    const tel = window.telWpp(d.telefone);
 
                     htmlRows += `<div class="report-row"><div class="row-col-perfil"><div class="row-avatar"><i class="fa-solid ${veicIcon}"></i></div><div><div class="row-nome">${esc(d.nome)}</div><div class="row-id">ID: ${esc(d.driver_id)}</div></div></div><div class="row-col-base"><div class="row-label">Base / Cluster</div><div class="row-value">${esc((d.base_alocada || '').replace(/LMG-\d+\s|UDI\s/, ''))} <span class="text-muted">(${esc(d.cluster)})</span></div></div><div class="row-col-data"><div class="row-label">Data Agendada</div><div class="row-value data-mono">${dataFormatada}</div></div><div class="row-col-status">${statusBadge}</div><div class="row-col-actions"><a href="https://wa.me/55${tel}?text=${msgWpp}" target="_blank" class="btn-acao-lista btn-wpp" title="Contatar (Com Mensagem)"><i class="fa-brands fa-whatsapp"></i></a></div></div>`;
                 });
@@ -1783,7 +2039,7 @@
                     let iconClass = d.veiculo === 'moto' ? 'fa-motorcycle' : d.veiculo === 'passeio' ? 'fa-car' : 'fa-van-shuttle';
                    
                     let msgWpp = encodeURIComponent(`Oi, tudo bem? Você confirma seu agendamento para a data do dia ${dataBr}?`);
-                    const tel = String(d.telefone || '').replace(/\D/g, '');
+                    const tel = window.telWpp(d.telefone);
                     let botoesHTML = `<a href="https://wa.me/55${tel}?text=${msgWpp}" target="_blank" class="btn-acao-lista btn-wpp" title="Confirmar Start no WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>`;
                    
                     if(configCor.id === 'agendado' || configCor.id === 'pendente_hoje' || configCor.id === 'falta' || configCor.id === 'ocorrencia') {
@@ -1884,6 +2140,49 @@
             modalPadrao.classList.add('active');
         }
 
+        // Drivers parados: motivo e registro de feedback (gestor)
+        const modalMotivoParado = document.getElementById('modalMotivoParado');
+        window.abrirModalMotivoParado = function(chave, ultimoStart) {
+            if (!somenteGestor()) return;
+            const reg = window.baseParados[chave];
+            const valido = reg && reg.ultimo_start === ultimoStart;
+            const dr = window.calcularCicloDrivers()[chave];
+            document.getElementById('inputChaveParado').value = chave;
+            document.getElementById('inputUltimoStartParado').value = ultimoStart;
+            document.getElementById('lblDriverParado').innerHTML = dr
+                ? `<strong style="color: var(--text-main);">${esc(dr.nome)}</strong> · ID ${esc(dr.id)} · último start ${fmtBr(ultimoStart)}`
+                : '';
+            document.getElementById('selectMotivoParado').value = valido && reg.motivo ? reg.motivo : '';
+            document.getElementById('inputObsParado').value = valido && reg.observacao ? reg.observacao : '';
+            modalMotivoParado.classList.add('active');
+        };
+        window.fecharModalMotivoParado = function() { modalMotivoParado.classList.remove('active'); document.getElementById('formMotivoParado').reset(); };
+        document.getElementById('formMotivoParado').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!somenteGestor()) return;
+            const chave = document.getElementById('inputChaveParado').value;
+            const ultimoStart = document.getElementById('inputUltimoStartParado').value;
+            const reg = window.baseParados[chave] || {};
+            const dados = {
+                motivo: document.getElementById('selectMotivoParado').value,
+                observacao: document.getElementById('inputObsParado').value.trim(),
+                ultimo_start: ultimoStart,
+                atualizado_em: serverTimestamp(),
+                atualizado_por: window.sessaoAtual.email || ''
+            };
+            // Período parado novo: limpa o registro de feedback do período anterior
+            if (reg.ultimo_start !== ultimoStart) { dados.feedback_em = null; dados.feedback_por = null; }
+            try { await update(ref(db, 'acompanhamento_parados/' + chave), dados); window.fecharModalMotivoParado(); }
+            catch (err) { alert('Não foi possível salvar o motivo: ' + (err.code || err.message)); }
+        });
+        window.registrarFeedbackParado = function(chave, ultimoStart) {
+            if (!window.ehGestor()) return;
+            const reg = window.baseParados[chave] || {};
+            const dados = { feedback_em: serverTimestamp(), feedback_por: window.sessaoAtual.email || '', ultimo_start: ultimoStart };
+            if (reg.ultimo_start !== ultimoStart) { dados.motivo = null; dados.observacao = null; dados.atualizado_em = null; dados.atualizado_por = null; }
+            update(ref(db, 'acompanhamento_parados/' + chave), dados).catch(e => alert('Não foi possível registrar o feedback: ' + (e.code || e.message)));
+        };
+
         window.abrirModalOcorrencia = function(idDriver) {
             document.getElementById('inputIdOcorrencia').value = idDriver;
             window.toggleJustificativaTexto('');
@@ -1904,7 +2203,7 @@
             }
         }
 
-        document.addEventListener('keydown', function(event) { if (event.key === "Escape") { window.fecharModal(); window.fecharModalOcorrencia(); } });
+        document.addEventListener('keydown', function(event) { if (event.key === "Escape") { window.fecharModal(); window.fecharModalOcorrencia(); window.fecharModalMotivoParado(); } });
 
         document.getElementById('formStart').addEventListener('submit', async function(e) {
             e.preventDefault();
