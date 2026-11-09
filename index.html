@@ -256,6 +256,30 @@
         .tip-det { font-size: 0.6rem; color: var(--text-muted); }
         .tip-status { margin-left: auto; font-size: 0.6rem; font-weight: 700; white-space: nowrap; display: flex; align-items: center; gap: 4px; }
         .tip-sem-data { font-size: 0.6rem; color: var(--text-muted); font-style: italic; padding-top: 6px; border-top: 1px dashed var(--border-dark); margin-top: 2px; }
+        .grupo-usuarios { margin-bottom: 26px; }
+        .usuario-linha2 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .usuario-badges { display: flex; gap: 4px; flex-shrink: 0; }
+        .usuario-acesso { display: inline-flex; align-items: center; gap: 6px; font-size: 0.64rem; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: default; }
+        .usuario-acesso .acesso-ponto { width: 8px; height: 8px; box-shadow: none; }
+        /* Cards compactos; a grade se ajusta sozinha à largura (menu lateral aberto ou recolhido) */
+        .usuarios-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+        .usuario-col { min-width: 0; }
+        .usuario-card { padding: 10px 12px; border-radius: 10px; box-shadow: 0 4px 10px var(--shadow-color); }
+        .usuario-email { font-size: 0.72rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 6px; min-width: 0; }
+        .usuario-card .badge { font-size: 0.58rem; padding: 3px 7px; }
+        .usuario-card .dropdown .btn i { font-size: 0.9rem !important; }
+        .usuario-card .acesso-linha { margin-top: 8px; padding: 5px 8px; gap: 7px; }
+        .usuario-card .acesso-txt { font-size: 0.66rem; }
+        .usuario-card .acesso-sub { font-size: 0.58rem; }
+        .usuario-base { margin-top: 8px; padding-top: 7px; border-top: 1px solid var(--border-dark); }
+        .usuario-base label { display: block; font-size: 0.56rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.3px; margin-bottom: 3px; }
+        .usuario-base .form-select { font-size: 0.68rem; padding: 3px 26px 3px 8px; min-height: 0; height: 26px; }
+        .grupo-titulo { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-dark); }
+        .grupo-titulo h6 { margin: 0; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-main); }
+        .grupo-titulo .qtd { font-size: 0.65rem; color: var(--text-muted); font-weight: 600; }
+        .grupo-contagem { margin-left: auto; display: flex; gap: 10px; font-size: 0.65rem; font-weight: 700; }
+        .grupo-contagem span { display: inline-flex; align-items: center; gap: 4px; }
+        .grupo-contagem i { font-size: 0.45rem; }
         .acesso-linha { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 8px 10px; border-radius: 8px; background: var(--input-bg); border: 1px solid var(--border-dark); }
         .acesso-ponto { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 0 3px var(--bg-panel); }
         .acesso-txt { font-size: 0.72rem; font-weight: 600; line-height: 1.2; }
@@ -582,6 +606,34 @@
                 <div class="view-header">
                     <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main);"><i class="fa-solid fa-users-gear text-muted me-2"></i> GESTÃO DE ACESSOS E PERFIS</div>
                     <span class="badge bg-dark">Apenas Gestores</span>
+                </div>
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Base:</label>
+                        <select class="filter-select" id="usuFiltroBase" onchange="window.renderizarUsuarios()">
+                            <option value="all">Todas (gestores + bases)</option>
+                            <option value="gestores">Só gestores</option>
+                            <option value="LMG-48 Uberaba">LMG-48 Uberaba</option>
+                            <option value="LMG-45 Varginha">LMG-45 Varginha</option>
+                            <option value="LMG-44 Uberlândia">LMG-44 Uberlândia</option>
+                            <option value="LMG-39 Patos de Minas">LMG-39 Patos de Minas</option>
+                            <option value="LMG-36 Divinópolis">LMG-36 Divinópolis</option>
+                            <option value="LMG-27 Lagoa da Prata">LMG-27 Lagoa da Prata</option>
+                            <option value="LMG-19 Extrema">LMG-19 Extrema</option>
+                            <option value="pendente">Sem base (acesso pendente)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Acesso:</label>
+                        <select class="filter-select" id="usuFiltroAcesso" onchange="window.renderizarUsuarios()">
+                            <option value="all">Todos</option>
+                            <option value="ativo">🟢 Acessou nas últimas 24h</option>
+                            <option value="atencao">🟠 De 2 a 7 dias sem acessar</option>
+                            <option value="inativo">🔴 Mais de 7 dias sem acessar</option>
+                            <option value="sem">⚪ Sem registro de acesso</option>
+                        </select>
+                    </div>
+                    <span class="ms-auto" style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600;" id="lblTotalUsuarios"></span>
                 </div>
                 <div class="dashboard-container" id="users-container"></div>
             </main>
@@ -2071,9 +2123,51 @@
             return { cor, texto, sub };
         };
 
+        // Situação de acesso para filtro e contagem: ativo (até 1 dia), atencao (2–7), inativo (+7), sem (nunca)
+        window.situacaoAcesso = function(u) {
+            if (u.uid === window.sessaoAtual.uid) return 'ativo';
+            const n = Number(u.ultimo_acesso);
+            if (!(n > 0)) return 'sem';
+            const dias = Math.floor(Math.max(0, Date.now() - n) / 86400000);
+            return dias <= 1 ? 'ativo' : dias <= 7 ? 'atencao' : 'inativo';
+        };
+
+        const BASES_ORDEM = ['LMG-48 Uberaba', 'LMG-45 Varginha', 'LMG-44 Uberlândia', 'LMG-39 Patos de Minas', 'LMG-36 Divinópolis', 'LMG-27 Lagoa da Prata', 'LMG-19 Extrema'];
+
         window.renderizarUsuarios = function() {
-            let html = '<div class="row g-3">';
+            const fBase = (document.getElementById('usuFiltroBase') || {}).value || 'all';
+            const fAcesso = (document.getElementById('usuFiltroAcesso') || {}).value || 'all';
+
+            // Grupo de cada pessoa: gestores, uma base, ou pendente
+            const grupoDe = (u) => u.role === 'gestor' ? 'gestores' : (u.base_alocada ? window.padronizarNomeBase(u.base_alocada) : 'pendente');
+            const grupos = {};
             window.listaUsuarios.forEach(u => {
+                const g = grupoDe(u);
+                if (fBase !== 'all' && g !== fBase) return;
+                (grupos[g] = grupos[g] || []).push(u);
+            });
+            // Ordem: gestores, bases na ordem oficial (outras no fim), pendentes por último
+            const ordem = ['gestores', ...BASES_ORDEM, ...Object.keys(grupos).filter(g => g !== 'gestores' && g !== 'pendente' && !BASES_ORDEM.includes(g)).sort(), 'pendente'];
+            const titulos = { gestores: '<i class="fa-solid fa-user-tie me-2" style="color: var(--spx-orange);"></i>Gestores', pendente: '<i class="fa-solid fa-hourglass-half me-2" style="color: var(--st-falta);"></i>Sem base (acesso pendente)' };
+
+            let html = '', totalMostrados = 0;
+            ordem.forEach(g => {
+                const todosDoGrupo = (grupos[g] || []).slice().sort((a, b) => String(a.email || '').localeCompare(String(b.email || '')));
+                if (!todosDoGrupo.length) return;
+                const cont = { ativo: 0, atencao: 0, inativo: 0, sem: 0 };
+                todosDoGrupo.forEach(u => cont[window.situacaoAcesso(u)]++);
+                const lista = todosDoGrupo.filter(u => fAcesso === 'all' || window.situacaoAcesso(u) === fAcesso);
+                if (!lista.length) return;
+                totalMostrados += lista.length;
+                const titulo = titulos[g] || `<i class="fa-solid fa-location-dot me-2" style="color: var(--spx-orange);"></i>${esc(g)}`;
+                html += `<div class="grupo-usuarios"><div class="grupo-titulo"><h6>${titulo}</h6><span class="qtd">${todosDoGrupo.length} pessoa(s)</span>
+                    <div class="grupo-contagem">
+                        <span style="color: var(--st-rodou);" title="Acessaram nas últimas 24h"><i class="fa-solid fa-circle"></i>${cont.ativo} ativo(s)</span>
+                        <span style="color: var(--st-falta);" title="De 2 a 7 dias sem acessar"><i class="fa-solid fa-circle"></i>${cont.atencao}</span>
+                        <span style="color: var(--st-ocorrencia);" title="Mais de 7 dias sem acessar"><i class="fa-solid fa-circle"></i>${cont.inativo}</span>
+                        <span style="color: var(--text-muted);" title="Sem registro de acesso"><i class="fa-solid fa-circle"></i>${cont.sem}</span>
+                    </div></div><div class="usuarios-grid">`;
+                lista.forEach(u => {
                 let isCurrent = u.uid === window.sessaoAtual.uid;
                 const acesso = window.infoUltimoAcesso(u.ultimo_acesso, isCurrent);
                 const acessoHTML = `<div class="acesso-linha" title="Último acesso ao sistema"><span class="acesso-ponto" style="background: ${acesso.cor};"></span><div><div class="acesso-txt" style="color: var(--text-main);">${acesso.texto}</div>${acesso.sub ? `<div class="acesso-sub">${acesso.sub}</div>` : ''}</div><i class="fa-regular fa-clock ms-auto" style="color: var(--text-muted); font-size: 0.75rem;"></i></div>`;
@@ -2082,13 +2176,17 @@
                 let selectBaseHTML = '';
                 if (u.role === 'analista') {
                     const basesOpts = ['LMG-45 Varginha', 'LMG-44 Uberlândia', 'LMG-39 Patos de Minas', 'LMG-36 Divinópolis', 'LMG-27 Lagoa da Prata', 'LMG-19 Extrema', 'LMG-48 Uberaba'];
-                    selectBaseHTML = `<div class="mt-3" style="border-top: 1px solid var(--border-dark); padding-top: 10px;"><label style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600;">ATRIBUIR BASE AO ANALISTA:</label><select class="form-select form-select-sm mt-1" style="background: var(--input-bg); color: var(--text-main); border-color: var(--border-dark); font-size:0.75rem;" onchange="window.alterarBaseUsuario('${esc(u.uid)}', this.value)"><option value="" disabled ${!u.base_alocada ? 'selected' : ''}>-- Nenhuma Base (Acesso Pendente) --</option>${basesOpts.map(b => `<option value="${b}" ${window.mesmaBase(u.base_alocada, b) ? 'selected' : ''}>${b}</option>`).join('')}</select></div>`;
+                    selectBaseHTML = `<div class="usuario-base"><label>BASE DO ANALISTA</label><select class="form-select form-select-sm" style="background: var(--input-bg); color: var(--text-main); border-color: var(--border-dark);" onchange="window.alterarBaseUsuario('${esc(u.uid)}', this.value)"><option value="" disabled ${!u.base_alocada ? 'selected' : ''}>Nenhuma base (pendente)</option>${basesOpts.map(b => `<option value="${b}" ${window.mesmaBase(u.base_alocada, b) ? 'selected' : ''}>${b}</option>`).join('')}</select></div>`;
                 }
 
-                html += `<div class="col-md-4"><div class="base-dash-card"><div class="d-flex justify-content-between align-items-start mb-3"><div style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); word-break: break-all; padding-right: 10px;">${esc(u.email)}</div>${!isCurrent ? `<div class="dropdown"><button class="btn btn-sm text-muted border-0 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical fs-5"></i></button><ul class="dropdown-menu shadow"><li><h6 class="dropdown-header">Alterar Permissão</h6></li><li><a class="dropdown-item ${u.role === 'gestor' ? 'active' : ''}" href="#" onclick="event.preventDefault(); window.toggleRole('${esc(u.uid)}', 'gestor')"><i class="fa-solid fa-user-tie me-2"></i> Gestor</a></li><li><a class="dropdown-item ${u.role === 'analista' ? 'active' : ''}" href="#" onclick="event.preventDefault(); window.toggleRole('${esc(u.uid)}', 'analista')"><i class="fa-solid fa-user me-2"></i> Analista</a></li></ul></div>` : ''}</div><div>${badge} ${isCurrent ? '<span class="badge bg-success">Você</span>' : ''}</div>${acessoHTML}${selectBaseHTML}</div></div>`;
+                html += `<div class="usuario-col"><div class="base-dash-card usuario-card"><div class="d-flex justify-content-between align-items-start mb-2"><div class="usuario-email" title="${esc(u.email)}">${esc(u.email)}</div>${!isCurrent ? `<div class="dropdown"><button class="btn btn-sm text-muted border-0 p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-ellipsis-vertical fs-5"></i></button><ul class="dropdown-menu shadow"><li><h6 class="dropdown-header">Alterar Permissão</h6></li><li><a class="dropdown-item ${u.role === 'gestor' ? 'active' : ''}" href="#" onclick="event.preventDefault(); window.toggleRole('${esc(u.uid)}', 'gestor')"><i class="fa-solid fa-user-tie me-2"></i> Gestor</a></li><li><a class="dropdown-item ${u.role === 'analista' ? 'active' : ''}" href="#" onclick="event.preventDefault(); window.toggleRole('${esc(u.uid)}', 'analista')"><i class="fa-solid fa-user me-2"></i> Analista</a></li></ul></div>` : ''}</div><div class="usuario-linha2"><div class="usuario-badges">${badge}${isCurrent ? ' <span class="badge bg-success">Você</span>' : ''}</div><span class="usuario-acesso" title="Último acesso${acesso.sub ? ': ' + acesso.sub : ''}"><span class="acesso-ponto" style="background: ${acesso.cor};"></span>${acesso.texto}</span></div>${selectBaseHTML}</div></div>`;
+                });
+                html += '</div></div>';
             });
-            html += '</div>';
-            document.getElementById('users-container').innerHTML = html;
+            const lbl = document.getElementById('lblTotalUsuarios');
+            if (lbl) lbl.innerText = `${totalMostrados} de ${window.listaUsuarios.length} usuário(s)`;
+            document.getElementById('users-container').innerHTML = html
+                || `<div class="text-center text-muted p-5"><i class="fa-solid fa-user-slash fs-2 mb-3"></i><br>Ninguém encontrado com esses filtros.</div>`;
         }
 
         setInterval(() => {
