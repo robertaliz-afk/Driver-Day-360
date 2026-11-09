@@ -55,6 +55,13 @@
             --shadow-color: rgba(0,0,0,0.05);
         }
 
+        /* Listas de seleção legíveis nos dois temas (o navegador desenha o menu aberto com as cores do tema) */
+        :root { color-scheme: dark; }
+        body.light-mode { color-scheme: light; }
+        select option, select optgroup { background-color: var(--bg-panel); color: var(--text-main); }
+        select option:checked { background-color: var(--spx-orange); color: #fff; }
+        select option:disabled { color: var(--text-muted); }
+
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-dark); }
         ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
@@ -110,6 +117,16 @@
         .sidebar-slim { width: 60px; background: var(--bg-header); border-right: 1px solid var(--border-dark); display: flex; flex-direction: column; align-items: center; padding-top: 15px; z-index: 10; transition: 0.3s ease; }
         .nav-icon { width: 40px; height: 40px; border-radius: 6px; display: flex; justify-content: center; align-items: center; color: var(--text-muted); text-decoration: none; margin-bottom: 10px; transition: 0.2s; font-size: 1rem; cursor: pointer; }
         .nav-icon:hover, .nav-icon.active { background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--spx-orange); }
+        /* Menu lateral: recolhido (só ícones) ou aberto (ícone + nome) */
+        .sidebar-slim { overflow: hidden; flex-shrink: 0; }
+        .nav-icon i { width: 18px; text-align: center; flex-shrink: 0; }
+        .nav-label { display: none; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+        .sidebar-slim.aberto { width: 210px; align-items: stretch; padding-left: 10px; padding-right: 10px; }
+        .sidebar-slim.aberto .nav-icon { width: 100%; justify-content: flex-start; gap: 12px; padding: 0 11px; }
+        .sidebar-slim.aberto .nav-label { display: inline; }
+        .btn-menu-toggle { margin-top: auto; margin-bottom: 15px; width: 40px; height: 34px; border-radius: 8px; border: 1px solid var(--border-dark); background: transparent; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.8rem; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+        .btn-menu-toggle:hover { color: var(--spx-orange); border-color: var(--spx-orange); background: var(--input-bg); }
+        .sidebar-slim.aberto .btn-menu-toggle { width: 100%; justify-content: flex-start; padding: 0 12px; }
         .app-view { display: none; flex-grow: 1; flex-direction: column; background: var(--bg-dark); overflow: hidden; width: 100%; transition: 0.3s ease;}
         .app-view.active { display: flex; }
         .view-header { padding: 15px 20px; border-bottom: 1px solid var(--border-dark); background: var(--bg-panel); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; transition: 0.3s ease;}
@@ -301,12 +318,15 @@
 
         <div class="workspace">
             <nav class="sidebar-slim" id="main-sidebar">
-                <a class="nav-icon active" id="nav-calendar" title="Agenda Tática" onclick="window.switchView('calendar', this)"><i class="fa-solid fa-calendar-days"></i></a>
-                <a class="nav-icon" id="nav-dashboard" title="Controle de Novatos" onclick="window.switchView('dashboard', this)"><i class="fa-solid fa-clipboard-user"></i></a>
-                <a class="nav-icon" id="nav-adaptacao" title="Adaptação (15 dias)" onclick="window.switchView('adaptacao', this)"><i class="fa-solid fa-route"></i></a>
-                <a class="nav-icon" id="nav-resumo" title="Resumo por Base" onclick="window.switchView('resumo', this)"><i class="fa-solid fa-chart-column"></i></a>
-                <a class="nav-icon" id="nav-report" title="Relatório Global" onclick="window.switchView('report', this)"><i class="fa-solid fa-list-check"></i></a>
-                <a class="nav-icon" id="nav-users" title="Gestão de Acessos" onclick="window.switchView('users', this)"><i class="fa-solid fa-users-gear"></i></a>
+                <a class="nav-icon active" id="nav-calendar" title="Agenda Tática" onclick="window.switchView('calendar', this)"><i class="fa-solid fa-calendar-days"></i><span class="nav-label">Agenda</span></a>
+                <a class="nav-icon" id="nav-dashboard" title="Controle de Novatos" onclick="window.switchView('dashboard', this)"><i class="fa-solid fa-clipboard-user"></i><span class="nav-label">Controle de Novatos</span></a>
+                <a class="nav-icon" id="nav-adaptacao" title="Adaptação (15 dias)" onclick="window.switchView('adaptacao', this)"><i class="fa-solid fa-route"></i><span class="nav-label">Adaptação</span></a>
+                <a class="nav-icon" id="nav-resumo" title="Resumo por Base" onclick="window.switchView('resumo', this)"><i class="fa-solid fa-chart-column"></i><span class="nav-label">Resumo por Base</span></a>
+                <a class="nav-icon" id="nav-report" title="Relatório Global" onclick="window.switchView('report', this)"><i class="fa-solid fa-list-check"></i><span class="nav-label">Relatório Global</span></a>
+                <a class="nav-icon" id="nav-users" title="Gestão de Acessos" onclick="window.switchView('users', this)"><i class="fa-solid fa-users-gear"></i><span class="nav-label">Gestão de Acessos</span></a>
+                <button class="btn-menu-toggle" id="btnMenuToggle" onclick="window.alternarMenu()" title="Expandir menu">
+                    <i class="fa-solid fa-angles-right"></i><span class="nav-label">Recolher menu</span>
+                </button>
             </nav>
 
             <main class="app-view" id="view-waiting" style="justify-content: center; align-items: center; text-align: center; flex-direction: column;">
@@ -807,6 +827,20 @@
             }
         })();
 
+        // Abrir/recolher o menu lateral (lembra a escolha neste navegador)
+        window.alternarMenu = function(forcar) {
+            const menu = document.getElementById('main-sidebar');
+            const aberto = typeof forcar === 'boolean' ? forcar : !menu.classList.contains('aberto');
+            menu.classList.toggle('aberto', aberto);
+            const btn = document.getElementById('btnMenuToggle');
+            btn.title = aberto ? 'Recolher menu' : 'Expandir menu';
+            btn.querySelector('i').className = aberto ? 'fa-solid fa-angles-left' : 'fa-solid fa-angles-right';
+            try { localStorage.setItem('menuAberto', aberto ? '1' : '0'); } catch (e) {}
+            // O calendário precisa recalcular a largura depois da animação
+            setTimeout(() => { if (window.meuCalendario) window.meuCalendario.updateSize(); }, 320);
+        };
+        (function() { let salvo = null; try { salvo = localStorage.getItem('menuAberto'); } catch (e) {} if (salvo === '1') window.alternarMenu(true); })();
+
         window.getHojeString = function() {
             const h = new Date();
             return `${h.getFullYear()}-${String(h.getMonth()+1).padStart(2,'0')}-${String(h.getDate()).padStart(2,'0')}`;
@@ -843,7 +877,16 @@
             return { cor: 'var(--st-agendado)', bg: 'rgba(59, 130, 246, 0.1)', texto: 'Agendado', id: 'agendado' };
         }
 
-        onValue(agendamentosRef, (snapshot) => {
+        // Com as regras de segurança, o banco só responde depois do login.
+        // Por isso as "escutas" abaixo são ligadas em iniciarListeners(), chamado após identificar o perfil.
+        const erroLeitura = (nome) => (erro) => {
+            console.error(`Sem permissão para ler ${nome}:`, erro);
+            if (nome === 'agendamentos') window._agendaNegada = true;
+            const b = document.getElementById('roboStatusInfo');
+            if (b && nome === 'agendamentos') { b.innerHTML = '<i class="fa-solid fa-lock"></i> Sem permissão para ler a agenda'; b.classList.add('alerta'); }
+        };
+
+        const ouvirAgendamentos = () => onValue(agendamentosRef, (snapshot) => {
             window.baseAgendamentos = [];
             snapshot.forEach((child) => {
                 const ag = child.val();
@@ -872,10 +915,10 @@
                     window.sincronizarStatusBasesExternas();
                 }
             }
-        });
+        }, erroLeitura('agendamentos'));
 
         // Dias em que o robô encontrou o driver rodando nas bases (depois do 1º start)
-        onValue(adaptacaoRef, (snapshot) => {
+        const ouvirAdaptacao = () => onValue(adaptacaoRef, (snapshot) => {
             window.baseAdaptacao = snapshot.val() || {};
             if (document.getElementById('app-screen').style.display === 'flex' && window.sessaoAtual.role === 'gestor') {
                 if (document.getElementById('view-dashboard').classList.contains('active')) window.renderizarDashboardCompleto();
@@ -884,13 +927,14 @@
         }, (erro) => console.warn('Sem acesso a adaptacao_rodadas:', erro));
 
         // Motivos registrados pelo gestor para drivers parados há 7+ dias
-        onValue(paradosRef, (snapshot) => {
+        const ouvirParados = () => onValue(paradosRef, (snapshot) => {
             window.baseParados = snapshot.val() || {};
             if (document.getElementById('app-screen').style.display === 'flex' && window.sessaoAtual.role === 'gestor'
                 && document.getElementById('view-dashboard').classList.contains('active')) window.renderizarDashboardCompleto();
         }, (erro) => console.warn('Sem acesso a acompanhamento_parados:', erro));
 
-        onValue(usuariosRef, (snapshot) => {
+        // Gestor: lista completa de usuários (Gestão de Acessos)
+        const ouvirUsuarios = () => onValue(usuariosRef, (snapshot) => {
             window.listaUsuarios = [];
             let myUserData = null;
             snapshot.forEach(child => {
@@ -909,7 +953,28 @@
                     }
                 }
             }
-        });
+        }, erroLeitura('usuarios'));
+
+        // Analista: só o próprio perfil (para pegar na hora a base que o gestor atribuir)
+        const ouvirMeuPerfil = (uid) => onValue(ref(db, `usuarios/${uid}`), (snapshot) => {
+            const meu = snapshot.val();
+            if (!meu || document.getElementById('app-screen').style.display !== 'flex' || window.sessaoAtual.role !== 'analista') return;
+            const baseAlocadaPadrao = window.padronizarNomeBase(meu.base_alocada || '');
+            if (baseAlocadaPadrao && window.sessaoAtual.baseAtiva !== baseAlocadaPadrao) {
+                window.sessaoAtual.baseAtiva = baseAlocadaPadrao;
+                // Analista sem base não tem permissão de ler a agenda; ao receber a base, liga a leitura de novo
+                if (window._agendaNegada) { window._agendaNegada = false; ouvirAgendamentos(); }
+                window.iniciarSessao(false);
+            }
+        }, erroLeitura('o próprio perfil'));
+
+        window.iniciarListeners = function(role, uid) {
+            if (window._listenersAtivos) return;
+            window._listenersAtivos = true;
+            ouvirAgendamentos();
+            if (role === 'gestor') { ouvirUsuarios(); ouvirAdaptacao(); ouvirParados(); }
+            else { ouvirMeuPerfil(uid); }
+        };
 
         onAuthStateChanged(auth, (user) => {
             if (user) { window.processarAcesso(user); }
@@ -923,10 +988,11 @@
                 get(ref(db, `usuarios/${user.uid}`)).then((snapshot) => {
                     let role = 'analista';
                     let base_alocada = '';
+                    let gravacaoPerfil = Promise.resolve();
 
                     if (email === 'roberta.liz@shopee.com' || email === 'roberta.lis@shopee.com' || email === 'david.amaral@shopee.com') {
                         role = 'gestor';
-                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'gestor', base_alocada: 'Todas', ultimo_acesso: serverTimestamp() });
+                        gravacaoPerfil = set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'gestor', base_alocada: 'Todas', ultimo_acesso: serverTimestamp() });
                     } else if (snapshot.exists()) {
                         role = snapshot.val().role;
                         base_alocada = window.padronizarNomeBase(snapshot.val().base_alocada || '');
@@ -934,20 +1000,24 @@
                         update(ref(db, `usuarios/${user.uid}`), { ultimo_acesso: serverTimestamp() })
                             .catch(e => console.warn('Não foi possível registrar o último acesso:', e));
                     } else {
-                        set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'analista', base_alocada: '', ultimo_acesso: serverTimestamp() });
+                        gravacaoPerfil = set(ref(db, `usuarios/${user.uid}`), { email: email, role: 'analista', base_alocada: '', ultimo_acesso: serverTimestamp() });
                     }
 
                     window.sessaoAtual.uid = user.uid;
                     window.sessaoAtual.email = email;
                     window.sessaoAtual.role = role;
-                   
-                    if (role === 'gestor') {
-                        window.sessaoAtual.baseAtiva = document.getElementById('adminBaseSelector').value;
-                        window.iniciarSessao(true);
-                    } else {
-                        window.sessaoAtual.baseAtiva = base_alocada;
-                        window.iniciarSessao(false);
-                    }
+
+                    // O perfil precisa existir no banco antes de ler (as regras conferem o perfil)
+                    return gravacaoPerfil.catch(e => console.warn('Não foi possível gravar o perfil:', e)).then(() => {
+                        window.iniciarListeners(role, user.uid);
+                        if (role === 'gestor') {
+                            window.sessaoAtual.baseAtiva = document.getElementById('adminBaseSelector').value;
+                            window.iniciarSessao(true);
+                        } else {
+                            window.sessaoAtual.baseAtiva = base_alocada;
+                            window.iniciarSessao(false);
+                        }
+                    });
                 }).catch((error) => {
                     console.error('Erro ao ler perfil do usuário:', error);
                     errorElement.style.display = 'block';
@@ -1741,7 +1811,8 @@
                 const hojeStr = window.getHojeString();
                 // Só faz sentido verificar quem estava agendado até hoje (ninguém roda no futuro)
                 const pendentes = window.baseAgendamentos.filter(ag =>
-                    ag.status === 'agendado' && ag.data && ag.data <= hojeStr && (ag.nome || ag.driver_id));
+                    ag.status === 'agendado' && ag.data && ag.data <= hojeStr && (ag.nome || ag.driver_id)
+                    && (window.ehGestor() || window.mesmaBase(ag.base_alocada, window.sessaoAtual.baseAtiva)));
 
                 // Agrupa por base
                 const porBase = {};
@@ -1858,6 +1929,7 @@
                 const agendaAtualizada = window.baseAgendamentos.map(a => idsConfirmados.has(a.id) ? { ...a, status: 'em_rota' } : a);
                 const adaptPorBase = {};
                 Object.values(window.calcularCicloDrivers(agendaAtualizada)).forEach(dr => {
+                    if (!window.ehGestor()) return; // adaptação é gravada só pela sessão do gestor
                     if (!dr.inicio || dr.fase === 'concluido' || hojeStr > dr.fim) return;
                     const chave = Object.keys(window.dbsExternos).find(k => window.mesmaBase(k, dr.base));
                     if (chave) (adaptPorBase[chave] = adaptPorBase[chave] || []).push(dr);
@@ -2239,44 +2311,5 @@
                 if (!driverAntigo) { alert('Agendamento não encontrado. Ele pode ter sido excluído.'); window.fecharModal(); return; }
                 payload.data = document.getElementById('inputNovaData').value;
                 payload.base_alocada = window.padronizarNomeBase(driverAntigo.base_alocada || baseAtivaGarantida);
-                payload.reagendamentos = (driverAntigo.reagendamentos || 0) + 1;
-                // Guarda a data anterior (com turno e motivo) para o histórico de agendamentos
-                const historico = Array.isArray(driverAntigo.historico_datas) ? driverAntigo.historico_datas.slice() : Object.values(driverAntigo.historico_datas || {});
-                if (driverAntigo.data) historico.push({
-                    data: driverAntigo.data, turno: driverAntigo.turno || '', status: driverAntigo.status || '', justificativa: driverAntigo.justificativa || '',
-                    // Quando esse agendamento anterior foi feito (no 1º, recupera pela chave do Firebase)
-                    agendado_em: Number(driverAntigo.agendado_em) || ((driverAntigo.reagendamentos || 0) === 0 && historico.length === 0 ? (window.dataPelaChave(driverAntigo.id) || 0) : 0),
-                    agendado_por: driverAntigo.agendado_por || ''
-                });
-                payload.historico_datas = historico;
-                payload.agendado_em = serverTimestamp();
-                payload.agendado_por = window.sessaoAtual.email || '';
-                await update(ref(db, 'agendamentos/' + idEdicao), payload);
-            } else {
-                if (!window.dataVisualizadaNoInspetor) { alert('Selecione um dia no calendário antes de agendar.'); return; }
-                payload.data = window.dataVisualizadaNoInspetor;
-                payload.base_alocada = baseAtivaGarantida;
-                payload.reagendamentos = 0;
-                payload.agendado_em = serverTimestamp();
-                payload.agendado_por = window.sessaoAtual.email || '';
-                await push(ref(db, 'agendamentos'), payload);
-            }
-            window.fecharModal();
-            setTimeout(() => window.sincronizarStatusBasesExternas(), 600);
-        });
-
-        document.getElementById('formOcorrencia').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const motivoSelect = document.getElementById('selectMotivoOcorrencia').value;
-            const textoExtra = document.getElementById('inputJustificativaTexto').value;
-            const justificativaFinal = motivoSelect === 'Outros motivos' ? textoExtra : motivoSelect;
-
-            await update(ref(db, 'agendamentos/' + document.getElementById('inputIdOcorrencia').value), {
-                status: 'ocorrencia', justificativa: justificativaFinal
-            });
-            window.fecharModalOcorrencia();
-        });
-
-    </script>
-</body>
-</html>
+                payload.reagendamentos = (driverAntigo.
+...
