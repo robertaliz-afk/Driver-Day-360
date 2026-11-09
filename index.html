@@ -227,6 +227,9 @@
         .btn-mini:hover { border-color: var(--st-agendado); color: var(--st-agendado); }
         .btn-mini.wpp { color: var(--whatsapp); border-color: rgba(37, 211, 102, 0.35); }
         .btn-mini.wpp:hover { background: var(--whatsapp); color: #fff; }
+        .btn-mini.reag { color: var(--st-falta); border-color: rgba(245, 158, 11, 0.4); }
+        .btn-mini.reag:hover { background: var(--st-falta); color: #fff; border-color: var(--st-falta); }
+        .proximo-agend { margin-top: 6px; font-size: 0.6rem; font-weight: 600; color: var(--st-agendado); }
         .btn-mini.desab { opacity: 0.35; pointer-events: none; }
         .motivo-parado { margin-top: 8px; padding: 7px 9px; border-radius: 8px; background: var(--input-bg); border: 1px solid var(--border-dark); font-size: 0.62rem; color: var(--text-main); }
         .motivo-parado .meta { color: var(--text-muted); font-size: 0.56rem; margin-top: 3px; }
@@ -609,6 +612,27 @@
                 <div class="modal-footer-actions">
                     <button type="button" class="btn-cancel" onclick="window.fecharModal()">Cancelar</button>
                     <button type="submit" class="btn-action" style="flex: 2;"><i class="fa-solid fa-check me-2"></i> Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalReagendarRapido" class="modal-overlay">
+        <div class="modal-box form-dark" style="width: 380px; border-color: var(--st-falta);">
+            <div class="modal-box-header">
+                <div class="modal-title" style="color: var(--st-falta);"><i class="fa-solid fa-calendar-day me-2"></i> Reagendar driver</div>
+                <button class="btn-close-modal" onclick="window.fecharReagendarRapido()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="formReagendarRapido">
+                <input type="hidden" id="inputReagChave">
+                <div id="lblReagInfo" class="mb-3" style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;"></div>
+                <div class="mb-1">
+                    <label class="form-label">NOVA DATA DO START</label>
+                    <input type="date" class="form-control" id="inputReagData" required>
+                </div>
+                <div class="modal-footer-actions">
+                    <button type="button" class="btn-cancel" onclick="window.fecharReagendarRapido()">Cancelar</button>
+                    <button type="submit" class="btn-action" style="flex: 2;"><i class="fa-solid fa-check me-2"></i> Reagendar</button>
                 </div>
             </form>
         </div>
@@ -1470,7 +1494,9 @@
             let statsDriver = {};
             window.baseAgendamentos.forEach(d => {
                 const keyDriver = window.chaveDriver(d.base_alocada, d.driver_id, d.nome);
-                if(!statsDriver[keyDriver]) { statsDriver[keyDriver] = { id: d.driver_id, nome: d.nome, rodou: 0, recusas: 0, reagendamentos: 0, agendado: 0, motivos: new Set(), datas: [], semData: 0, telefone: '', dataTel: '' }; }
+                if(!statsDriver[keyDriver]) { statsDriver[keyDriver] = { id: d.driver_id, nome: d.nome, rodou: 0, recusas: 0, reagendamentos: 0, agendado: 0, motivos: new Set(), datas: [], semData: 0, telefone: '', dataTel: '', ultimoAg: null, proximo: null }; }
+                if (!statsDriver[keyDriver].ultimoAg || (d.data || '') >= (statsDriver[keyDriver].ultimoAg.data || '')) statsDriver[keyDriver].ultimoAg = d;
+                if (d.status === 'agendado' && d.data && d.data >= window.getHojeString() && (!statsDriver[keyDriver].proximo || d.data < statsDriver[keyDriver].proximo.data)) statsDriver[keyDriver].proximo = d;
                 const telDig = window.telWpp(d.telefone);
                 if (telDig && (d.data || '') >= statsDriver[keyDriver].dataTel) { statsDriver[keyDriver].telefone = telDig; statsDriver[keyDriver].dataTel = d.data || ''; }
                 statsDriver[keyDriver].agendado += 1 + (Number(d.reagendamentos) || 0);
@@ -1512,6 +1538,7 @@
                         novatosDisplayMap[keyDriver] = {
                             chave: keyDriver,
                             telefone: statsDriver[keyDriver].telefone,
+                            proximo: statsDriver[keyDriver].proximo,
                             retorno: ciclo[keyDriver].fase === 'retorno',
                             diasSemRodar: ciclo[keyDriver].diasSemRodar,
                             ultimoStart: ciclo[keyDriver].ultimo,
@@ -1582,6 +1609,8 @@
                    
                     // Parados: motivo (vale só para o período parado atual), lápis e WhatsApp de feedback
                     let acoesParado = '', blocoMotivo = '';
+                    const btnReag = `<button class="btn-mini reag" title="Reagendar" onclick="window.abrirReagendarRapido(${esc(JSON.stringify(n.chave))})"><i class="fa-solid fa-calendar-day"></i></button>`;
+                    const proximoHtml = n.proximo ? `<div class="proximo-agend"><i class="fa-regular fa-calendar-check"></i> Próximo agendamento: ${fmtBr(n.proximo.data)}${n.proximo.turno ? ' ' + esc(n.proximo.turno) : ''}</div>` : '';
                     if (n.retorno) {
                         const reg = window.baseParados[n.chave];
                         const valido = reg && reg.ultimo_start === n.ultimoStart;
@@ -1589,7 +1618,7 @@
                         const wpp = n.telefone
                             ? `<a class="btn-mini wpp" href="https://wa.me/55${n.telefone}?text=${msg}" target="_blank" title="Pedir feedback no WhatsApp" onclick="window.registrarFeedbackParado(${esc(JSON.stringify(n.chave))}, ${esc(JSON.stringify(n.ultimoStart))})"><i class="fa-brands fa-whatsapp"></i></a>`
                             : `<span class="btn-mini wpp desab" title="Sem telefone cadastrado"><i class="fa-brands fa-whatsapp"></i></span>`;
-                        acoesParado = `<div class="parado-acoes">${wpp}<button class="btn-mini" title="Registrar motivo" onclick="window.abrirModalMotivoParado(${esc(JSON.stringify(n.chave))}, ${esc(JSON.stringify(n.ultimoStart))})"><i class="fa-solid fa-pen"></i></button></div>`;
+                        acoesParado = `<div class="parado-acoes">${wpp}${btnReag}<button class="btn-mini" title="Registrar motivo" onclick="window.abrirModalMotivoParado(${esc(JSON.stringify(n.chave))}, ${esc(JSON.stringify(n.ultimoStart))})"><i class="fa-solid fa-pen"></i></button></div>`;
                         const quemFez = (e) => e ? esc(String(e).split('@')[0]) : '';
                         const fb = valido && reg.feedback_em ? `<div class="meta" style="color: var(--whatsapp);"><i class="fa-brands fa-whatsapp"></i> Feedback pedido em ${new Date(reg.feedback_em).toLocaleDateString('pt-BR')}${reg.feedback_por ? ' por ' + quemFez(reg.feedback_por) : ''}</div>` : '';
                         blocoMotivo = valido && reg.motivo
@@ -1604,7 +1633,8 @@
                                 <div class="w-100 pr-1" style="overflow: hidden;">
                                     <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${esc(n.nome)}">${esc(n.nome)}</div>
                                     <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 1px;">ID: ${esc(n.id)} ${baseHtml}</div>
-                                    ${acoesParado ? `<div class="mt-2">${acoesParado}</div>` : ''}
+                                    <div class="mt-2">${acoesParado || `<div class="parado-acoes">${btnReag}</div>`}</div>
+                                    ${proximoHtml}
                                 </div>
                                 <div class="text-end flex-shrink-0 d-flex flex-column align-items-end">
                                     <span class="badge px-1" style="background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.55rem;"><i class="fa-solid fa-ban"></i> ${n.lifetime_recusas}x Recusa(s)</span>
@@ -2255,6 +2285,61 @@
             update(ref(db, 'acompanhamento_parados/' + chave), dados).catch(e => alert('Não foi possível registrar o feedback: ' + (e.code || e.message)));
         };
 
+        // Reagendamento rápido (Controle de Novatos): só a data; base, turno e dados vêm do último agendamento
+        const modalReagRapido = document.getElementById('modalReagendarRapido');
+        const ultimoAgendamentoDe = (chave) => window.baseAgendamentos
+            .filter(a => window.chaveDriver(a.base_alocada, a.driver_id, a.nome) === chave)
+            .sort((a, b) => (b.data || '').localeCompare(a.data || ''))[0];
+        window.abrirReagendarRapido = function(chave) {
+            if (!somenteGestor()) return;
+            const ag = ultimoAgendamentoDe(chave);
+            if (!ag) { alert('Não encontrei o agendamento deste driver.'); return; }
+            const st = window.getStatusInfo(ag.status, ag.data);
+            document.getElementById('inputReagChave').value = chave;
+            document.getElementById('lblReagInfo').innerHTML =
+                `<strong style="color: var(--text-main); font-size: 0.85rem;">${esc(ag.nome)}</strong><br>`
+                + `ID ${esc(ag.driver_id)} · <span style="color: var(--spx-orange); font-weight: 600;">${esc(window.padronizarNomeBase(ag.base_alocada || ''))}</span> · ${esc(ag.cluster || '')} · ${esc(ag.turno || '')}<br>`
+                + `Último agendamento: ${fmtBr(ag.data)} <span style="color: ${st.cor}; font-weight: 600;">(${st.texto})</span>`;
+            const campo = document.getElementById('inputReagData');
+            campo.value = ''; campo.min = window.getHojeString();
+            modalReagRapido.classList.add('active');
+            setTimeout(() => campo.focus(), 50);
+        };
+        window.fecharReagendarRapido = function() { modalReagRapido.classList.remove('active'); document.getElementById('formReagendarRapido').reset(); };
+        document.getElementById('formReagendarRapido').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!somenteGestor()) return;
+            const ag = ultimoAgendamentoDe(document.getElementById('inputReagChave').value);
+            const novaData = document.getElementById('inputReagData').value;
+            if (!ag || !novaData) return;
+            const quem = window.sessaoAtual.email || '';
+            try {
+                if (ag.status === 'em_rota') {
+                    // Já rodou nesse agendamento: cria um agendamento novo (não apaga o registro de que ele rodou)
+                    await push(ref(db, 'agendamentos'), {
+                        driver_id: ag.driver_id || '', nome: ag.nome || '', cluster: ag.cluster || '', veiculo: ag.veiculo || 'moto',
+                        turno: ag.turno || 'AM', telefone: ag.telefone || '', base_alocada: window.padronizarNomeBase(ag.base_alocada || ''),
+                        data: novaData, status: 'agendado', justificativa: '', reagendamentos: 0,
+                        agendado_em: serverTimestamp(), agendado_por: quem
+                    });
+                } else {
+                    // Mesmo fluxo do botão Reagendar do calendário: guarda a data anterior no histórico
+                    const historico = Array.isArray(ag.historico_datas) ? ag.historico_datas.slice() : Object.values(ag.historico_datas || {});
+                    if (ag.data) historico.push({
+                        data: ag.data, turno: ag.turno || '', status: ag.status || '', justificativa: ag.justificativa || '',
+                        agendado_em: Number(ag.agendado_em) || ((ag.reagendamentos || 0) === 0 && historico.length === 0 ? (window.dataPelaChave(ag.id) || 0) : 0),
+                        agendado_por: ag.agendado_por || ''
+                    });
+                    await update(ref(db, 'agendamentos/' + ag.id), {
+                        data: novaData, status: 'agendado', justificativa: '',
+                        reagendamentos: (ag.reagendamentos || 0) + 1, historico_datas: historico,
+                        agendado_em: serverTimestamp(), agendado_por: quem
+                    });
+                }
+                window.fecharReagendarRapido();
+            } catch (err) { alert('Não foi possível reagendar: ' + (err.code || err.message)); }
+        });
+
         window.abrirModalOcorrencia = function(idDriver) {
             document.getElementById('inputIdOcorrencia').value = idDriver;
             window.toggleJustificativaTexto('');
@@ -2275,7 +2360,7 @@
             }
         }
 
-        document.addEventListener('keydown', function(event) { if (event.key === "Escape") { window.fecharModal(); window.fecharModalOcorrencia(); window.fecharModalMotivoParado(); } });
+        document.addEventListener('keydown', function(event) { if (event.key === "Escape") { window.fecharModal(); window.fecharModalOcorrencia(); window.fecharModalMotivoParado(); window.fecharReagendarRapido(); } });
 
         document.getElementById('formStart').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -2311,5 +2396,44 @@
                 if (!driverAntigo) { alert('Agendamento não encontrado. Ele pode ter sido excluído.'); window.fecharModal(); return; }
                 payload.data = document.getElementById('inputNovaData').value;
                 payload.base_alocada = window.padronizarNomeBase(driverAntigo.base_alocada || baseAtivaGarantida);
-                payload.reagendamentos = (driverAntigo.
-...
+                payload.reagendamentos = (driverAntigo.reagendamentos || 0) + 1;
+                // Guarda a data anterior (com turno e motivo) para o histórico de agendamentos
+                const historico = Array.isArray(driverAntigo.historico_datas) ? driverAntigo.historico_datas.slice() : Object.values(driverAntigo.historico_datas || {});
+                if (driverAntigo.data) historico.push({
+                    data: driverAntigo.data, turno: driverAntigo.turno || '', status: driverAntigo.status || '', justificativa: driverAntigo.justificativa || '',
+                    // Quando esse agendamento anterior foi feito (no 1º, recupera pela chave do Firebase)
+                    agendado_em: Number(driverAntigo.agendado_em) || ((driverAntigo.reagendamentos || 0) === 0 && historico.length === 0 ? (window.dataPelaChave(driverAntigo.id) || 0) : 0),
+                    agendado_por: driverAntigo.agendado_por || ''
+                });
+                payload.historico_datas = historico;
+                payload.agendado_em = serverTimestamp();
+                payload.agendado_por = window.sessaoAtual.email || '';
+                await update(ref(db, 'agendamentos/' + idEdicao), payload);
+            } else {
+                if (!window.dataVisualizadaNoInspetor) { alert('Selecione um dia no calendário antes de agendar.'); return; }
+                payload.data = window.dataVisualizadaNoInspetor;
+                payload.base_alocada = baseAtivaGarantida;
+                payload.reagendamentos = 0;
+                payload.agendado_em = serverTimestamp();
+                payload.agendado_por = window.sessaoAtual.email || '';
+                await push(ref(db, 'agendamentos'), payload);
+            }
+            window.fecharModal();
+            setTimeout(() => window.sincronizarStatusBasesExternas(), 600);
+        });
+
+        document.getElementById('formOcorrencia').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const motivoSelect = document.getElementById('selectMotivoOcorrencia').value;
+            const textoExtra = document.getElementById('inputJustificativaTexto').value;
+            const justificativaFinal = motivoSelect === 'Outros motivos' ? textoExtra : motivoSelect;
+
+            await update(ref(db, 'agendamentos/' + document.getElementById('inputIdOcorrencia').value), {
+                status: 'ocorrencia', justificativa: justificativaFinal
+            });
+            window.fecharModalOcorrencia();
+        });
+
+    </script>
+</body>
+</html>
