@@ -220,6 +220,14 @@
         .resumo-barra { height: 5px; border-radius: 3px; background: var(--input-bg); border: 1px solid var(--border-dark); overflow: hidden; margin-top: 8px; display: flex; }
         .resumo-barra span { height: 100%; }
         .resumo-conv { font-size: 0.6rem; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
+        .aviso-prazo { display: flex; align-items: center; gap: 7px; margin: -2px -2px 8px; padding: 6px 9px; border-radius: 8px; font-size: 0.64rem; font-weight: 700; line-height: 1.25; }
+        .aviso-prazo i { font-size: 0.8rem; flex-shrink: 0; }
+        .aviso-prazo.atencao { background: rgba(245, 158, 11, 0.12); color: var(--st-falta); border: 1px solid rgba(245, 158, 11, 0.35); }
+        .aviso-prazo.urgente { background: rgba(239, 68, 68, 0.12); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.4); }
+        .card-expirando-atencao { border: 1px solid var(--st-falta) !important; box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35); }
+        .card-expirando-urgente { border: 1px solid var(--st-ocorrencia) !important; box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3); animation: pulsoPrazo 2.2s ease-in-out infinite; }
+        @keyframes pulsoPrazo { 0%, 100% { box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.3); } 50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12); } }
+        @media (prefers-reduced-motion: reduce) { .card-expirando-urgente { animation: none; } }
         .ad-strip { display: grid; grid-template-columns: repeat(15, 1fr); gap: 3px; margin-top: 8px; }
         .ad-dia { height: 10px; border-radius: 2px; background: var(--input-bg); border: 1px solid var(--border-dark); }
         .ad-dia.rodou { background: var(--st-rodou); border-color: var(--st-rodou); }
@@ -229,6 +237,57 @@
         .secao-parados { padding: 14px; border-radius: 12px; border: 1px dashed rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.03); }
         .titulo-secao { font-weight: 700; margin: 0; text-transform: uppercase; font-size: 0.8rem; display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
         .sub-secao { font-size: 0.62rem; font-weight: 500; color: var(--text-muted); text-transform: none; }
+        .seg-abas { display: inline-flex; margin-left: 16px; padding: 3px; gap: 3px; background: var(--input-bg); border: 1px solid var(--border-dark); border-radius: 9px; }
+        .seg-aba { border: 0; background: transparent; color: var(--text-muted); font-size: 0.68rem; font-weight: 700; padding: 5px 12px; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; text-transform: none; letter-spacing: 0; }
+        .seg-aba:hover { color: var(--text-main); }
+        .seg-aba.ativa { background: var(--spx-orange); color: #fff; box-shadow: 0 2px 8px rgba(238, 77, 45, 0.35); }
+        .seg-aba .qtd-pend { background: var(--st-ocorrencia); color: #fff; border-radius: 10px; padding: 0 6px; font-size: 0.56rem; line-height: 1.5; }
+        .seg-aba.ativa .qtd-pend { background: rgba(255, 255, 255, 0.25); }
+        .ranking-box { background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; }
+        .ranking-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .ranking-head h6 { margin: 0; font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-main); }
+        .ranking-head .sub { font-size: 0.62rem; color: var(--text-muted); }
+        .rank-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+        .rank-kpi { background: var(--input-bg); border: 1px solid var(--border-dark); border-radius: 10px; padding: 9px 12px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+        .rank-kpi.destaque { border-color: rgba(238, 77, 45, 0.45); background: linear-gradient(135deg, rgba(238, 77, 45, 0.12), transparent 70%), var(--input-bg); }
+        .k-lbl { font-size: 0.56rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--text-muted); }
+        .k-lbl i { color: var(--spx-orange); }
+        .k-num { font-size: 1.35rem; font-weight: 800; color: var(--text-main); line-height: 1.1; font-family: 'JetBrains Mono', monospace; }
+        .k-num small { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; }
+        .k-txt { font-size: 0.82rem; font-weight: 800; color: var(--text-main); line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .k-sub { font-size: 0.6rem; color: var(--text-muted); font-weight: 600; }
+        .k-barra { height: 4px; border-radius: 2px; background: var(--border-dark); overflow: hidden; margin-top: 2px; }
+        .k-barra span { display: block; height: 100%; background: var(--st-rodou); border-radius: 2px; }
+        .rank-sec-titulo { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin: 4px 0 6px; }
+        .rank-geral { margin-bottom: 14px; }
+        .rank-linha { display: grid; grid-template-columns: 22px minmax(120px, 210px) 1fr 70px; align-items: center; gap: 10px; padding: 3px 4px; border-radius: 6px; cursor: default; }
+        .rank-linha:hover { background: var(--input-bg); }
+        .rank-pos { font-size: 0.6rem; font-weight: 800; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        .rank-top .rank-pos { color: var(--spx-orange); }
+        .rank-nome { font-size: 0.68rem; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .rank-top .rank-nome { font-weight: 800; }
+        .rank-trilho { height: 10px; background: var(--input-bg); border-radius: 0 4px 4px 0; overflow: hidden; }
+        .rank-barra { height: 100%; border-radius: 0 4px 4px 0; min-width: 3px; transition: width 0.4s ease; }
+        .rank-valor { font-size: 0.66rem; font-weight: 800; color: var(--text-main); text-align: right; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+        .rank-valor small { color: var(--text-muted); font-weight: 500; }
+        .rank-sem .rank-nome, .rank-sem .rank-pos { color: var(--text-muted); font-style: italic; }
+        .rank-resto { font-size: 0.58rem; color: var(--text-muted); padding: 2px 4px 4px 36px; }
+        .rank-bases { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+        .rank-base-card { background: var(--input-bg); border: 1px solid var(--border-dark); border-radius: 10px; padding: 9px 10px 6px; min-width: 0; }
+        .rank-base-card .rank-linha { grid-template-columns: 20px minmax(0, 1fr) auto; grid-template-areas: "pos nome val" ". trilho trilho"; row-gap: 3px; column-gap: 7px; padding: 4px 4px 5px; }
+        .rank-base-card .rank-pos { grid-area: pos; }
+        .rank-base-card .rank-nome { grid-area: nome; white-space: normal; line-height: 1.2; }
+        .rank-base-card .rank-valor { grid-area: val; }
+        .rank-base-card .rank-trilho { grid-area: trilho; height: 7px; }
+        .rank-base-card .rank-linha:hover { background: var(--bg-panel); }
+        .rank-base-card .rank-resto { padding-left: 32px; }
+        .rb-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; }
+        .rb-nome { font-size: 0.72rem; font-weight: 800; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.3px; }
+        .rb-cod { font-size: 0.56rem; font-weight: 700; color: var(--spx-orange); font-family: 'JetBrains Mono', monospace; }
+        .rb-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.6rem; color: var(--text-muted); margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border-dark); }
+        .rb-meta b { color: var(--text-main); }
+        .rb-pend { color: var(--st-ocorrencia); font-weight: 700; }
+        .rb-ok { color: var(--st-rodou); font-weight: 700; }
         .parado-acoes { display: flex; gap: 6px; flex-shrink: 0; }
         .btn-mini { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border-dark); background: var(--bg-panel); color: var(--text-muted); display: inline-flex; justify-content: center; align-items: center; font-size: 0.72rem; cursor: pointer; text-decoration: none; transition: 0.2s; }
         .btn-mini:hover { border-color: var(--st-agendado); color: var(--st-agendado); }
@@ -411,6 +470,10 @@
                 <div class="view-header">
                     <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center;">
                         <i class="fa-solid fa-seedling text-muted me-2"></i> CONTROLE DE NOVATOS
+                        <div class="seg-abas" role="tablist">
+                            <button class="seg-aba ativa" id="segNovatos" role="tab" onclick="window.trocarSubAbaNovatos('novatos')"><i class="fa-solid fa-users"></i> Novatos</button>
+                            <button class="seg-aba" id="segOfensores" role="tab" onclick="window.trocarSubAbaNovatos('ofensores')"><i class="fa-solid fa-ranking-star"></i> Ranking de ofensores</button>
+                        </div>
                     </div>
                     <button class="btn-sync-robo" onclick="window.sincronizarStatusBasesExternas()" title="Forçar leitura das bases agora">
                         <i class="fa-solid fa-sync"></i> Atualizar Dados das Bases
@@ -442,6 +505,7 @@
                 </div>
 
                 <div class="dashboard-container" style="position: relative;">
+                    <div id="content-ofensores" style="display: none;"><div id="ranking-motivos-parados"></div></div>
                     <div id="content-novatos">
                         <div class="row mb-4">
                             <div class="col-12">
@@ -484,6 +548,7 @@
                     </button>
                 </div>
                 <div class="filter-bar">
+                    <span id="lblBaseAdaptacao" style="display: none; font-size: 0.75rem; font-weight: 700; color: var(--spx-orange); background: rgba(238, 77, 45, 0.1); border: 1px solid rgba(238, 77, 45, 0.3); padding: 4px 12px; border-radius: 6px; text-transform: uppercase;"></span>
                     <div class="filter-group">
                         <label>Base Operacional:</label>
                         <select class="filter-select" id="adFiltroBase" onchange="window.renderizarAdaptacao()">
@@ -1006,8 +1071,8 @@
         // Dias em que o robô encontrou o driver rodando nas bases (depois do 1º start)
         const ouvirAdaptacao = () => onValue(adaptacaoRef, (snapshot) => {
             window.baseAdaptacao = snapshot.val() || {};
-            if (document.getElementById('app-screen').style.display === 'flex' && window.sessaoAtual.role === 'gestor') {
-                if (document.getElementById('view-dashboard').classList.contains('active')) window.renderizarDashboardCompleto();
+            if (document.getElementById('app-screen').style.display === 'flex') {
+                if (window.sessaoAtual.role === 'gestor' && document.getElementById('view-dashboard').classList.contains('active')) window.renderizarDashboardCompleto();
                 if (document.getElementById('view-adaptacao').classList.contains('active')) window.renderizarAdaptacao();
             }
         }, (erro) => console.warn('Sem acesso a adaptacao_rodadas:', erro));
@@ -1059,7 +1124,7 @@
             window._listenersAtivos = true;
             ouvirAgendamentos();
             if (role === 'gestor') { ouvirUsuarios(); ouvirAdaptacao(); ouvirParados(); }
-            else { ouvirMeuPerfil(uid); }
+            else { ouvirMeuPerfil(uid); ouvirAdaptacao(); }
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -1167,7 +1232,8 @@
                 document.getElementById('visorBaseLogada').style.display = 'block';
                
                 document.getElementById('nav-dashboard').style.display = 'none';
-                document.getElementById('nav-adaptacao').style.display = 'none';
+                // Analista vê a Adaptação só da própria base
+                document.getElementById('nav-adaptacao').style.display = window.sessaoAtual.baseAtiva ? 'flex' : 'none';
                 document.getElementById('nav-resumo').style.display = 'none';
                 document.getElementById('nav-report').style.display = 'none';
                 document.getElementById('nav-users').style.display = 'none';
@@ -1437,7 +1503,13 @@
         window.renderizarAdaptacao = function() {
             const lista = document.getElementById('container-adaptacao-list');
             if (!lista) return;
-            const filtroBase = document.getElementById('adFiltroBase').value;
+            // Analista: sempre a própria base, sem o filtro de base
+            const ehAnalista = !window.ehGestor();
+            const grupoFiltro = document.getElementById('adFiltroBase').closest ? document.getElementById('adFiltroBase').closest('.filter-group') : null;
+            if (grupoFiltro) grupoFiltro.style.display = ehAnalista ? 'none' : '';
+            const rotuloBase = document.getElementById('lblBaseAdaptacao');
+            if (rotuloBase) { rotuloBase.style.display = ehAnalista ? '' : 'none'; rotuloBase.innerHTML = `<i class="fa-solid fa-location-dot me-1"></i> ${esc(window.sessaoAtual.baseAtiva || '')}`; }
+            const filtroBase = ehAnalista ? (window.sessaoAtual.baseAtiva || '__nenhuma__') : document.getElementById('adFiltroBase').value;
             const hoje = window.getHojeString();
             const todos = Object.values(window.calcularCicloDrivers())
                 .filter(dr => filtroBase === 'all' || window.mesmaBase(dr.base, filtroBase));
@@ -1465,9 +1537,22 @@
                     const alerta = dr.diasSemRodar >= 4;
                     const corUltimo = alerta ? 'var(--st-falta)' : 'var(--text-muted)';
                     const txtUltimo = dr.diasSemRodar === 0 ? 'hoje' : dr.diasSemRodar === 1 ? 'ontem' : `há ${dr.diasSemRodar} dias`;
+                    // Aviso de prazo (tela do analista): volta para Controle de Novatos quando passar 7 dias inteiros sem rodar
+                    let avisoPrazo = '', classePrazo = '';
+                    const faltam = (DIAS_SEM_RODAR_RETORNO + 1) - dr.diasSemRodar; // dias até ir para Novatos
+                    if (!window.ehGestor() && faltam >= 1 && faltam <= 3) {
+                        if (faltam === 1) {
+                            classePrazo = 'card-expirando-urgente';
+                            avisoPrazo = `<div class="aviso-prazo urgente"><i class="fa-solid fa-triangle-exclamation"></i><span>Último dia! Se não rodar hoje, amanhã volta para o Controle de Novatos.</span></div>`;
+                        } else {
+                            classePrazo = 'card-expirando-atencao';
+                            avisoPrazo = `<div class="aviso-prazo atencao"><i class="fa-solid fa-hourglass-half"></i><span>Prazo vencendo: volta para o Controle de Novatos em ${faltam} dias se não rodar.</span></div>`;
+                        }
+                    }
                     return `
                     <div class="col-xl-3 col-lg-4 col-md-6">
-                        <div class="base-dash-card p-2" style="min-height: auto;${alerta ? ' border-color: var(--st-falta);' : ''}">
+                        <div class="base-dash-card p-2 ${classePrazo}" style="min-height: auto;${alerta ? ' border-color: var(--st-falta);' : ''}">
+                            ${avisoPrazo}
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="w-100 pr-1" style="overflow: hidden;">
                                     <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${esc(dr.nome)}">${esc(dr.nome)}</div>
@@ -1542,6 +1627,22 @@
                 + `• Tem algum ponto de atenção ou dificuldade que queira compartilhar com a gente?\n\n`
                 + `Seu retorno é muito importante para a gente te ajudar a voltar a rodar. Fico no aguardo! 😊`;
         };
+
+        // Sub-abas do Controle de Novatos: lista de novatos ou ranking de ofensores
+        window.subAbaNovatos = 'novatos';
+        window.trocarSubAbaNovatos = function(aba) {
+            window.subAbaNovatos = aba === 'ofensores' ? 'ofensores' : 'novatos';
+            const ofens = window.subAbaNovatos === 'ofensores';
+            document.getElementById('content-ofensores').style.display = ofens ? '' : 'none';
+            document.getElementById('content-novatos').style.display = ofens ? 'none' : '';
+            document.getElementById('segNovatos').classList.toggle('ativa', !ofens);
+            document.getElementById('segOfensores').classList.toggle('ativa', ofens);
+            // O ranking é dos parados de agora: o filtro de período não se aplica a ele
+            const grupoPeriodo = document.getElementById('dashFiltroTempo').closest('.filter-group');
+            if (grupoPeriodo) grupoPeriodo.style.display = ofens ? 'none' : '';
+            try { localStorage.setItem('subAbaNovatos', window.subAbaNovatos); } catch (e) {}
+        };
+        (function() { let salvo = null; try { salvo = localStorage.getItem('subAbaNovatos'); } catch (e) {} if (salvo === 'ofensores') window.trocarSubAbaNovatos('ofensores'); })();
 
         window.renderizarDashboardCompleto = function() {
             if(!document.getElementById('content-novatos')) return;
@@ -1648,6 +1749,7 @@
             const semMotivo = parados.filter(n => !temMotivo(n)).length;
             const aguardando = novatosParaExibir.filter(n => !n.retorno);
             document.getElementById('lblCountParados').innerText = `${parados.length} parado(s)${semMotivo ? ` · ${semMotivo} sem motivo` : ''}`;
+            document.getElementById('segOfensores').innerHTML = `<i class="fa-solid fa-ranking-star"></i> Ranking de ofensores${semMotivo ? ` <span class="qtd-pend" title="Parados sem motivo registrado">${semMotivo}</span>` : ''}`;
             document.getElementById('lblCountNovatos').innerText = `${aguardando.length} Novato(s)`;
 
             const cardNovato = (n) => {
@@ -1725,6 +1827,78 @@
                         </div>
                     </div>`;
             };
+
+            // Maiores ofensores: motivos dos parados de agora (respeita só o filtro de base, como os cards)
+            (function renderizarRankingMotivos() {
+                const caixa = document.getElementById('ranking-motivos-parados');
+                if (!caixa) return;
+                if (!parados.length) { caixa.innerHTML = ''; return; }
+                const curta = (b) => window.padronizarNomeBase(b || '').replace(/^(LMG-\d+|UDI)\s+/, '');
+                const codigo = (b) => (window.padronizarNomeBase(b || '').match(/^(LMG-\d+|UDI)/) || [''])[0];
+                const motivoDe = (n) => temMotivo(n) ? window.baseParados[n.chave].motivo : null;
+                const contar = (lista) => {
+                    const c = {}; let sem = 0;
+                    lista.forEach(n => { const m = motivoDe(n); if (m) c[m] = (c[m] || 0) + 1; else sem++; });
+                    return { c, sem, total: lista.length, ordem: Object.entries(c).sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0])) };
+                };
+                const pct = (q, t) => t ? Math.round(q / t * 100) : 0;
+                const porBaseDoMotivo = (motivo) => {
+                    const m = {};
+                    parados.forEach(n => { if ((motivoDe(n) || '') === (motivo || '')) { const k = curta(n.base_recente); m[k] = (m[k] || 0) + 1; } });
+                    return Object.entries(m).sort((x, y) => y[1] - x[1]).map(([k, q]) => `${k}: ${q}`).join(' · ');
+                };
+                const linha = (nome, qtd, total, maior, cor, classe, dica, pos) => `
+                    <div class="rank-linha ${classe || ''}" title="${esc(dica)}">
+                        <span class="rank-pos">${pos || ''}</span>
+                        <span class="rank-nome">${esc(nome)}</span>
+                        <div class="rank-trilho"><div class="rank-barra" style="width: ${(qtd / maior * 100).toFixed(1)}%; background: ${cor};"></div></div>
+                        <span class="rank-valor">${qtd}<small> · ${pct(qtd, total)}%</small></span>
+                    </div>`;
+                const rankingDe = (r, limite, comDetalhe) => {
+                    const maior = Math.max(1, ...r.ordem.map(x => x[1]), r.sem);
+                    const vis = limite ? r.ordem.slice(0, limite) : r.ordem;
+                    let h = vis.map(([mot, q], i) => linha(mot, q, r.total, maior, i === 0 ? 'var(--spx-orange)' : 'rgba(238, 77, 45, 0.55)', i === 0 ? 'rank-top' : '', `${mot}: ${q} de ${r.total} parado(s)${comDetalhe ? ' — ' + porBaseDoMotivo(mot) : ''}`, `${i + 1}º`)).join('');
+                    const resto = limite ? r.ordem.slice(limite) : [];
+                    if (resto.length) h += `<div class="rank-resto">+ ${resto.length} outro(s) motivo(s): ${resto.map(([m, q]) => `${esc(m)} (${q})`).join(', ')}</div>`;
+                    if (r.sem) h += linha('Sem motivo registrado', r.sem, r.total, maior, 'var(--text-muted)', 'rank-sem', `${r.sem} parado(s) ainda sem motivo${comDetalhe ? ' — ' + porBaseDoMotivo(null) : ''}`, '—');
+                    if (!r.ordem.length && !r.sem) h = '<div class="rank-resto">Nenhum parado.</div>';
+                    return h;
+                };
+
+                const geral = contar(parados);
+                const top = geral.ordem[0];
+                const cobertura = pct(geral.total - geral.sem, geral.total);
+                const kpis = `<div class="rank-kpis">
+                    <div class="rank-kpi"><span class="k-lbl">Parados agora</span><span class="k-num">${geral.total}</span></div>
+                    <div class="rank-kpi"><span class="k-lbl">Com motivo</span><span class="k-num">${geral.total - geral.sem}<small> · ${cobertura}%</small></span><div class="k-barra"><span style="width: ${cobertura}%"></span></div></div>
+                    <div class="rank-kpi"><span class="k-lbl">Sem motivo (pendente)</span><span class="k-num" style="color: ${geral.sem ? 'var(--st-ocorrencia)' : 'var(--st-rodou)'};">${geral.sem}</span></div>
+                    <div class="rank-kpi destaque"><span class="k-lbl"><i class="fa-solid fa-crown"></i> Maior ofensor</span><span class="k-txt">${top ? esc(top[0]) : '—'}</span><span class="k-sub">${top ? `${top[1]} parado(s) · ${pct(top[1], geral.total)}% do total` : 'nenhum motivo registrado ainda'}</span></div>
+                </div>`;
+
+                let porBase = '';
+                if (filtroBase === 'all') {
+                    const grupos = {};
+                    parados.forEach(n => { const b = window.padronizarNomeBase(n.base_recente || ''); (grupos[b] = grupos[b] || []).push(n); });
+                    porBase = `<div class="rank-sec-titulo"><i class="fa-solid fa-location-dot me-1"></i> Ranking base por base</div><div class="rank-bases">` +
+                        Object.entries(grupos).sort((x, y) => y[1].length - x[1].length).map(([b, lista]) => {
+                            const r = contar(lista);
+                            return `<div class="rank-base-card">
+                                <div class="rb-head"><span class="rb-nome">${esc(curta(b))}</span><span class="rb-cod">${esc(codigo(b))}</span></div>
+                                <div class="rb-meta"><span><b>${r.total}</b> parado(s)</span>${r.sem ? `<span class="rb-pend">${r.sem} sem motivo</span>` : '<span class="rb-ok">todos com motivo</span>'}</div>
+                                ${rankingDe(r, 3, false)}
+                            </div>`;
+                        }).join('') + '</div>';
+                }
+                const sub = filtroBase === 'all' ? 'Todas as bases' : window.padronizarNomeBase(filtroBase);
+                caixa.innerHTML = `<div class="ranking-box">
+                    <div class="ranking-head"><h6><i class="fa-solid fa-ranking-star me-1" style="color: var(--spx-orange);"></i> Maiores ofensores · motivos dos parados</h6>
+                        <span class="sub">${esc(sub)} · drivers parados agora · passe o mouse nas barras para o detalhe</span></div>
+                    ${kpis}
+                    <div class="rank-sec-titulo"><i class="fa-solid fa-layer-group me-1"></i> Ranking geral${filtroBase === 'all' ? '' : ' da base'}</div>
+                    <div class="rank-geral">${rankingDe(geral, 0, filtroBase === 'all')}</div>
+                    ${porBase}
+                </div>`;
+            })();
 
             document.getElementById('container-parados-list').innerHTML = parados.length
                 ? '<div class="row g-3">' + parados.map(cardNovato).join('') + '</div>'
@@ -2032,7 +2206,8 @@
                 const agendaAtualizada = window.baseAgendamentos.map(a => idsConfirmados.has(a.id) ? { ...a, status: 'em_rota' } : a);
                 const adaptPorBase = {};
                 Object.values(window.calcularCicloDrivers(agendaAtualizada)).forEach(dr => {
-                    if (!window.ehGestor()) return; // adaptação é gravada só pela sessão do gestor
+                    // Analista acompanha só a adaptação da própria base
+                    if (!window.ehGestor() && !window.mesmaBase(dr.base, window.sessaoAtual.baseAtiva)) return;
                     if (!dr.inicio || dr.fase === 'concluido' || hojeStr > dr.fim) return;
                     const chave = Object.keys(window.dbsExternos).find(k => window.mesmaBase(k, dr.base));
                     if (chave) (adaptPorBase[chave] = adaptPorBase[chave] || []).push(dr);
