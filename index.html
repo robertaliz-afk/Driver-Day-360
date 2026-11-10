@@ -208,10 +208,10 @@
         .btn-excluir:hover { background: var(--st-ocorrencia); color: #fff; }
         /* Fiorino: etiqueta no topo do card + fita "FIORINO" no canto. A cor de status continua na faixa esquerda e no fundo. */
         .card-fiorino { position: relative; overflow: hidden; border-top: 1px solid var(--fiorino) !important; border-right: 1px solid var(--fiorino) !important; border-bottom: 1px solid var(--fiorino) !important; box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.18), 0 4px 10px var(--shadow-color); }
-        .fio-topo-tag { display: flex; align-items: center; gap: 6px; align-self: stretch; margin: -12px -12px 2px -12px; padding: 4px 12px; background: rgba(139, 92, 246, 0.14); color: var(--fiorino); font: 800 0.56rem 'Inter', sans-serif; letter-spacing: 0.8px; border-bottom: 1px solid var(--fiorino); }
-        .fio-topo-tag i { font-size: 0.7rem; }
-        .card-fiorino::after { content: 'FIORINO'; position: absolute; top: 9px; right: -27px; transform: rotate(35deg); background: var(--fiorino); color: #fff; font: 800 0.5rem 'Inter', sans-serif; letter-spacing: 0.8px; padding: 3px 30px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); pointer-events: none; z-index: 2; }
-        .card-fiorino .btn-editar-card { margin-right: 30px; }
+        .fio-topo-tag { display: flex; align-items: center; gap: 5px; align-self: stretch; margin: -12px -12px -4px -12px; padding: 1px 12px; line-height: 1.5; background: rgba(139, 92, 246, 0.14); color: var(--fiorino); font: 800 0.5rem 'Inter', sans-serif; letter-spacing: 0.8px; border-bottom: 1px solid rgba(139, 92, 246, 0.45); }
+        .fio-topo-tag i { font-size: 0.58rem; }
+        .card-fiorino::after { content: 'FIORINO'; position: absolute; top: 6px; right: -26px; transform: rotate(35deg); background: var(--fiorino); color: #fff; font: 800 0.44rem 'Inter', sans-serif; letter-spacing: 0.7px; padding: 2px 28px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); pointer-events: none; z-index: 2; }
+        .card-fiorino .btn-editar-card { margin-right: 26px; }
         .btn-editar-card { margin-right: 34px; }
         .btn-editar-card { width: 26px; height: 26px; flex-shrink: 0; align-self: flex-start; border-radius: 6px; border: 1px solid var(--border-dark); background: var(--bg-panel); color: var(--text-muted); display: flex; justify-content: center; align-items: center; font-size: 0.7rem; cursor: pointer; transition: 0.2s; }
         .resumo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin-bottom: 26px; }
