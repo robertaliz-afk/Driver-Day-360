@@ -21,6 +21,7 @@
            ======================================================== */
         :root {
             --spx-orange: #ee4d2d;
+            --fiorino: #8b5cf6;
             --spx-orange-gradient: linear-gradient(135deg, #ff6a00 0%, #ee4d2d 100%);
            
             /* Status Cores */
@@ -44,6 +45,7 @@
 
         /* LIGHT MODE */
         body.light-mode {
+            --fiorino: #7c3aed;
             --bg-dark: #f1f5f9;
             --bg-panel: #ffffff;
             --bg-header: #ffffff;
@@ -204,6 +206,13 @@
         .btn-reagendar:hover { background: var(--st-falta); color: #fff; }
         .btn-excluir { background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); }
         .btn-excluir:hover { background: var(--st-ocorrencia); color: #fff; }
+        /* Fiorino: etiqueta no topo do card + fita "FIORINO" no canto. A cor de status continua na faixa esquerda e no fundo. */
+        .card-fiorino { position: relative; overflow: hidden; border-top: 1px solid var(--fiorino) !important; border-right: 1px solid var(--fiorino) !important; border-bottom: 1px solid var(--fiorino) !important; box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.18), 0 4px 10px var(--shadow-color); }
+        .fio-topo-tag { display: flex; align-items: center; gap: 6px; align-self: stretch; margin: -12px -12px 2px -12px; padding: 4px 12px; background: rgba(139, 92, 246, 0.14); color: var(--fiorino); font: 800 0.56rem 'Inter', sans-serif; letter-spacing: 0.8px; border-bottom: 1px solid var(--fiorino); }
+        .fio-topo-tag i { font-size: 0.7rem; }
+        .card-fiorino::after { content: 'FIORINO'; position: absolute; top: 9px; right: -27px; transform: rotate(35deg); background: var(--fiorino); color: #fff; font: 800 0.5rem 'Inter', sans-serif; letter-spacing: 0.8px; padding: 3px 30px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); pointer-events: none; z-index: 2; }
+        .card-fiorino .btn-editar-card { margin-right: 30px; }
+        .btn-editar-card { margin-right: 34px; }
         .btn-editar-card { width: 26px; height: 26px; flex-shrink: 0; align-self: flex-start; border-radius: 6px; border: 1px solid var(--border-dark); background: var(--bg-panel); color: var(--text-muted); display: flex; justify-content: center; align-items: center; font-size: 0.7rem; cursor: pointer; transition: 0.2s; }
         .resumo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin-bottom: 26px; }
         .resumo-card { background: var(--card-bg); border: 1px solid var(--border-dark); border-radius: 12px; padding: 12px 14px; box-shadow: 0 6px 14px var(--shadow-color); }
@@ -220,6 +229,21 @@
         .resumo-barra { height: 5px; border-radius: 3px; background: var(--input-bg); border: 1px solid var(--border-dark); overflow: hidden; margin-top: 8px; display: flex; }
         .resumo-barra span { height: 100%; }
         .resumo-conv { font-size: 0.6rem; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
+        .veic-total { display: flex; align-items: baseline; gap: 6px; margin: 5px 0 6px; }
+        .veic-total .num { font-size: 1.2rem; font-weight: 800; color: var(--text-main); line-height: 1; }
+        .veic-total .lbl { font-size: 0.6rem; color: var(--text-muted); font-weight: 600; }
+        .veic-linha { padding: 3px 0; cursor: default; }
+        .veic-linha .topo { display: flex; justify-content: space-between; align-items: center; font-size: 0.68rem; }
+        .veic-linha .k { display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-weight: 600; }
+        .veic-linha .k i { width: 14px; text-align: center; font-size: 0.66rem; color: var(--text-main); }
+        .veic-linha .v { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--text-main); }
+        .veic-linha .v small { font-size: 0.58rem; font-weight: 600; color: var(--text-muted); margin-left: 4px; display: inline-block; min-width: 30px; text-align: right; }
+        .veic-barra { height: 4px; border-radius: 2px; background: var(--input-bg); border: 1px solid var(--border-dark); overflow: hidden; margin-top: 3px; }
+        .veic-barra span { display: block; height: 100%; background: var(--text-muted); border-radius: 2px; }
+        .veic-linha.fiorino .k i { color: var(--fiorino, #8b5cf6); }
+        .veic-linha.fiorino .veic-barra span { background: var(--fiorino, #8b5cf6); }
+        .veic-linha.zero { opacity: 0.45; }
+        .veic-linha.zero .k i, .veic-linha.zero .v { color: var(--text-muted); }
         .aviso-prazo { display: flex; align-items: center; gap: 7px; margin: -2px -2px 8px; padding: 6px 9px; border-radius: 8px; font-size: 0.64rem; font-weight: 700; line-height: 1.25; }
         .aviso-prazo i { font-size: 0.8rem; flex-shrink: 0; }
         .aviso-prazo.atencao { background: rgba(245, 158, 11, 0.12); color: var(--st-falta); border: 1px solid rgba(245, 158, 11, 0.35); }
@@ -621,6 +645,10 @@
                         <h6 class="titulo-secao" style="color: var(--text-main);"><i class="fa-solid fa-users me-2"></i> Novatos por base <span class="sub-secao" id="lblPeriodoResumo"></span></h6>
                     </div>
                     <div id="container-resumo-bases"></div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="titulo-secao" style="color: var(--text-main);"><i class="fa-solid fa-truck-fast me-2"></i> Tipologia de veículos por base <span class="sub-secao" id="lblPeriodoVeiculos"></span></h6>
+                    </div>
+                    <div id="container-resumo-veiculos"></div>
                 </div>
             </main>
 
@@ -1447,13 +1475,16 @@
             const per = periodoResumo(valorPeriodo);
             const res = {};
             BASES_RESUMO.forEach(b => { res[b] = { base: b, drivers: {}, reag: 0 }; });
+            const TIPOS_VEIC = ['moto', 'passeio', 'fiorino'];
             window.baseAgendamentos.forEach(d => {
                 if (!d.data || d.data < per.de || d.data > per.ate) return;
                 const base = window.padronizarNomeBase(d.base_alocada || '');
                 if (!res[base]) res[base] = { base, drivers: {}, reag: 0 };
                 const r = res[base];
                 const k = window.chaveDriver(base, d.driver_id, d.nome);
-                const dr = r.drivers[k] || (r.drivers[k] = { rodou: false, pendente: false });
+                const dr = r.drivers[k] || (r.drivers[k] = { rodou: false, pendente: false, dataVeic: '', veiculo: 'outros' });
+                // Tipologia = veículo do agendamento mais recente do driver no período (nesta base)
+                if (d.data >= dr.dataVeic) { dr.dataVeic = d.data; const v = String(d.veiculo || '').toLowerCase(); dr.veiculo = TIPOS_VEIC.includes(v) ? v : 'outros'; }
                 if (d.status === 'em_rota') dr.rodou = true;
                 else if (d.status === 'agendado' && d.data >= hoje) dr.pendente = true;
                 r.reag += Number(d.reagendamentos) || 0;
@@ -1463,7 +1494,9 @@
                 const agendados = lista.length;
                 const rodaram = lista.filter(x => x.rodou).length;
                 const aguardando = lista.filter(x => !x.rodou && x.pendente).length;
-                return { base: r.base, agendados, rodaram, aguardando, naoRodaram: agendados - rodaram - aguardando, reagendamentos: r.reag };
+                const veic = { moto: 0, passeio: 0, fiorino: 0, outros: 0 }, veicRodou = { moto: 0, passeio: 0, fiorino: 0, outros: 0 };
+                lista.forEach(x => { veic[x.veiculo]++; if (x.rodou) veicRodou[x.veiculo]++; });
+                return { base: r.base, agendados, rodaram, aguardando, naoRodaram: agendados - rodaram - aguardando, reagendamentos: r.reag, veic, veicRodou };
             });
         };
 
@@ -1495,6 +1528,38 @@
                         <span style="width: ${pct(r.aguardando)}%; background: var(--st-agendado);"></span>
                     </div>
                     <div class="resumo-conv">${conv === null ? 'Sem agendamentos concluídos no período' : `${conv}% dos agendados (com data já passada) rodaram`}</div>
+                </div>`;
+            };
+            cont.innerHTML = `<div class="resumo-grid">${filtroBase === 'all' ? card(total, true) : ''}${linhas.map(r => card(r, false)).join('')}</div>`;
+            window.renderizarVeiculosBases(linhas, filtroBase, valorPeriodo);
+        };
+
+        // Tipologia de veículos por base: drivers únicos por veículo (do agendamento mais recente no período)
+        window.renderizarVeiculosBases = function(linhas, filtroBase, valorPeriodo) {
+            const cont = document.getElementById('container-resumo-veiculos');
+            if (!cont) return;
+            const lbl = document.getElementById('lblPeriodoVeiculos');
+            if (lbl) lbl.innerText = periodoResumo(valorPeriodo).txt;
+            const zero = () => ({ moto: 0, passeio: 0, fiorino: 0, outros: 0 });
+            const soma = (a, b) => ({ moto: a.moto + b.moto, passeio: a.passeio + b.passeio, fiorino: a.fiorino + b.fiorino, outros: a.outros + b.outros });
+            const total = linhas.reduce((t, r) => ({ base: 'Todas as bases', agendados: t.agendados + r.agendados, veic: soma(t.veic, r.veic), veicRodou: soma(t.veicRodou, r.veicRodou) }),
+                { base: 'Todas as bases', agendados: 0, veic: zero(), veicRodou: zero() });
+            const TIPOS = [['moto', 'Moto', 'fa-motorcycle'], ['passeio', 'Passeio', 'fa-car'], ['fiorino', 'Fiorino', 'fa-van-shuttle'], ['outros', 'Outros', 'fa-circle-question']];
+            const card = (r, ehTotal) => {
+                const cod = (r.base.match(/^(LMG-\d+|UDI)/) || [''])[0];
+                const nome = ehTotal ? 'Todas as bases' : r.base.replace(/^(LMG-\d+|UDI)\s+/, '');
+                const linhasVeic = TIPOS.filter(([k]) => k !== 'outros' || r.veic.outros > 0).map(([k, rot, ic]) => {
+                    const n = r.veic[k], rod = r.veicRodou[k];
+                    const pct = r.agendados ? Math.round(n / r.agendados * 100) : 0;
+                    return `<div class="veic-linha ${k}${n ? '' : ' zero'}" title="${rot}: ${n} agendado${n === 1 ? '' : 's'} · ${rod} ${rod === 1 ? 'rodou' : 'rodaram'}">
+                        <div class="topo"><span class="k"><i class="fa-solid ${ic}"></i> ${rot}</span><span class="v">${n}<small>${pct}%</small></span></div>
+                        <div class="veic-barra"><span style="width: ${pct}%;"></span></div>
+                    </div>`;
+                }).join('');
+                return `<div class="resumo-card${ehTotal ? ' total' : ''}">
+                    <div class="resumo-base"><span>${esc(nome)}</span><span class="cod">${ehTotal ? '<i class="fa-solid fa-layer-group"></i>' : esc(cod)}</span></div>
+                    <div class="veic-total"><span class="num">${r.agendados}</span><span class="lbl">motorista(s) agendado(s)</span></div>
+                    ${linhasVeic}
                 </div>`;
             };
             cont.innerHTML = `<div class="resumo-grid">${filtroBase === 'all' ? card(total, true) : ''}${linhas.map(r => card(r, false)).join('')}</div>`;
@@ -2452,8 +2517,11 @@
                     if (d.turno === 'AM') tagTurnoHtml = `<span style="color:#ccff00; border: 1px solid #ccff00; border-radius: 3px; padding: 0 4px; font-size: 0.5rem; font-weight: bold;">AM</span>`;
                     if (d.turno === 'PM') tagTurnoHtml = `<span style="color:#ff6a00; border: 1px solid #ff6a00; border-radius: 3px; padding: 0 4px; font-size: 0.5rem; font-weight: bold;">PM</span>`;
 
+                    // Fiorino: etiqueta no topo + fita no canto (cor de status mantida na faixa esquerda e no fundo)
+                    const ehFiorino = d.veiculo === 'fiorino';
                     htmlLista += `
-                        <div class="driver-item" style="border-left: 3px solid ${configCor.cor}; background: ${configCor.bg}; border-color: ${configCor.cor}; opacity: 0.9; align-items: flex-start;">
+                        <div class="driver-item${ehFiorino ? ' card-fiorino' : ''}" title="${ehFiorino ? 'Fiorino' : ''}" style="border-left: 3px solid ${configCor.cor}; background: ${configCor.bg}; border-color: ${configCor.cor}; opacity: ${ehFiorino ? 1 : 0.9}; align-items: flex-start;">
+                            ${ehFiorino ? '<div class="fio-topo-tag"><i class="fa-solid fa-van-shuttle"></i> FIORINO</div>' : ''}
                             <div class="d-flex w-100 align-items-center gap-2">
                                 <div class="icon-status"><i class="fa-solid ${iconClass}" style="color: ${configCor.cor};"></i></div>
                                 <div class="d-info w-100">
