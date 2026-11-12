@@ -2117,8 +2117,78 @@
 
             const chaveEhData = (k, alvoData) => alvoData.regex.test(String(k));
 
+            // ---- Formato real das bases (pasta <historico>/<AAAAMMDD>) ----
+            // { "NOME COMPLETO": { AM: bool, PM: bool, cluster_real, count, id: "191369" | "", rejected: bool, veiculo } }
+            // Regra: rodou se algum registro (não rejeitado, com AM ou PM) tem
+            //   - id não vazio igual ao id do agendamento, ou
+            //   - nome completo igual (chave ou campo nome) E (id do registro vazio OU id do agendamento vazio), ou
+            //   - id do registro vazio e todos os nomes (3+ letras) de um contidos no outro (mínimo 2 nomes).
+            // Homônimo com id diferente NUNCA conta.
+            const PARTICULAS = new Set(['das', 'dos', 'des']);
+            const tokensNome = (n) => n.split(' ').filter(t => t.length > 2 && !PARTICULAS.has(t) && !/^\d+$/.test(t));
+            const ehRegistroReal = (v) => v !== null && typeof v === 'object' && !Array.isArray(v) &&
+                ('id' in v || 'AM' in v || 'PM' in v || 'rejected' in v);
+            const cacheIndice = new WeakMap();
+            function indiceFormatoReal(no) {
+                if (no === null || typeof no !== 'object' || Array.isArray(no)) return null;
+                if (cacheIndice.has(no)) return cacheIndice.get(no);
+                let idx = null;
+                {
+                    const registros = [];
+                    const resto = {};
+                    let temResto = false;
+                    for (const [k, v] of Object.entries(no)) {
+                        if (ehRegistroReal(v)) {
+                            const idBruto = v.id == null || typeof v.id === 'object' ? '' : String(v.id).replace(/\D/g, '');
+                            const nomes = [normNome(k)];
+                            for (const c of ['nome', 'name', 'motorista', 'driver']) {
+                                if (typeof v[c] === 'string' && v[c].trim()) nomes.push(normNome(v[c]));
+                            }
+                            const sim = (x) => x === true || x === 'true';
+                            const semTurno = !('AM' in v) && !('PM' in v);
+                            registros.push({
+                                id: idBruto,
+                                nomes: nomes.filter(Boolean),
+                                valido: !sim(v.rejected) && (sim(v.AM) || sim(v.PM) || semTurno)
+                            });
+                        } else { resto[k] = v; temResto = true; }
+                    }
+                    if (registros.length > 0) idx = { registros, resto: temResto ? resto : null };
+                }
+                cacheIndice.set(no, idx);
+                return idx;
+            }
+            function nomeRelaxado(a, b) {
+                const ta = tokensNome(a), tb = tokensNome(b);
+                const [menor, maior] = ta.length <= tb.length ? [ta, tb] : [tb, ta];
+                if (menor.length < 2) return false;
+                const set = new Set(maior);
+                return menor.every(t => set.has(t));
+            }
+            function procurarFormatoReal(idx, alvo) {
+                for (const r of idx.registros) {
+                    if (!r.valido) continue;
+                    if (r.id) {
+                        if (alvo.id && r.id === alvo.id) return true;
+                        if (!alvo.id && alvo.nome && r.nomes.includes(alvo.nome)) return true;
+                    } else if (alvo.nome) {
+                        if (r.nomes.includes(alvo.nome)) return true;
+                        if (r.nomes.some(n => nomeRelaxado(n, alvo.nome))) return true;
+                    }
+                }
+                return false;
+            }
+
             // Percorre a árvore. dataNoCaminho = já estamos dentro da pasta da data.
             function procurar(no, alvo, alvoData, dataNoCaminho = false, driverNoCaminho = false, prof = 0) {
+                if (dataNoCaminho && !driverNoCaminho && prof === 0) {
+                    const idx = indiceFormatoReal(no);
+                    if (idx) {
+                        if (procurarFormatoReal(idx, alvo)) return true;
+                        // Registros do formato real decidem sozinhos; só o que não é registro vai para o motor genérico
+                        return idx.resto ? procurar(idx.resto, alvo, alvoData, true, false, 1) : false;
+                    }
+                }
                 if (no != null && typeof no !== 'object') return dataNoCaminho && valorEhDriver(no, alvo);
                 if (no == null || prof > 30) return false;
 
@@ -2228,7 +2298,8 @@
                     if (contextos[baseKey]) return contextos[baseKey];
                     const dbExt = window.dbsExternos[baseKey];
                     const rotasBase = rotasPorBase[baseKey] || rotasPorBase['default'];
-                    const rotasComRaiz = ['', ...rotasBase]; // '' = pasta da data direto na raiz
+                    // Base com caminho confirmado: lê só esse caminho. Sem confirmação: tenta também a raiz do banco.
+                    const rotasComRaiz = rotasPorBase[baseKey] ? rotasBase : ['', ...rotasBase];
                     const info = diag.bases[baseKey] = { pastasDeDataEncontradas: {}, semPastaDeData: [], acessoNegado: [], varreduraCompleta: false };
                     const cachePastas = {};
                     let cacheArvoreCompleta = null;
