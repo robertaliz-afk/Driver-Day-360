@@ -204,6 +204,36 @@
         .btn-ocorrencia:hover { background: var(--st-ocorrencia); color: #fff; }
         .btn-reagendar { background: rgba(245, 158, 11, 0.1); color: var(--st-falta); border-color: rgba(245, 158, 11, 0.3); font-weight: 600; }
         .btn-reagendar:hover { background: var(--st-falta); color: #fff; }
+        .rv-resumo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+        .rv-kpi { background: var(--input-bg); border: 1px solid var(--border-dark); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; justify-content: space-between; gap: 2px; }
+        .rv-kpi .k { font-size: 0.56rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.3px; }
+        .rv-kpi .n { font-size: 1.3rem; font-weight: 800; color: var(--text-main); font-family: 'JetBrains Mono', monospace; line-height: 1.2; }
+        .rv-sub { font-size: 0.64rem; line-height: 1.45; color: var(--text-muted); margin-bottom: 10px; }
+        .rv-alerta { font-size: 0.68rem; font-weight: 600; color: var(--st-ocorrencia); background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; padding: 6px 9px; margin-bottom: 8px; }
+        .rv-base { border: 1px solid var(--border-dark); border-radius: 10px; padding: 9px 11px; margin-bottom: 10px; background: var(--bg-panel); }
+        .rv-base-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+        .rv-base-nome { font-size: 0.74rem; font-weight: 800; text-transform: uppercase; color: var(--text-main); margin-right: auto; }
+        .rv-base-nome i { color: var(--spx-orange); }
+        .rv-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+        .rv-chip { white-space: nowrap; font-size: 0.58rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; border: 1px solid; }
+        .rv-chip.ok { color: var(--st-rodou); border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08); }
+        .rv-chip.nao { color: var(--st-falta); border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.08); }
+        .rv-chip.zero { color: var(--text-muted); border-color: var(--border-dark); }
+        .rv-semPasta { font-size: 0.64rem; color: var(--st-falta); background: rgba(245, 158, 11, 0.08); border-radius: 6px; padding: 5px 8px; margin-bottom: 6px; }
+        .rv-okPasta { font-size: 0.62rem; color: var(--st-rodou); margin-bottom: 6px; }
+        .rv-achados { font-size: 0.62rem; color: var(--text-muted); margin-bottom: 6px; }
+        .rv-achados i { color: var(--st-rodou); }
+        .rv-item { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; padding: 7px 0; border-top: 1px solid var(--border-dark); }
+        .rv-item-info { flex: 1 1 240px; font-size: 0.68rem; line-height: 1.45; color: var(--text-main); min-width: 0; overflow-wrap: anywhere; }
+        .rv-muted { color: var(--text-muted); }
+        .rv-tag-sem, .rv-tag-oc { display: inline-block; max-width: 100%; margin: 2px 0 0 6px; font-size: 0.58rem; font-weight: 700; line-height: 1.4; padding: 1px 7px; border-radius: 6px; vertical-align: middle; overflow-wrap: anywhere; }
+        .rv-tag-sem { color: var(--st-falta); border: 1px solid rgba(245, 158, 11, 0.4); }
+        .rv-tag-oc { color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.35); }
+        .rv-btn { flex: 0 0 auto; width: auto; margin-left: auto; padding: 0 10px; font-size: 0.62rem; font-weight: 700; white-space: nowrap; }
+        .rv-feito { opacity: 0.55; }
+        /* Tema claro: verde/laranja/vermelho de status ficam abaixo de 3:1 sobre branco; tons mais escuros só neste relatório */
+        body.light-mode #modalRelatorioVerif { --st-rodou: #047857; --st-falta: #b45309; --st-ocorrencia: #b91c1c; }
+        @media (max-width: 576px) { #modalRelatorioVerif .modal-box { padding: 16px; } }
         .btn-rodou { background: rgba(16, 185, 129, 0.1); color: var(--st-rodou); border: 1px solid rgba(16, 185, 129, 0.35); }
         .btn-rodou:hover { background: var(--st-rodou); color: #fff; }
         .btn-desfazer { background: transparent; color: var(--text-muted); border: 1px solid var(--border-dark); }
@@ -465,7 +495,7 @@
                     <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-main); display: flex; align-items: center; gap: 10px;">
                         <span><i class="fa-solid fa-calendar-week text-muted me-2"></i> AGENDAMENTO DE NOVATOS</span>
                         <span id="dynamicBaseHeader" style="color: var(--spx-orange); font-size: 0.8rem; background: rgba(238, 77, 45, 0.1); padding: 3px 10px; border-radius: 4px; border: 1px solid rgba(238, 77, 45, 0.3); text-transform: uppercase;"></span>
-                        <button class="btn-sync-robo" id="roboStatusInfo" onclick="window.sincronizarStatusBasesExternas()" title="Verificar nas bases agora se os agendados rodaram">
+                        <button class="btn-sync-robo" id="roboStatusInfo" onclick="window.verificarStartsManual()" title="Verificar nas bases agora se os agendados rodaram (abre o relatório)">
                             <i class="fa-solid fa-robot"></i> Verificar Starts
                         </button>
                     </div>
@@ -774,6 +804,16 @@
                     <button type="submit" class="btn-action" style="flex: 2;"><i class="fa-solid fa-check me-2"></i> Salvar</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div id="modalRelatorioVerif" class="modal-overlay" onclick="if (event.target === this) window.fecharRelatorioVerif()">
+        <div class="modal-box form-dark" style="width: 640px; max-width: 94vw; max-height: 86vh; display: flex; flex-direction: column;">
+            <div class="modal-box-header">
+                <div class="modal-title"><i class="fa-solid fa-robot me-2" style="color: var(--st-rodou);"></i> Relatório da verificação nas bases</div>
+                <button class="btn-close-modal" onclick="window.fecharRelatorioVerif()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="corpoRelatorioVerif" style="overflow-y: auto; padding-right: 4px;"></div>
         </div>
     </div>
 
@@ -2136,8 +2176,14 @@
         // ==== FIM MOTOR ====
         window.MotorVerificacao = MotorVerificacao;
 
-        window.sincronizarStatusBasesExternas = async function() {
-            if (window._syncEmAndamento) return; // evita duas verificações ao mesmo tempo
+        window.sincronizarStatusBasesExternas = async function(opcoes) {
+            if (window._syncEmAndamento) return null; // evita duas verificações ao mesmo tempo
+            // Verificação manual do gestor: também reconfere os cards com ocorrência
+            const manual = !!(opcoes && opcoes.manual === true);
+            const incluirOcorrencias = manual && window.ehGestor();
+            // Botão "Verificar Starts": confere sempre hoje e os 7 dias anteriores
+            const DIAS_JANELA_MANUAL = 7;
+            const inicioJanela = manual ? window.getDataDiasAtras(DIAS_JANELA_MANUAL) : '0000-00-00';
             window._syncEmAndamento = true;
 
             const statusIcon = document.getElementById('roboStatusInfo');
@@ -2149,7 +2195,8 @@
             };
             setStatus(`<i class="fa-solid fa-sync fa-spin"></i> Verificando bases...`, 'Verificando...', false);
 
-            const diag = { quando: new Date().toLocaleString('pt-BR'), verificados: 0, rodaram: [], basesSemBanco: [], bases: {} };
+            const diag = { quando: new Date().toLocaleString('pt-BR'), manual, verificados: 0, rodaram: [], basesSemBanco: [], bases: {}, itens: [] };
+            if (manual) diag.janela = { de: window.getDataDiasAtras(7), ate: window.getHojeString() };
 
             try {
                 window.iniciarBancosExternos();
@@ -2158,7 +2205,7 @@
                 const hojeStr = window.getHojeString();
                 // Só faz sentido verificar quem estava agendado até hoje (ninguém roda no futuro)
                 const pendentes = window.baseAgendamentos.filter(ag =>
-                    ag.status === 'agendado' && ag.data && ag.data <= hojeStr && (ag.nome || ag.driver_id)
+                    (ag.status === 'agendado' || (incluirOcorrencias && ag.status === 'ocorrencia')) && ag.data && ag.data <= hojeStr && ag.data >= inicioJanela && (ag.nome || ag.driver_id)
                     && (window.ehGestor() || window.mesmaBase(ag.base_alocada, window.sessaoAtual.baseAtiva)));
 
                 // Agrupa por base
@@ -2196,6 +2243,7 @@
                         if (cachePastas[dataISO]) return cachePastas[dataISO];
                         cachePastas[dataISO] = (async () => {
                             const alvoData = MotorVerificacao.prepararData(dataISO);
+                            let erroLeitura = false;
                             const lerFormatos = async (formatos) => {
                                 const tentativas = [];
                                 for (const rota of rotasComRaiz) {
@@ -2207,7 +2255,7 @@
                                     try {
                                         const snap = await get(ref(dbExt, caminho));
                                         return snap.exists() ? { caminho, dados: snap.val() } : null;
-                                    } catch (e) { anotarErro(caminho, e); return null; }
+                                    } catch (e) { anotarErro(caminho, e); erroLeitura = true; return null; }
                                 }));
                                 return resultados.filter(Boolean);
                             };
@@ -2215,8 +2263,11 @@
                             let achadas = await lerFormatos(alvoData.chavesDiretas.slice(0, 1));
                             if (!achadas.length) achadas = await lerFormatos(alvoData.chavesDiretas.slice(1));
                             if (achadas.length) info.pastasDeDataEncontradas[dataISO] = achadas.map(a => a.caminho);
+                            else if (erroLeitura) (info.datasComErro = info.datasComErro || []).push(dataISO);
                             else info.semPastaDeData.push(dataISO);
-                            return achadas.map(a => a.dados);
+                            const dados = achadas.map(a => a.dados);
+                            dados.erroLeitura = erroLeitura && !achadas.length;
+                            return dados;
                         })();
                         return cachePastas[dataISO];
                     };
@@ -2259,15 +2310,19 @@
                         const pastas = await pastasDaData(ag.data);
                         if (pastas.length > 0) {
                             rodou = pastas.some(p => MotorVerificacao.procurar(p, alvo, alvoData, true, false));
-                        } else {
+                        } else if (!rotasPorBase[baseKey]) {
+                            // Só para base sem formato confirmado: procura no histórico inteiro (pesado)
                             const arvores = await arvoreCompleta();
                             rodou = arvores.some(a => MotorVerificacao.procurar(a, alvo, alvoData, false, false));
                         }
+                        // Base com formato confirmado e sem a pasta do dia = a base ainda não subiu: fica como está
 
                         if (rodou) {
                             confirmados.push(ag);
                             diag.rodaram.push(`${ag.nome} (${ag.driver_id}) - ${ag.data} - ${baseKey}`);
                         }
+                        // Item do relatório da verificação
+                        diag.itens.push({ id: ag.id, base: baseKey, nome: ag.nome, driver_id: ag.driver_id, data: ag.data, statusAntes: ag.status, justificativa: ag.justificativa || '', achou: rodou, temPasta: pastas.length > 0, erroLeitura: !!pastas.erroLeitura });
                     }
                 }));
 
@@ -2308,8 +2363,15 @@
                 // Grava como no original (só o status), um por um: se um falhar, os outros ficam verdes mesmo assim
                 const errosGravacao = [];
                 await Promise.all(confirmados.map(ag =>
-                    update(ref(db, 'agendamentos/' + ag.id), { status: 'em_rota' })
-                        .catch(e => errosGravacao.push(`${ag.nome}: ${e.code || e.message}`))));
+                    update(ref(db, 'agendamentos/' + ag.id), ag.status === 'ocorrencia'
+                        // Tinha ocorrência mas a base mostra que rodou: fica verde e o motivo antigo fica guardado
+                        ? { status: 'em_rota', justificativa: '', ocorrencia_anterior: ag.justificativa || '' }
+                        : { status: 'em_rota' })
+                        .catch(e => {
+                            errosGravacao.push(`${ag.nome}: ${e.code || e.message}`);
+                            const it = diag.itens.find(i => i.id === ag.id);
+                            if (it) { it.achou = false; it.erroGravacao = true; }
+                        })));
                 await Promise.all(Object.entries(novosDiasAdaptacao).map(([chave, { dr, datas }]) => {
                     const dados = { nome: dr.nome || '', driver_id: dr.id || '', base: dr.base };
                     datas.forEach(d => { dados[`datas/${d}`] = true; });
@@ -2340,12 +2402,98 @@
 
                 window.ultimoDiagnosticoRobo = diag;
                 console.info('[Robô Drivers Day] Diagnóstico da verificação:', diag);
+                return diag;
             } catch (e) {
                 console.error('[Robô Drivers Day] Falha na verificação:', e);
                 setStatus(`<i class="fa-solid fa-triangle-exclamation"></i> Erro na verificação`, String(e && e.message || e), true);
+                return { erro: String(e && e.message || e) };
             } finally {
                 window._syncEmAndamento = false;
             }
+        };
+
+        // ==========================================
+        // VERIFICAÇÃO MANUAL (botão "Verificar Starts") + RELATÓRIO
+        // ==========================================
+        window.verificarStartsManual = async function() {
+            const modal = document.getElementById('modalRelatorioVerif');
+            const corpo = document.getElementById('corpoRelatorioVerif');
+            // Já tem uma verificação manual em andamento: só reabre o relatório (não roda de novo)
+            if (window._verifManualEmAndamento) { modal.classList.add('active'); return; }
+            window._verifManualEmAndamento = true;
+            try {
+            modal.classList.add('active');
+            corpo.innerHTML = `<div class="text-center text-muted p-4"><i class="fa-solid fa-sync fa-spin fs-3 mb-2"></i><br>Verificando todas as bases...</div>`;
+            // Se a verificação automática estiver rodando, espera ela terminar (até 60s)
+            let diag = null;
+            // Espera a verificação automática terminar (pode demorar em bancos grandes) e tenta de novo
+            for (let i = 0; i < 1200 && !diag; i++) {
+                if (window._syncEmAndamento) { await new Promise(r => setTimeout(r, 300)); continue; }
+                diag = await window.sincronizarStatusBasesExternas({ manual: true });
+            }
+            window.renderizarRelatorioVerificacao(diag);
+            } finally { window._verifManualEmAndamento = false; }
+        };
+        window.fecharRelatorioVerif = function() { document.getElementById('modalRelatorioVerif').classList.remove('active'); };
+
+        window.renderizarRelatorioVerificacao = function(diag) {
+            const corpo = document.getElementById('corpoRelatorioVerif');
+            if (!diag || diag.erro) {
+                corpo.innerHTML = `<div class="rv-alerta"><i class="fa-solid fa-triangle-exclamation"></i> Não foi possível concluir a verificação${diag && diag.erro ? ': ' + esc(diag.erro) : '.'}</div>`;
+                return;
+            }
+            const br = (iso) => iso ? iso.split('-').reverse().slice(0, 2).join('/') : '';
+            const curta = (b) => window.padronizarNomeBase(b || '').replace(/^(LMG-\d+|UDI)\s+/, '');
+            const itens = diag.itens || [];
+            const achados = itens.filter(i => i.achou).length;
+            const podeEditar = window.ehGestor();
+
+            // Por base: verificados, encontrados, datas sem pasta, não encontrados
+            const porBase = {};
+            itens.forEach(i => { (porBase[i.base] = porBase[i.base] || []).push(i); });
+            const blocos = Object.keys(porBase).sort((a, b) => curta(a).localeCompare(curta(b))).map(base => {
+                const lista = porBase[base];
+                const ok = lista.filter(i => i.achou);
+                const semPasta = [...new Set(lista.filter(i => !i.temPasta && !i.erroLeitura && !i.achou).map(i => i.data))].sort();
+                const naoAchados = lista.filter(i => !i.achou).sort((a, b) => a.data.localeCompare(b.data) || String(a.nome).localeCompare(String(b.nome)));
+                const linhasNao = naoAchados.map(i => `
+                    <div class="rv-item">
+                        <div class="rv-item-info"><strong>${esc(i.nome)}</strong> <span class="rv-muted">· ID ${esc(i.driver_id)} · ${br(i.data)}</span>
+                            ${i.erroGravacao ? '<span class="rv-tag-sem">achado, mas não foi salvo</span>' : i.erroLeitura ? '<span class="rv-tag-sem">erro de leitura / sem permissão</span>' : i.temPasta ? '' : '<span class="rv-tag-sem">base não subiu o dia</span>'}${i.statusAntes === 'ocorrencia' ? `<span class="rv-tag-oc">ocorrência: ${esc(i.justificativa)}</span>` : ''}</div>
+                        ${podeEditar ? `<button class="btn-acao-lista btn-rodou rv-btn" onclick="window.marcarRodouDoRelatorio(this, ${esc(JSON.stringify(i.id))})"><i class="fa-solid fa-check me-1"></i> Marcar como rodou</button>` : ''}
+                    </div>`).join('');
+                return `<div class="rv-base">
+                    <div class="rv-base-head">
+                        <span class="rv-base-nome"><i class="fa-solid fa-location-dot"></i> ${esc(curta(base))}</span>
+                        <span class="rv-chips"><span class="rv-chip ok">${ok.length} encontrado(s)</span>
+                        <span class="rv-chip ${naoAchados.length ? 'nao' : 'zero'}">${naoAchados.length} não encontrado(s)</span></span>
+                    </div>
+                    ${semPasta.length ? `<div class="rv-semPasta"><i class="fa-solid fa-database"></i> <strong>Datas que a base ainda não subiu:</strong> ${semPasta.map(br).join(', ')}</div>` : lista.some(i => i.erroLeitura) ? '' : `<div class="rv-okPasta"><i class="fa-solid fa-circle-check"></i> Todas as datas verificadas existem no banco</div>`}
+                    ${ok.length ? `<div class="rv-achados"><i class="fa-solid fa-check"></i> Ficaram verdes: ${ok.map(i => `${esc(i.nome)} (${br(i.data)})`).join(', ')}</div>` : ''}
+                    ${linhasNao}
+                </div>`;
+            }).join('');
+
+            const semBanco = (diag.basesSemBanco || []).length ? `<div class="rv-alerta"><i class="fa-solid fa-triangle-exclamation"></i> Sem banco configurado: ${diag.basesSemBanco.map(esc).join(', ')}</div>` : '';
+            const erros = (diag.errosGravacao || []).length ? `<div class="rv-alerta"><i class="fa-solid fa-triangle-exclamation"></i> ${diag.errosGravacao.length} driver(s) não puderam ser salvos como "Rodou".</div>` : '';
+            const acessos = Object.entries(diag.bases || {}).filter(([, i]) => i.acessoNegado && i.acessoNegado.length).map(([b]) => curta(b));
+            const semAcesso = acessos.length ? `<div class="rv-alerta"><i class="fa-solid fa-lock"></i> Leitura com erro ou sem permissão em: ${acessos.map(esc).join(', ')}</div>` : '';
+            const adap = diag.adaptacao ? ` · Adaptação: ${diag.adaptacao.novosDias.length} novo(s) dia(s) rodado(s) encontrado(s)` : '';
+
+            corpo.innerHTML = `
+                <div class="rv-resumo">
+                    <div class="rv-kpi"><span class="k">Verificados</span><span class="n">${itens.length}</span></div>
+                    <div class="rv-kpi"><span class="k">Encontrados (verdes)</span><span class="n" style="color: var(--st-rodou);">${achados}</span></div>
+                    <div class="rv-kpi"><span class="k">Não encontrados</span><span class="n" style="color: ${itens.length - achados ? 'var(--st-falta)' : 'var(--text-main)'};">${itens.length - achados}</span></div>
+                </div>
+                <div class="rv-sub">${diag.janela ? `<strong>Período verificado: ${br(diag.janela.de)} a ${br(diag.janela.ate)}</strong> (hoje e os 7 dias anteriores) · ` : ''}Verificação de ${esc(diag.quando)} · ${podeEditar ? 'inclui agendados pendentes e cards com ocorrência' : 'agendados pendentes da sua base'}${adap}</div>
+                ${semBanco}${erros}${semAcesso}
+                ${itens.length ? blocos : '<div class="text-center text-muted p-4"><i class="fa-solid fa-circle-check fs-3 mb-2" style="color: var(--st-rodou);"></i><br>Nenhum agendado pendente para verificar.</div>'}`;
+        };
+
+        window.marcarRodouDoRelatorio = async function(botao, id) {
+            const ok = await window.marcarComoRodou(id);
+            if (ok) { botao.disabled = true; botao.innerHTML = '<i class="fa-solid fa-check me-1"></i> Marcado'; botao.closest('.rv-item').classList.add('rv-feito'); }
         };
 
         // Último acesso: verde até 1 dia, laranja até 7 dias, vermelho acima de 7, cinza sem registro
@@ -2577,7 +2725,8 @@
                     // guarda o status anterior para poder desfazer
                     status_antes_manual: ag.status || 'agendado', justificativa_antes_manual: ag.justificativa || ''
                 });
-            } catch (e) { alert('Não foi possível marcar como rodou: ' + (e.code || e.message)); }
+                return true;
+            } catch (e) { alert('Não foi possível marcar como rodou: ' + (e.code || e.message)); return false; }
         };
         window.desfazerRodouManual = async function(id) {
             if (!somenteGestor()) return;
@@ -2769,7 +2918,7 @@
             }
         }
 
-        document.addEventListener('keydown', function(event) { if (event.key === "Escape") { window.fecharModal(); window.fecharModalOcorrencia(); window.fecharModalMotivoParado(); window.fecharReagendarRapido(); } });
+        document.addEventListener('keydown', function(event) { if (event.key === "Escape") { window.fecharModal(); window.fecharModalOcorrencia(); window.fecharModalMotivoParado(); window.fecharReagendarRapido(); window.fecharRelatorioVerif(); } });
 
         document.getElementById('formStart').addEventListener('submit', async function(e) {
             e.preventDefault();
