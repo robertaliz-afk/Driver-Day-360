@@ -204,6 +204,11 @@
         .btn-ocorrencia:hover { background: var(--st-ocorrencia); color: #fff; }
         .btn-reagendar { background: rgba(245, 158, 11, 0.1); color: var(--st-falta); border-color: rgba(245, 158, 11, 0.3); font-weight: 600; }
         .btn-reagendar:hover { background: var(--st-falta); color: #fff; }
+        .btn-rodou { background: rgba(16, 185, 129, 0.1); color: var(--st-rodou); border: 1px solid rgba(16, 185, 129, 0.35); }
+        .btn-rodou:hover { background: var(--st-rodou); color: #fff; }
+        .btn-desfazer { background: transparent; color: var(--text-muted); border: 1px solid var(--border-dark); }
+        .btn-desfazer:hover { color: var(--text-main); border-color: var(--text-muted); }
+        .painel-manual { width: 100%; margin-top: 2px; padding: 5px 8px; background: rgba(16, 185, 129, 0.08); border: 1px dashed rgba(16, 185, 129, 0.35); border-radius: 4px; font-size: 0.62rem; color: var(--st-rodou); font-weight: 600; }
         .btn-excluir { background: rgba(239, 68, 68, 0.1); color: var(--st-ocorrencia); border: 1px solid rgba(239, 68, 68, 0.3); }
         .btn-excluir:hover { background: var(--st-ocorrencia); color: #fff; }
         /* Fiorino: etiqueta no topo do card + fita "FIORINO" no canto. A cor de status continua na faixa esquerda e no fundo. */
@@ -1310,7 +1315,7 @@
 
                     // Um único robô, mesmo que a sessão seja reiniciada várias vezes
                     if (!window._intervaloRobo) {
-                        window._intervaloRobo = setInterval(window.sincronizarStatusBasesExternas, 20 * 60 * 1000);
+                        window._intervaloRobo = setInterval(window.sincronizarStatusBasesExternas, 60 * 60 * 1000); // de hora em hora
                     }
                 }
 
@@ -2509,9 +2514,20 @@
                     if(podeEditar && (configCor.id === 'ocorrencia' || configCor.id === 'falta' || configCor.id === 'pendente_hoje')) {
                         botoesHTML += `<button class="btn-acao-lista btn-reagendar" title="Reagendar Driver" onclick="window.abrirModalReagendamento('${esc(d.id)}')"><i class="fa-solid fa-calendar-day"></i></button>`;
                     }
+                    // Ativação manual: quando o driver rodou mas a base ainda não subiu o histórico do dia
+                    if (podeEditar && configCor.id !== 'em_rota' && configCor.id !== 'agendado') {
+                        botoesHTML += `<button class="btn-acao-lista btn-rodou" title="Marcar como rodou (ativação manual)" onclick="window.marcarComoRodou('${esc(d.id)}')"><i class="fa-solid fa-check"></i></button>`;
+                    }
+                    if (podeEditar && configCor.id === 'em_rota' && d.confirmado_manual) {
+                        botoesHTML += `<button class="btn-acao-lista btn-desfazer" title="Desfazer ativação manual" onclick="window.desfazerRodouManual('${esc(d.id)}')"><i class="fa-solid fa-rotate-left"></i></button>`;
+                    }
                     if (podeEditar) botoesHTML += `<button class="btn-acao-lista btn-excluir" title="Excluir Agendamento" onclick="window.excluirAgendamento('${esc(d.id)}')"><i class="fa-solid fa-trash"></i></button>`;
 
                     let htmlJustificativa = d.status === 'ocorrencia' ? `<div class="painel-ocorrencia"><i class="fa-solid fa-circle-info me-1"></i> <strong>OCORRÊNCIA:</strong> ${esc(d.justificativa)}</div>` : '';
+                    if (d.status === 'em_rota' && d.confirmado_manual) {
+                        const quando = d.confirmado_em ? new Date(Number(d.confirmado_em)).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+                        htmlJustificativa += `<div class="painel-manual"><i class="fa-solid fa-hand-pointer me-1"></i> Ativado manualmente${d.confirmado_por ? ' por ' + esc(String(d.confirmado_por).split('@')[0]) : ''}${quando ? ' em ' + quando : ''}</div>`;
+                    }
 
                     let tagTurnoHtml = '';
                     if (d.turno === 'AM') tagTurnoHtml = `<span style="color:#ccff00; border: 1px solid #ccff00; border-radius: 3px; padding: 0 4px; font-size: 0.5rem; font-weight: bold;">AM</span>`;
@@ -2546,6 +2562,37 @@
 
         window.ehGestor = () => window.sessaoAtual.role === 'gestor';
         const somenteGestor = () => { if (window.ehGestor()) return true; alert('Somente gestores podem alterar a agenda.'); return false; };
+
+        // Marcar como rodou manualmente (gestor): o driver vai para a Adaptação igual à confirmação do robô
+        window.marcarComoRodou = async function(id) {
+            if (!somenteGestor()) return;
+            const ag = window.baseAgendamentos.find(a => a.id === id);
+            if (!ag) return;
+            const dataBr = (ag.data || '').split('-').reverse().join('/');
+            if (!confirm(`Confirmar que ${ag.nome} RODOU no dia ${dataBr}?\n\nUse quando a base ainda não subiu o histórico do dia. O driver passa a contar na Adaptação.`)) return;
+            try {
+                await update(ref(db, 'agendamentos/' + id), {
+                    status: 'em_rota', justificativa: '',
+                    confirmado_manual: true, confirmado_por: window.sessaoAtual.email || '', confirmado_em: serverTimestamp(),
+                    // guarda o status anterior para poder desfazer
+                    status_antes_manual: ag.status || 'agendado', justificativa_antes_manual: ag.justificativa || ''
+                });
+            } catch (e) { alert('Não foi possível marcar como rodou: ' + (e.code || e.message)); }
+        };
+        window.desfazerRodouManual = async function(id) {
+            if (!somenteGestor()) return;
+            const ag = window.baseAgendamentos.find(a => a.id === id);
+            if (!ag || !ag.confirmado_manual) return;
+            if (!confirm(`Desfazer a ativação manual de ${ag.nome}?`)) return;
+            try {
+                await update(ref(db, 'agendamentos/' + id), {
+                    status: ag.status_antes_manual || 'agendado', justificativa: ag.justificativa_antes_manual || '',
+                    confirmado_manual: null, confirmado_por: null, confirmado_em: null, status_antes_manual: null, justificativa_antes_manual: null
+                });
+                // o robô volta a procurar esse driver na próxima verificação
+                setTimeout(() => window.sincronizarStatusBasesExternas(), 600);
+            } catch (e) { alert('Não foi possível desfazer: ' + (e.code || e.message)); }
+        };
 
         window.excluirAgendamento = async function(id) {
             if (!somenteGestor()) return;
