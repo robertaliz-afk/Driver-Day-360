@@ -289,6 +289,14 @@
         .fio-topo-tag i { font-size: 0.58rem; }
         .card-fiorino::after { content: 'FIORINO'; position: absolute; top: 6px; right: -26px; transform: rotate(35deg); background: var(--fiorino); color: #fff; font: 800 0.44rem 'Inter', sans-serif; letter-spacing: 0.7px; padding: 2px 28px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); pointer-events: none; z-index: 2; }
         .card-fiorino .btn-editar-card { margin-right: 26px; }
+        /* Tipo de veículo nos cards da Adaptação */
+        .veic-chip { width: 22px; height: 22px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.7rem; background: var(--input-bg); border: 1px solid var(--border-dark); color: var(--text-muted); }
+        .veic-chip.fiorino { color: var(--fiorino); border-color: rgba(139, 92, 246, 0.5); background: rgba(139, 92, 246, 0.12); }
+        .ad-leg-veic { display: inline-flex; align-items: center; gap: 5px; margin-left: 10px; }
+        .ad-leg-veic .veic-chip { width: 18px; height: 18px; font-size: 0.6rem; }
+        .ad-veic-nome { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; color: var(--text-muted); }
+        .base-dash-card.card-fiorino .fio-topo-tag { margin: -8px -8px 6px -8px; padding: 1px 8px; border-radius: 0; }
+        .base-dash-card.card-fiorino .ad-badge-dia { margin-right: 24px; }
         .btn-editar-card { margin-right: 34px; }
         .btn-editar-card { width: 26px; height: 26px; flex-shrink: 0; align-self: flex-start; border-radius: 6px; border: 1px solid var(--border-dark); background: var(--bg-panel); color: var(--text-muted); display: flex; justify-content: center; align-items: center; font-size: 0.7rem; cursor: pointer; transition: 0.2s; }
         .resumo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin-bottom: 26px; }
@@ -666,6 +674,9 @@
                     <span class="d-flex align-items-center gap-2 ms-auto" style="font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">
                         <span class="ad-dia rodou" style="width:12px; display:inline-block;"></span> Rodou
                         <span class="ad-dia" style="width:12px; display:inline-block; margin-left:8px;"></span> Não rodou
+                        <span class="ad-leg-veic"><span class="veic-chip moto"><i class="fa-solid fa-motorcycle"></i></span> Moto</span>
+                        <span class="ad-leg-veic"><span class="veic-chip passeio"><i class="fa-solid fa-car"></i></span> Passeio</span>
+                        <span class="ad-leg-veic"><span class="veic-chip fiorino"><i class="fa-solid fa-van-shuttle"></i></span> Fiorino</span>
                     </span>
                 </div>
                 <div class="dashboard-container">
@@ -1531,6 +1542,8 @@
             // Dias em que rodou agendado (verde) ...
             (agendaBase || window.baseAgendamentos).forEach(ag => {
                 const dr = pegar(ag.base_alocada, ag.driver_id, ag.nome);
+                // Veículo do agendamento mais recente (moto / passeio / fiorino)
+                if ((ag.data || '') >= (dr.dataVeic || '')) { dr.dataVeic = ag.data || ''; dr.veiculo = String(ag.veiculo || '').toLowerCase(); }
                 if (ag.status === 'em_rota' && ag.data && ag.data <= hoje) dr.datas.add(ag.data);
             });
             // ... e dias que o robô achou o driver rodando nas bases depois disso
@@ -1729,16 +1742,25 @@
                             avisoPrazo = `<div class="aviso-prazo atencao"><i class="fa-solid fa-hourglass-half"></i><span>Prazo vencendo: volta para o Controle de Novatos em ${faltam} dias se não rodar.</span></div>`;
                         }
                     }
+                    const veic = dr.veiculo === 'moto' ? { cls: 'moto', ic: 'fa-motorcycle', txt: 'Moto' }
+                        : dr.veiculo === 'passeio' ? { cls: 'passeio', ic: 'fa-car', txt: 'Passeio' }
+                        : dr.veiculo === 'fiorino' ? { cls: 'fiorino', ic: 'fa-van-shuttle', txt: 'Fiorino' }
+                        : { cls: 'outro', ic: 'fa-truck', txt: dr.veiculo ? String(dr.veiculo) : 'Veículo não informado' };
+                    const ehFiorinoAd = veic.cls === 'fiorino';
                     return `
                     <div class="col-xl-3 col-lg-4 col-md-6">
-                        <div class="base-dash-card p-2 ${classePrazo}" style="min-height: auto;${alerta ? ' border-color: var(--st-falta);' : ''}">
+                        <div class="base-dash-card p-2 ${classePrazo}${ehFiorinoAd ? ' card-fiorino' : ''}" style="min-height: auto;${alerta ? ' border-color: var(--st-falta);' : ''}">
+                            ${ehFiorinoAd ? '<div class="fio-topo-tag"><i class="fa-solid fa-van-shuttle"></i> FIORINO</div>' : ''}
                             ${avisoPrazo}
                             <div class="d-flex justify-content-between align-items-start">
-                                <div class="w-100 pr-1" style="overflow: hidden;">
-                                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${esc(dr.nome)}">${esc(dr.nome)}</div>
-                                    <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 1px;">ID: ${esc(dr.id)} ${filtroBase === 'all' ? badgeBase(dr.base) : ''}</div>
+                                <div class="d-flex align-items-start w-100 pr-1" style="overflow: hidden; gap: 7px;">
+                                    <span class="veic-chip ${veic.cls}" title="${esc(veic.txt)}"><i class="fa-solid ${veic.ic}"></i></span>
+                                    <div style="overflow: hidden; min-width: 0;">
+                                        <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${esc(dr.nome)}">${esc(dr.nome)}</div>
+                                        <div style="font-size: 0.6rem; color: var(--text-muted); margin-top: 1px;"><span class="ad-veic-nome">${esc(veic.txt)}</span> · ID: ${esc(dr.id)} ${filtroBase === 'all' ? badgeBase(dr.base) : ''}</div>
+                                    </div>
                                 </div>
-                                <span class="badge px-1 flex-shrink-0" style="background: rgba(16, 185, 129, 0.1); color: var(--st-rodou); border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.6rem;">Dia ${dr.diaDoCiclo}/${DIAS_CICLO}</span>
+                                <span class="badge px-1 flex-shrink-0 ad-badge-dia" style="background: rgba(16, 185, 129, 0.1); color: var(--st-rodou); border: 1px solid rgba(16, 185, 129, 0.3); font-size: 0.6rem;">Dia ${dr.diaDoCiclo}/${DIAS_CICLO}</span>
                             </div>
                             <div class="ad-strip">${strip}</div>
                             <div class="d-flex justify-content-between mt-2" style="font-size: 0.6rem; font-weight: 600;">
