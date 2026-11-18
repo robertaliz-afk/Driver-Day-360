@@ -1276,7 +1276,7 @@
             window._listenersAtivos = true;
             ouvirAgendamentos();
             if (role === 'gestor') { ouvirUsuarios(); ouvirAdaptacao(); ouvirParados(); ouvirPerformance(); }
-            else { ouvirMeuPerfil(uid); ouvirAdaptacao(); }
+            else { ouvirMeuPerfil(uid); ouvirAdaptacao(); ouvirPerformance(); } // analista: performance só aparece na Adaptação, da própria base
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -1715,7 +1715,7 @@
             document.getElementById('lblCountConcluidos').innerText = `${concluidos.length}`;
 
             window._perfAdaptacao = emAdaptacao;
-            const mostrarPerf = window.ehGestor();
+            const mostrarPerf = true; // gestor e analista (o analista só vê a própria base nesta tela)
             if (!emAdaptacao.length) {
                 lista.innerHTML = `<div class="text-center text-muted p-5"><i class="fa-solid fa-route fs-2 mb-3"></i><br>Nenhum driver em adaptação para este filtro.</div>`;
             } else {
@@ -2433,7 +2433,9 @@
                             };
                             // 1º: formato da base (AAAAMMDD, ex.: 20261014). 2º: outros formatos, só se não achar.
                             let achadas = await lerFormatos(alvoData.chavesDiretas.slice(0, 1));
-                            if (!achadas.length) achadas = await lerFormatos(alvoData.chavesDiretas.slice(1));
+                            // Bases confirmadas usam sempre AAAAMMDD: não tenta outros formatos quando o dia ainda não subiu.
+                            // (Em Varginha a regra só libera pastas de 8 dígitos; tentar "2026-11-18" dava "sem permissão".)
+                            if (!achadas.length && !rotasPorBase[baseKey]) achadas = await lerFormatos(alvoData.chavesDiretas.slice(1));
                             if (achadas.length) info.pastasDeDataEncontradas[dataISO] = achadas.map(a => a.caminho);
                             else if (erroLeitura) (info.datasComErro = info.datasComErro || []).push(dataISO);
                             else info.semPastaDeData.push(dataISO);
